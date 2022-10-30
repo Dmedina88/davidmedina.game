@@ -17,12 +17,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import davidmedina.game.app.ui.veiws.PointsTextView
+import davidmedina.game.app.ui.composables.PointsTextView
 
 
 @Composable
 fun RewardsItemView(rewardsItem: RewardsItem, imageSize: Dp = 80.dp) {
-  Column() {
+  Column {
     //image
     Image(
 

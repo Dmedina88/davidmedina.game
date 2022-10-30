@@ -5,12 +5,9 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import davidmedina.game.app.ui.theme.DavidmedinagameTheme
-import davidmedina.game.app.ui.veiws.PasswordText
+import davidmedina.game.app.ui.composables.PasswordText
 import davidmedina.game.app.viewmodel.LoginViewModel
 
 @Composable

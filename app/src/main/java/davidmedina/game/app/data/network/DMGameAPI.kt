@@ -7,7 +7,7 @@ interface DMGameApi {
     suspend fun login(userName:String, password : String )
 }
 
-class DMGameApiImpl() : DMGameApi{
+class DMGameApiImpl : DMGameApi{
     override suspend fun login(userName: String, password: String) {
         delay(1000L)
     }

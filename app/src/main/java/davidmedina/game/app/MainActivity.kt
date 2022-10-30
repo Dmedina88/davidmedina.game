@@ -1,5 +1,6 @@
 package davidmedina.game.app
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import davidmedina.game.app.ui.composables.LockScreenOrientation
 import davidmedina.game.app.ui.screens.*
 import davidmedina.game.app.ui.theme.DavidmedinagameTheme
 import davidmedina.game.app.viewmodel.LoginViewModel
