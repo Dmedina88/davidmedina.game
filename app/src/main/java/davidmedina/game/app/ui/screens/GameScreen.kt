@@ -3,10 +3,10 @@
 package davidmedina.game.app.ui.screens
 
 import android.content.pm.ActivityInfo
+import android.util.Log
 import android.widget.ImageButton
 import android.widget.Space
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,167 +38,183 @@ import davidmedina.game.app.ui.theme.Purple40
 import davidmedina.game.app.ui.theme.PurpleGrey80
 import davidmedina.game.app.viewmodel.GameScreenViewModel
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 @Preview
 @Composable
-fun GameScreen( gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
-  Row(
-    Modifier.fillMaxSize(),
-  ) {
-    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-
-  val state by gameScreenViewModel.uiState.collectAsStateWithLifecycle()
-    gameScreenViewModel.gameStart()
-
-
-
-    SideInfoBar()
-    Column {
-      //opponet
-      Row(
+fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
+    Row(
         Modifier
-          .background(Color.Green)
-          .padding(16.dp)
-      ) {
-        //failt Spot
-        Box(
-          Modifier
-            .background(Purple40)
-            .width(150.dp)
-            .height(200.dp)
-        ) {
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+    ) {
+        LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
-        }
 
-        Box(
-          Modifier
-            .background(PurpleGrey80)
-            .width(150.dp)
-            .height(200.dp)
-        ) {
-
-        }
-        Box(
-          Modifier
-            .background(Purple40)
-            .width(150.dp)
-            .height(200.dp)
-        ) {
-
-        }
-        Box(
-          Modifier
-            .background(PurpleGrey80)
-            .width(150.dp)
-            .height(200.dp)
-        ) {
-
-        }
-      }
-
-      //player
-      Row(
-        Modifier
-          .background(Color.Yellow)
-          .padding(16.dp)
-      ) {
-        //failt Spot
-        Box(
-          Modifier
-            .background(Purple40)
-            .width(150.dp)
-            .height(200.dp)
-        ) {
-
-        }
-
-        Box(
-          Modifier
-            .background(PurpleGrey80)
-            .width(150.dp)
-            .height(200.dp)
-        ) {
-
-        }
-        Box(
-          Modifier
-            .background(Purple40)
-            .width(150.dp)
-            .height(200.dp)
-        ) {
-
-        }
-        Box(
-          Modifier
-            .background(PurpleGrey80)
-            .width(150.dp)
-            .height(200.dp)
-        ) {
-
-        }
-      }
+        val state by gameScreenViewModel.uiState.collectAsStateWithLifecycle()
 
 
 
-      Button(onClick = {
-     //test deal card
-      },Modifier.background(Color.Red, CircleShape)) {
-          Text(text = "Deal")
-      }
-      // fack deck list
+        Timber.i("State " + state.toString())
+
+        SideInfoBar()
+        Column {
+            //opponet
+            Row(
+                Modifier
+                    .background(Color.Green)
+                    .padding(16.dp)
+            ) {
+                //failt Spot
+                Box(
+                    Modifier
+                        .background(Purple40)
+                        .width(150.dp)
+                        .height(200.dp)
+                ) {
+
+                }
+
+                Box(
+                    Modifier
+                        .background(PurpleGrey80)
+                        .width(150.dp)
+                        .height(200.dp)
+                ) {
+
+                }
+                Box(
+                    Modifier
+                        .background(Purple40)
+                        .width(150.dp)
+                        .height(200.dp)
+                ) {
+
+                }
+                Box(
+                    Modifier
+                        .background(PurpleGrey80)
+                        .width(150.dp)
+                        .height(200.dp)
+                ) {
+
+                }
+            }
+
+            //player
+            Row(
+                Modifier
+                    .background(Color.Yellow)
+                    .padding(16.dp)
+            ) {
+                //failt Spot
+                Box(
+                    Modifier
+                        .background(Purple40)
+                        .width(150.dp)
+                        .height(200.dp)
+                ) {
+
+                }
+
+                Box(
+                    Modifier
+                        .background(PurpleGrey80)
+                        .width(150.dp)
+                        .height(200.dp)
+                ) {
+
+                }
+                Box(
+                    Modifier
+                        .background(Purple40)
+                        .width(150.dp)
+                        .height(200.dp)
+                ) {
+
+                }
+                Box(
+                    Modifier
+                        .background(PurpleGrey80)
+                        .width(150.dp)
+                        .height(200.dp)
+                ) {
+
+                }
+
+                Text(text = state.toString())
+            }
 
 
 
-      Row {
-        
-        LazyRow(Modifier.weight(1f)) {
-          items(items = state.player1.cards) {
-            DMGCard(it)
-          }
-        }
+            Button(onClick = {
+                Timber.i("Test deal clicked ")
+                gameScreenViewModel.gameStart()
+            }, Modifier.background(Color.Red, CircleShape)) {
+                Text(text = "Deal")
+            }
+            // fack deck list
+
+
+            Row {
+
+                LazyRow(Modifier.weight(1f)) {
+                    items(items = state.player1.cards) {
+
+                        DMGCard(it)
+                    }
+
+                }
 //        Box {
 //          deck.forEach {
 //            DMGCard(it)
 //          }
 //        }
-      }
+            }
+        }
+
     }
-  }
 }
 //}
 
 @Preview
 @Composable
 fun SideInfoBar(
- // turnClicked : () -> Unit
+    // turnClicked : () -> Unit
 ) {
-  
-  Column(
-    Modifier
-      .background(Pink80)
-      .fillMaxHeight()
-      .fillMaxWidth(.10f),
-  verticalArrangement = Arrangement.Center,
-  horizontalAlignment = CenterHorizontally) {
-    Text(text = "Life")
-      //enamy life
-    Text(text = "20 /20")
-    Image(painter = painterResource(R.drawable.ic_baseline_battery_0_bar_24), contentDescription = "energy icon")
 
-    Button(onClick = { /*TODO*/ },Modifier.background(Color.Red, CircleShape)) {
-      Text(text = "Turn")
+    Column(
+        Modifier
+            .background(Pink80)
+            .fillMaxHeight()
+            .fillMaxWidth(.10f),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = CenterHorizontally
+    ) {
+        Text(text = "Life")
+        //enamy life
+        Text(text = "20 /20")
+        Image(
+            painter = painterResource(R.drawable.ic_baseline_battery_0_bar_24),
+            contentDescription = "energy icon"
+        )
+
+        Button(onClick = { /*TODO*/ }, Modifier.background(Color.Red, CircleShape)) {
+            Text(text = "Turn")
+        }
+
+
+        Image(
+            painter = painterResource(R.drawable.ic_baseline_battery_0_bar_24),
+            contentDescription = "energy icon"
+        )
+
+        Text(text = "Life")
+
+        // user life
+        Text(text = "20 /20")
+
 
     }
 
-
-    Image(painter = painterResource(R.drawable.ic_baseline_battery_0_bar_24), contentDescription = "energy icon")
-
-    Text(text = "Life")
-
-   // user life
-    Text(text = "20 /20")
-
-
-  }
-  
 }

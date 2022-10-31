@@ -21,7 +21,7 @@ data class GameState(
 fun mockGetDeck(): List<CardState> =
     buildList {
         for (i in 1..20) {
-            CardState(cardData = mockCardState.cardData.copy(cost = i))
+           add( CardState(faceUp = i % 2 ==0, cardData = mockCardState.cardData.copy(cost = i)))
         }
     }
 
@@ -38,11 +38,14 @@ class GameScreenViewModel : ViewModel() {
 
 
     fun gameStart() {
-            for (i in 1..5){
-                _uiState.value =
-                    _uiState.value.copy(player1 = uiState.value.player1.dealCard(),
-                player2 =  uiState.value.player2.dealCard())
-            }
+
+        Timber.i("Test gameStart fn ")
+
+//        for (i in 1..5){
+                _uiState.value = _uiState.value.copy(
+                    player1 = _uiState.value.player1.dealCard(),
+                    player2 = _uiState.value.player2.dealCard())
+//            }
     }
 
 
@@ -51,10 +54,15 @@ class GameScreenViewModel : ViewModel() {
 
 
 fun PlayerState.dealCard() : PlayerState {
+    Timber.i("Test dealCard ")
+
     return this.copy(cards =this.cards.toMutableStateList().apply {
         try {
 
-            this[indexOfFirst { it.faceUp }].copy(faceUp = false)
+            val index  = indexOfFirst { !it.faceUp }
+           this[index] =  this[index].copy(faceUp = true)
+            Timber.i("try done "  + this[index].toString() )
+
         }catch (e: Throwable){
             Timber.i( "BROOOO" +this.joinToString { it.faceUp.toString() })
         }
