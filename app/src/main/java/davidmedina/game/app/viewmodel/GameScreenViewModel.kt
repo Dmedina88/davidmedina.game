@@ -6,6 +6,7 @@ import davidmedina.game.app.ui.composables.CardState
 import davidmedina.game.app.ui.composables.mockCardState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import timber.log.Timber
 
 
 data class PlayerState(val life: Int = 20, val energy: Int = 0, val cards: List<CardState>)
@@ -38,7 +39,8 @@ class GameScreenViewModel : ViewModel() {
 
     fun gameStart() {
             for (i in 1..5){
-                _uiState.value = _uiState.value.copy(player1 = uiState.value.player1.dealCard(),
+                _uiState.value =
+                    _uiState.value.copy(player1 = uiState.value.player1.dealCard(),
                 player2 =  uiState.value.player2.dealCard())
             }
     }
@@ -50,7 +52,12 @@ class GameScreenViewModel : ViewModel() {
 
 fun PlayerState.dealCard() : PlayerState {
     return this.copy(cards =this.cards.toMutableStateList().apply {
-        this[indexOfFirst { it.faceUp }].copy(faceUp = false)
+        try {
+
+            this[indexOfFirst { it.faceUp }].copy(faceUp = false)
+        }catch (e: Throwable){
+            Timber.i( "BROOOO" +this.joinToString { it.faceUp.toString() })
+        }
     })
 
 }
