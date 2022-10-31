@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalLifecycleComposeApi::class)
-
 package davidmedina.game.app.ui.screens
 
 import android.content.pm.ActivityInfo
@@ -51,7 +49,7 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
         LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
 
-        val state by gameScreenViewModel.uiState.collectAsStateWithLifecycle()
+        val state by gameScreenViewModel.uiState.collectAsState()
 
 
 
