@@ -1,9 +1,7 @@
 package davidmedina.game.app.ui.screens
 
 import android.content.pm.ActivityInfo
-import android.util.Log
-import android.widget.ImageButton
-import android.widget.Space
+import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -12,25 +10,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import davidmedina.game.app.R
-import davidmedina.game.app.ui.composables.CardState
 import davidmedina.game.app.ui.composables.DMGCard
 import davidmedina.game.app.ui.composables.LockScreenOrientation
-import davidmedina.game.app.ui.composables.mockCardState
 import davidmedina.game.app.ui.theme.Pink80
 import davidmedina.game.app.ui.theme.Purple40
 import davidmedina.game.app.ui.theme.PurpleGrey80
@@ -52,10 +42,14 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
         val state by gameScreenViewModel.uiState.collectAsState()
 
 
+        if (!state.initalized) {
+            gameScreenViewModel.gameStart()
+        }
 
-        Timber.i("State " + state.toString())
+        Timber.i("State %s", state.toString())
 
         SideInfoBar()
+
         Column {
             //opponet
             Row(
@@ -140,14 +134,14 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
 
                 }
 
-                Text(text = state.toString())
+
             }
 
 
 
             Button(onClick = {
                 Timber.i("Test deal clicked ")
-                gameScreenViewModel.gameStart()
+                gameScreenViewModel.dealOnTurn()
             }, Modifier.background(Color.Red, CircleShape)) {
                 Text(text = "Deal")
             }
@@ -155,19 +149,28 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
 
 
             Row {
+//hand
+
 
                 LazyRow(Modifier.weight(1f)) {
-                    items(items = state.player1.cards) {
+                    items(items = state.player.hand) {
+                        AnimatedVisibility(visible = it.faceUp,
+                        ) {
+                            DMGCard(it)
+                        }
 
-                        DMGCard(it)
                     }
 
+                }//deck
+                Box() {
+                    if (state.player.deck.size >1){
+                        DMGCard(state.player.deck[0])
+                    }
+                  
+                   Text(
+                       text = state.player.deck.size.toString())
+                    
                 }
-//        Box {
-//          deck.forEach {
-//            DMGCard(it)
-//          }
-//        }
             }
         }
 

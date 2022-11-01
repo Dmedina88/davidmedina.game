@@ -1,21 +1,17 @@
 package davidmedina.game.app.ui.composables
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Green
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +39,7 @@ data class CardState(val faceUp: Boolean = false, val cardData: CardData)
 
 @Preview
 @Composable
-fun DMGCard(cardState: CardState = mockCardState) {
+fun DMGCard(cardState: CardState = mockCardState, onPlayAction: (() -> Unit)? = null) {
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -51,67 +47,71 @@ fun DMGCard(cardState: CardState = mockCardState) {
             .height(200.dp)
     ) {
 
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(OldPaper)
+        ) {
 
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(OldPaper)) {
+            Crossfade(cardState.faceUp) {
+                if (it) {
+                    Column(Modifier.padding(8.dp)) {
+                        // name and cost row
+                        Row {
+                            Text(
 
-            if (cardState.faceUp) {
-
-                Column(Modifier.padding(8.dp)) {
-                    // name and cost row
-                    Row {
-                        Text(
-
-                            modifier = Modifier.weight(1f),
-                            text = cardState.cardData.name
-                        )
-                        Text("Cost ${cardState.cardData.cost}")
-                    }
-                    Image(
-                        painter = painterResource(cardState.cardData.imageId),
-                        contentDescription = cardState.cardData.name
-                    )
-
-
-                    Box(
-                        modifier = Modifier
-                            .height(25.dp)
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.mipmap.heart),
-                            contentDescription = "hear"
-                        )
-                        Text(
-                            text = cardState.cardData.life.toString()
-                        )
-                    }
+                                modifier = Modifier.weight(1f),
+                                text = cardState.cardData.name
+                            )
+                            Text("Cost ${cardState.cardData.cost}")
+                        }
+                        Button(onClick = { onPlayAction?.invoke() }) {
+                            Image(
+                                painter = painterResource(cardState.cardData.imageId),
+                                contentDescription = cardState.cardData.name
+                            )
+                        }
 
 
-                    LazyColumn(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                    ) {
-                        items(cardState.cardData.actions) {
-                            when (it) {
-                                is CardAction.Attack -> Text(text = it.toString())
-                                is CardAction.DirectAttack -> Text(text = it.toString())
-                                is CardAction.Heal -> Text(text = it.toString())
+                        Box(
+                            modifier = Modifier
+                                .height(25.dp)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.mipmap.heart),
+                                contentDescription = "hear"
+                            )
+                            Text(
+                                text = cardState.cardData.life.toString()
+                            )
+                        }
+
+
+                        LazyColumn(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        ) {
+                            items(cardState.cardData.actions) {
+                                when (it) {
+                                    is CardAction.Attack -> Text(text = it.toString())
+                                    is CardAction.DirectAttack -> Text(text = it.toString())
+                                    is CardAction.Heal -> Text(text = it.toString())
+                                }
                             }
                         }
                     }
-                }
 
-            } else {
-                Image(
-                    painter = painterResource(id = R.mipmap.cavis),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.FillHeight
-                )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.mipmap.cavis),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.FillHeight
+                    )
+                }
             }
         }
     }

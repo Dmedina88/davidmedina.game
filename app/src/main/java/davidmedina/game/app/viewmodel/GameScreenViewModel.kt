@@ -2,73 +2,124 @@ package davidmedina.game.app.viewmodel
 
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import davidmedina.game.app.ui.composables.CardState
 import davidmedina.game.app.ui.composables.mockCardState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-data class PlayerState(val life: Int = 20, val energy: Int = 0, val cards: List<CardState>)
+data class PlayerState(
+    val life: Int = 20,
+    val energy: Int = 0,
+    val deck: List<CardState>,
+    val hand: List<CardState> = emptyList(),
+    val field: List<CardState> = emptyList(),
+    val junkYard: List<CardState> = emptyList()
+)
 
+
+@JvmInline
+value class PlayerKey(val key :Int)
 
 data class GameState(
+    val initalized: Boolean = false,
     val turn: Int,
-    val player1: PlayerState,
-    val player2: PlayerState
+    //to keep things simple for now ding one player at a time
+    val player : PlayerState
 )
 
 fun mockGetDeck(): List<CardState> =
     buildList {
         for (i in 1..20) {
-           add( CardState(faceUp = i % 2 ==0, cardData = mockCardState.cardData.copy(cost = i)))
+            add(CardState(faceUp = false, cardData = mockCardState.cardData.copy(cost = i)))
         }
     }
 
 
 val startingState =
-    GameState(turn = 0, PlayerState(cards = mockGetDeck()), PlayerState(cards = mockGetDeck()))
+    GameState(
+        false,
+        turn = 0,
+        player = PlayerState(20 , 0 , mockGetDeck())
+
+    )
 
 class GameScreenViewModel : ViewModel() {
 
     // Backing property to avoid state updates from other classes
     private val _uiState = MutableStateFlow(startingState)
+
     // The UI collects from this StateFlow to get its state updates
     val uiState: StateFlow<GameState> = _uiState
 
-
     fun gameStart() {
 
-        Timber.i("Test gameStart fn ")
+        if (!_uiState.value.initalized) {
+            for (i in 1..2) {
+                _uiState.update {
+                    it.copy(
+                        initalized = true,
+                        turn = 1,
+                        player = _uiState.value.player.dealCard()
+                    )
+                }
 
-//        for (i in 1..5){
-                _uiState.value = _uiState.value.copy(
-                    player1 = _uiState.value.player1.dealCard(),
-                    player2 = _uiState.value.player2.dealCard())
-//            }
+                _uiState.update {
+                    it.copy(
+                        player = _uiState.value.player.flipHand()
+                    )
+                }
+            }
+        }
+        Timber.i("Test gameStart fn ")
     }
 
+    fun dealOnTurn() {
+        _uiState.update {
+            it.copy( player = it.player.dealCard())
 
-
-}
-
-
-fun PlayerState.dealCard() : PlayerState {
-    Timber.i("Test dealCard ")
-
-    return this.copy(cards =this.cards.toMutableStateList().apply {
-        try {
-
-            val index  = indexOfFirst { !it.faceUp }
-           this[index] =  this[index].copy(faceUp = true)
-            Timber.i("try done "  + this[index].toString() )
-
-        }catch (e: Throwable){
-            Timber.i( "BROOOO" +this.joinToString { it.faceUp.toString() })
         }
-    })
+
+        viewModelScope.launch {
+            delay(200)
+            _uiState.update {
+                it.copy( player = it.player.flipHand())
+            }
+        }
+
+
+    }
 
 }
+
+//fun GameState.updatePlayer((player: PlayerState))
+
+fun PlayerState.dealCard(): PlayerState {
+
+   val deck  = this.deck.toMutableList()
+   val hand  = this.hand.toMutableList()
+
+     deck.removeFirstOrNull()?.let {
+         hand.add(it)
+     }
+
+    return this.copy(deck =deck, hand = hand)
+
+}
+
+fun PlayerState.flipHand(): PlayerState {
+
+
+
+    return this.copy( hand = this.hand.toMutableList().map { it.copy(faceUp = true )   })
+
+}
+
 
 
 
