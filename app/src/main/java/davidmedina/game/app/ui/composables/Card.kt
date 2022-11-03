@@ -81,7 +81,7 @@ fun DMGCard(cardState: CardState = mockCardState, onPlayAction: (() -> Unit)? = 
                         ) {
                             Image(
                                 painter = painterResource(id = R.mipmap.heart),
-                                contentDescription = "hear"
+                                contentDescription = "heart"
                             )
                             Text(
                                 text = cardState.cardData.life.toString()

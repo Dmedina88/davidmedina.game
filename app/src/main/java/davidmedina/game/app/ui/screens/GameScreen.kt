@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import davidmedina.game.app.R
 import davidmedina.game.app.ui.composables.DMGCard
+import davidmedina.game.app.ui.composables.GameField
 import davidmedina.game.app.ui.composables.LockScreenOrientation
 import davidmedina.game.app.ui.theme.Pink80
 import davidmedina.game.app.ui.theme.PurpleGrey80
@@ -36,89 +37,74 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
     Row(
         Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
     ) {
         LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
-
         val state by gameScreenViewModel.uiState.collectAsState()
-
 
         if (!state.initalized) {
             gameScreenViewModel.gameStart()
         }
 
-
-
-        Timber.i("State %s", state.toString())
-
         SideInfoBar()
+        Box(Modifier.fillMaxSize()) {
 
-        Column {
-            //opponet
+            Column {
+                GameField(state)
 
-            LazyRow {
-                items(items = state.player.field) {
-                    AnimatedVisibility(visible = it != null) {
-                        it?.let { DMGCard(it) }
-                    }
-                    if (it == null) {
-                        Box(
-                            Modifier
-                                .background(PurpleGrey80)
-                                .width(150.dp)
-                                .height(200.dp)
-                        )
-                    }
-
-
+                Button(onClick = {
+                    gameScreenViewModel.dealOnTurn()
+                }, Modifier.background(Color.Red, CircleShape)) {
+                    Text(text = "Deal")
                 }
-            }
+
+                Button(onClick = {
+
+                    gameScreenViewModel.play(0)
+                }, Modifier.background(Color.Red, CircleShape)) {
+                    Text(text = "play")
+                }
+                // fack deck list
 
 
-
-            Button(onClick = {
-                gameScreenViewModel.dealOnTurn()
-            }, Modifier.background(Color.Red, CircleShape)) {
-                Text(text = "Deal")
-            }
-
-            Button(onClick = {
-                gameScreenViewModel.play()
-            }, Modifier.background(Color.Red, CircleShape)) {
-                Text(text = "play")
-            }
-            // fack deck list
-
-
-            Row {
+                Row {
 //hand
 
+                    LazyRow(Modifier.weight(1f)) {
+                        items(items = state.player.hand) {
+                            AnimatedVisibility(
+                                visible = it.faceUp,
+                            ) {
+                                DMGCard(it)
+                            }
 
-                LazyRow(Modifier.weight(1f)) {
-                    items(items = state.player.hand) {
-                        AnimatedVisibility(
-                            visible = it.faceUp,
-                        ) {
-                            DMGCard(it)
                         }
 
-                    }
+                    }//deck
+                    Box() {
+                        if (state.player.deck.size > 1) {
+                            DMGCard(state.player.deck[0])
+                        }
 
-                }//deck
-                Box() {
-                    if (state.player.deck.size >1){
-                        DMGCard(state.player.deck[0])
+                        Text(
+                            text = "Deck ${state.player.deck.size}"
+                        )
+
                     }
-                  
-                   Text(
-                       text = state.player.deck.size.toString())
-                    
                 }
             }
+
+
+            state.actionState?.let {
+                ActionOverlay(it) {
+                    //todo update state
+                }
+            }
+
+        }
         }
 
-    }
+
 }
 //}
 
@@ -155,11 +141,9 @@ fun SideInfoBar(
         )
 
         Text(text = "Life")
-
         // user life
         Text(text = "20 /20")
 
-
     }
-
 }
+
