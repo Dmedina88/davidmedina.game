@@ -7,9 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -20,16 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import davidmedina.game.app.R
 import davidmedina.game.app.ui.composables.DMGCard
 import davidmedina.game.app.ui.composables.GameField
 import davidmedina.game.app.ui.composables.LockScreenOrientation
 import davidmedina.game.app.ui.theme.Pink80
-import davidmedina.game.app.ui.theme.PurpleGrey80
 import davidmedina.game.app.viewmodel.GameScreenViewModel
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 @Preview
 @Composable
@@ -60,7 +55,7 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
 
                 Button(onClick = {
 
-                    gameScreenViewModel.play(0)
+                    gameScreenViewModel.readyPlayCard(0)
                 }, Modifier.background(Color.Red, CircleShape)) {
                     Text(text = "play")
                 }
@@ -79,9 +74,8 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
                             }
 
                         }
-
                     }//deck
-                    Box() {
+                    Box {
                         if (state.player.deck.size > 1) {
                             DMGCard(state.player.deck[0])
                         }
@@ -96,9 +90,9 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
 
 
             state.actionState?.let {
-                ActionOverlay(it) {
-                    //todo update state
-                }
+                ActionOverlay(it, { index->
+                    gameScreenViewModel.fieldSelected(index)
+                })
             }
 
         }

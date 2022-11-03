@@ -90,7 +90,7 @@ class GameScreenViewModel : ViewModel() {
         }
     }
 
-    fun play(cardToPlay : Int) {
+    fun readyPlayCard(cardToPlay : Int) {
         if(_uiState.value.player.hand.isNotEmpty())
             _uiState.update { currentState ->
             val valid =   currentState.player.field.map { it == null }
@@ -99,18 +99,34 @@ class GameScreenViewModel : ViewModel() {
                 currentState.copy(actionState = PlayCard(cardToPlay,null,valid,oponente))
         }
     }
+
+    fun fieldSelected(index: Int) {
+        val action = _uiState.value.actionState
+        when (action){
+            is PlayCard -> playCard(uiState.value,action,index) //todo maybe depect the deal?
+            is ActionComposerState.AttackAction -> TODO()
+            null -> TODO()
+        }
+    }
+
+    fun playCard(state: GameState,actionState: PlayCard,index: Int){
+        _uiState.update {
+
+            state.copy(actionState=null, player = state.player.readyPlayCard(actionState.targetCardIndex,index))
+        }
+    }
 }
 
 
-fun PlayerState.play(): PlayerState {
+fun PlayerState.readyPlayCard(cardIndex : Int,targetIndex :Int): PlayerState {
 
     val freeFaild = field.indexOf(null)
     return when(freeFaild) {
         in 0..4 -> {
             val hand = this.hand.toMutableList()
             val field = this.field.toMutableList()
-            hand.removeFirstOrNull()?.let {
-                field[freeFaild] = it
+            hand.removeAt(cardIndex).let {
+                field[targetIndex] = it
             }
             this.copy(field = field, hand = hand)
 
