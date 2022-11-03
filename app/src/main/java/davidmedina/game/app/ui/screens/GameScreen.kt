@@ -1,12 +1,15 @@
 package davidmedina.game.app.ui.screens
 
 import android.content.pm.ActivityInfo
-import androidx.compose.animation.*
-import androidx.compose.foundation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +25,6 @@ import davidmedina.game.app.R
 import davidmedina.game.app.ui.composables.DMGCard
 import davidmedina.game.app.ui.composables.LockScreenOrientation
 import davidmedina.game.app.ui.theme.Pink80
-import davidmedina.game.app.ui.theme.Purple40
 import davidmedina.game.app.ui.theme.PurpleGrey80
 import davidmedina.game.app.viewmodel.GameScreenViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -46,104 +48,45 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
             gameScreenViewModel.gameStart()
         }
 
+
+
         Timber.i("State %s", state.toString())
 
         SideInfoBar()
 
         Column {
             //opponet
-            Row(
-                Modifier
-                    .background(Color.Green)
-                    .padding(16.dp)
-            ) {
-                //failt Spot
-                Box(
-                    Modifier
-                        .background(Purple40)
-                        .width(150.dp)
-                        .height(200.dp)
-                ) {
+
+            LazyRow {
+                items(items = state.player.field) {
+                    AnimatedVisibility(visible = it != null) {
+                        it?.let { DMGCard(it) }
+                    }
+                    if (it == null) {
+                        Box(
+                            Modifier
+                                .background(PurpleGrey80)
+                                .width(150.dp)
+                                .height(200.dp)
+                        )
+                    }
+
 
                 }
-
-                Box(
-                    Modifier
-                        .background(PurpleGrey80)
-                        .width(150.dp)
-                        .height(200.dp)
-                ) {
-
-                }
-                Box(
-                    Modifier
-                        .background(Purple40)
-                        .width(150.dp)
-                        .height(200.dp)
-                ) {
-
-                }
-                Box(
-                    Modifier
-                        .background(PurpleGrey80)
-                        .width(150.dp)
-                        .height(200.dp)
-                ) {
-
-                }
-            }
-
-            //player
-            Row(
-                Modifier
-                    .background(Color.Yellow)
-                    .padding(16.dp)
-            ) {
-                //failt Spot
-                Box(
-                    Modifier
-                        .background(Purple40)
-                        .width(150.dp)
-                        .height(200.dp)
-                ) {
-
-                }
-
-                Box(
-                    Modifier
-                        .background(PurpleGrey80)
-                        .width(150.dp)
-                        .height(200.dp)
-                ) {
-
-                }
-                Box(
-                    Modifier
-                        .background(Purple40)
-                        .width(150.dp)
-                        .height(200.dp)
-                ) {
-
-                }
-                Box(
-                    Modifier
-                        .background(PurpleGrey80)
-                        .width(150.dp)
-                        .height(200.dp)
-                ) {
-
-                }
-
-
             }
 
 
 
             Button(onClick = {
-                Timber.i("Test deal clicked ")
                 gameScreenViewModel.dealOnTurn()
             }, Modifier.background(Color.Red, CircleShape)) {
                 Text(text = "Deal")
+            }
+
+            Button(onClick = {
+                gameScreenViewModel.play()
+            }, Modifier.background(Color.Red, CircleShape)) {
+                Text(text = "play")
             }
             // fack deck list
 
@@ -154,7 +97,8 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
 
                 LazyRow(Modifier.weight(1f)) {
                     items(items = state.player.hand) {
-                        AnimatedVisibility(visible = it.faceUp,
+                        AnimatedVisibility(
+                            visible = it.faceUp,
                         ) {
                             DMGCard(it)
                         }

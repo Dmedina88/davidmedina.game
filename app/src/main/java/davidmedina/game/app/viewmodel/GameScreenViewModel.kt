@@ -1,6 +1,5 @@
 package davidmedina.game.app.viewmodel
 
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import davidmedina.game.app.ui.composables.CardState
@@ -18,13 +17,10 @@ data class PlayerState(
     val energy: Int = 0,
     val deck: List<CardState>,
     val hand: List<CardState> = emptyList(),
-    val field: List<CardState> = emptyList(),
+    val field: List<CardState?> = listOf(null, null, null, null),
     val junkYard: List<CardState> = emptyList()
 )
 
-
-@JvmInline
-value class PlayerKey(val key :Int)
 
 data class GameState(
     val initalized: Boolean = false,
@@ -81,42 +77,55 @@ class GameScreenViewModel : ViewModel() {
 
     fun dealOnTurn() {
         _uiState.update {
-            it.copy( player = it.player.dealCard())
-
+            it.copy(player = it.player.dealCard())
         }
-
         viewModelScope.launch {
             delay(200)
             _uiState.update {
-                it.copy( player = it.player.flipHand())
+                it.copy(player = it.player.flipHand())
             }
         }
-
-
     }
 
+    fun play() {
+        _uiState.update {
+            it.copy(player = it.player.play())
+        }
+    }
 }
 
 //fun GameState.updatePlayer((player: PlayerState))
 
 fun PlayerState.dealCard(): PlayerState {
 
-   val deck  = this.deck.toMutableList()
-   val hand  = this.hand.toMutableList()
+    val deck = this.deck.toMutableList()
+    val hand = this.hand.toMutableList()
 
-     deck.removeFirstOrNull()?.let {
-         hand.add(it)
-     }
+    deck.removeFirstOrNull()?.let {
+        hand.add(it)
+    }
 
-    return this.copy(deck =deck, hand = hand)
+    return this.copy(deck = deck, hand = hand)
+
+}
+
+fun PlayerState.play(): PlayerState {
+
+    val hand = this.hand.toMutableList()
+    val field = this.field.toMutableList()
+
+
+    hand.removeFirstOrNull()?.let {
+        field[field.indexOf(null)] = it
+    }
+
+    return this.copy(field = field, hand = hand)
 
 }
 
 fun PlayerState.flipHand(): PlayerState {
 
-
-
-    return this.copy( hand = this.hand.toMutableList().map { it.copy(faceUp = true )   })
+    return this.copy(hand = this.hand.toMutableList().map { it.copy(faceUp = true) })
 
 }
 
