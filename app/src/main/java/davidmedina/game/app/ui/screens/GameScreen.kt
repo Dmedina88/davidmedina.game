@@ -2,27 +2,22 @@ package davidmedina.game.app.ui.screens
 
 import android.content.pm.ActivityInfo
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import davidmedina.game.app.R
+import androidx.compose.ui.unit.dp
 import davidmedina.game.app.ui.composables.DMGCard
 import davidmedina.game.app.ui.composables.GameField
 import davidmedina.game.app.ui.composables.LockScreenOrientation
-import davidmedina.game.app.ui.theme.Pink80
+import davidmedina.game.app.ui.composables.SideInfoBar
+import davidmedina.game.app.ui.theme.PurpleGrey80
 import davidmedina.game.app.viewmodel.GameScreenViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -41,41 +36,34 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
             gameScreenViewModel.gameStart()
         }
 
-        SideInfoBar()
+        SideInfoBar(gameScreenViewModel::dealOnTurn)
+
         Box(Modifier.fillMaxSize()) {
 
             Column {
                 GameField(state)
 
-                Button(onClick = {
-                    gameScreenViewModel.dealOnTurn()
-                }, Modifier.background(Color.Red, CircleShape)) {
-                    Text(text = "Deal")
-                }
-
-                Button(onClick = {
-
-                    gameScreenViewModel.readyPlayCard(0)
-                }, Modifier.background(Color.Red, CircleShape)) {
-                    Text(text = "play")
-                }
-                // fack deck list
-
-
                 Row {
 //hand
 
                     LazyRow(Modifier.weight(1f)) {
-                        items(items = state.player.hand) {
+                        itemsIndexed(items = state.player.hand) { index, item ->
                             AnimatedVisibility(
-                                visible = it.faceUp,
+                                visible = item.faceUp,
                             ) {
-                                DMGCard(it)
+                                DMGCard(item) { gameScreenViewModel.readyPlayCard(index) }
                             }
 
                         }
                     }//deck
-                    Box {
+
+
+                    Box(
+                        Modifier
+                            .background(PurpleGrey80)
+                            .width(150.dp)
+                            .height(200.dp)
+                    ) {
                         if (state.player.deck.size > 1) {
                             DMGCard(state.player.deck[0])
                         }
@@ -101,43 +89,3 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
 
 }
 //}
-
-@Preview
-@Composable
-fun SideInfoBar(
-    // turnClicked : () -> Unit
-) {
-
-    Column(
-        Modifier
-            .background(Pink80)
-            .fillMaxHeight()
-            .fillMaxWidth(.10f),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = CenterHorizontally
-    ) {
-        Text(text = "Life")
-        //enamy life
-        Text(text = "20 /20")
-        Image(
-            painter = painterResource(R.drawable.ic_baseline_battery_0_bar_24),
-            contentDescription = "energy icon"
-        )
-
-        Button(onClick = { /*TODO*/ }, Modifier.background(Color.Red, CircleShape)) {
-            Text(text = "Turn")
-        }
-
-
-        Image(
-            painter = painterResource(R.drawable.ic_baseline_battery_0_bar_24),
-            contentDescription = "energy icon"
-        )
-
-        Text(text = "Life")
-        // user life
-        Text(text = "20 /20")
-
-    }
-}
-
