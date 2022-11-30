@@ -14,61 +14,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import davidmedina.game.app.R
 import davidmedina.game.app.ui.theme.PurpleGrey80
+import davidmedina.game.app.ui.theme.playingCardSize
 import davidmedina.game.app.viewmodel.GameState
 
 @Composable
 fun GameField(gameState : GameState){
     Column() {
-        //oponite side
 
-        Row() {
-
-
-            LazyRow {
-                items(items = gameState.oponente.field) {
-                    AnimatedVisibility(visible = it != null) {
-                        it?.let { DMGCard(it) }
-                    }
-                    if (it == null) {
-                        Box(
-                            Modifier
-                                .background(PurpleGrey80)
-                                .width(150.dp)
-                                .height(200.dp)
-                        )
-                    }
-                }
-
-            }
-            Box( Modifier
-                .background(PurpleGrey80)
-                .width(150.dp)
-                .height(200.dp)) {
-                Image(
-                    painter = painterResource(id = R.mipmap.cavis),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.FillHeight
-                )
-
-                Text(text = "Hand ${gameState.oponente.hand.size}")
-            }
-
-            Box( Modifier
-                .background(PurpleGrey80)
-                .width(150.dp)
-                .height(200.dp)) {
-                Image(
-                    painter = painterResource(id = R.mipmap.cavis),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.FillHeight
-                )
-
-                Text(text = "Deck ${gameState.oponente.deck.size}")
-            }
-        }
-
+        //spike check to see if using grid would be better for animations
+        OpponiteField(gameState)
         // player side
         LazyRow {
             items(items = gameState.player.field) {
@@ -77,13 +31,71 @@ fun GameField(gameState : GameState){
                 }
                 if (it == null) {
                     Box(
-                        Modifier
+                        Modifier.playingCardSize()
                             .background(PurpleGrey80)
-                            .width(150.dp)
-                            .height(200.dp)
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun OpponiteField(gameState: GameState) {
+    Row() {
+        LazyRow {
+            items(items = gameState.oponente.field) {
+                AnimatedVisibility(visible = it != null) {
+                    it?.let { DMGCard(it) }
+                }
+                if (it == null) {
+                    Box(
+                        Modifier
+                            .playingCardSize()
+                            .background(PurpleGrey80)
+
+                    )
+                }
+            }
+
+        }
+        // opanite deck
+        Box(
+            Modifier
+                .playingCardSize()
+
+        ) {
+            Image(
+                painter = painterResource(id = R.mipmap.cavis),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillHeight
+            )
+
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = "Hand ${gameState.oponente.hand.size}"
+            )
+        }
+
+        // openite hand
+        Box(
+            Modifier
+                .playingCardSize()
+                .background(PurpleGrey80)
+
+        ) {
+            Image(
+                painter = painterResource(id = R.mipmap.cavis),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillHeight
+            )
+
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = "Deck ${gameState.oponente.deck.size}"
+            )
         }
     }
 }

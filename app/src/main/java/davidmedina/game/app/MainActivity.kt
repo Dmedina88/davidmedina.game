@@ -27,7 +27,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-
             val currentBackStackEntry = navController.currentBackStackEntryAsState()
             DavidmedinagameTheme {
                 Scaffold(

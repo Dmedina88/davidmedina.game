@@ -78,6 +78,11 @@ class GameScreenViewModel : ViewModel() {
         Timber.i("Test gameStart fn ")
     }
 
+    fun cancelAction(){
+        _uiState.update {
+            it.copy(actionState = null)
+        }
+    }
     fun dealOnTurn() {
         _uiState.update {
             it.copy(player = it.player.dealCard())

@@ -18,13 +18,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import davidmedina.game.app.R
 import davidmedina.game.app.ui.theme.Pink80
+import davidmedina.game.app.viewmodel.GameState
 
-@Preview
 @Composable
 fun SideInfoBar(
-    turnClicked: (() -> Unit) = {}
+    state: GameState,
+    turnClicked: () -> Unit = {}
 ) {
-
     Column(
         Modifier
             .background(Pink80)
@@ -34,27 +34,36 @@ fun SideInfoBar(
         horizontalAlignment = CenterHorizontally
     ) {
         Text(text = "Life")
-        //enamy life
-        Text(text = "20 /20")
-        Image(
-            painter = painterResource(R.drawable.ic_baseline_battery_0_bar_24),
-            contentDescription = "energy icon"
-        )
+        Text(text = "${state.oponente.life} /20")
+        EnergyBar(state.oponente.energy)
 
         Button(onClick = { turnClicked() }, Modifier.background(Color.Red, CircleShape)) {
             Text(text = "Turn")
         }
 
-
-        Image(
-            painter = painterResource(R.drawable.ic_baseline_battery_0_bar_24),
-            contentDescription = "energy icon"
-        )
-
+        EnergyBar(state.player.energy)
         Text(text = "Life")
-        // user life
-        Text(text = "20 /20")
-
+        Text(text = "${state.player.life} /20")
     }
 }
+
+@Composable
+fun EnergyBar(energy: Int){
+    val icon = when (energy){
+        0-> R.drawable.ic_baseline_battery_0_bar_24
+        1-> R.drawable.ic_baseline_battery_1_bar_24
+        2-> R.drawable.ic_baseline_battery_2_bar_24
+        3-> R.drawable.ic_baseline_battery_3_bar_24
+        4-> R.drawable.ic_baseline_battery_4_bar_24
+        5-> R.drawable.ic_baseline_battery_5_bar_24
+        6-> R.drawable.ic_baseline_battery_5_bar_24
+        else -> R.drawable.ic_baseline_battery_full_24
+    }
+    Image(
+        painter = painterResource(icon),
+        contentDescription = "energy icon"
+    )
+    Text(text = energy.toString())
+}
+
 

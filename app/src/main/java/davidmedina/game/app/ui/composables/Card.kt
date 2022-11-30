@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import davidmedina.game.app.R
 import davidmedina.game.app.data.models.CardAction
 import davidmedina.game.app.ui.theme.OldPaper
+import davidmedina.game.app.ui.theme.playingCardSize
 
 
 data class CardData(
@@ -41,10 +42,7 @@ data class CardState(val faceUp: Boolean = false, val cardData: CardData)
 @Composable
 fun DMGCard(cardState: CardState = mockCardState, onPlayAction: (() -> Unit)? = null) {
     Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .width(150.dp)
-            .height(200.dp)
+        modifier = Modifier.playingCardSize()
     ) {
 
         Box(
