@@ -27,9 +27,9 @@ data class PlayerState(
 data class GameState(
     val initalized: Boolean = false,
     val turn: Int,
-    val player : PlayerState,
-    val oponente : PlayerState,
-    val actionState : ActionComposerState?
+    val player: PlayerState,
+    val oponente: PlayerState,
+    val actionState: ActionComposerState?
 )
 
 fun mockGetDeck(): List<CardState> =
@@ -44,16 +44,14 @@ val startingState =
     GameState(
         false,
         turn = 0,
-        player = PlayerState(20 , 0 , mockGetDeck()),
-        oponente = PlayerState(20 , 0 , mockGetDeck()) ,
+        player = PlayerState(20, 0, mockGetDeck()),
+        oponente = PlayerState(20, 0, mockGetDeck()),
         actionState = null
     )
 
 class GameScreenViewModel : ViewModel() {
 
-    // Backing property to avoid state updates from other classes
     private val _uiState = MutableStateFlow(startingState)
-    // The UI collects from this StateFlow to get its state updates
     val uiState: StateFlow<GameState> = _uiState
 
     fun gameStart() {
@@ -75,14 +73,14 @@ class GameScreenViewModel : ViewModel() {
                 }
             }
         }
-        Timber.i("Test gameStart fn ")
     }
 
-    fun cancelAction(){
+    fun cancelAction() {
         _uiState.update {
             it.copy(actionState = null)
         }
     }
+
     fun dealOnTurn() {
         _uiState.update {
             it.copy(player = it.player.dealCard())
@@ -95,38 +93,38 @@ class GameScreenViewModel : ViewModel() {
         }
     }
 
-    fun readyPlayCard(cardToPlay : Int) {
-        if(_uiState.value.player.hand.isNotEmpty())
+    fun readyPlayCard(cardToPlay: Int) {
+        if (_uiState.value.player.hand.isNotEmpty())
             _uiState.update { currentState ->
-            val valid =   currentState.player.field.map { it == null }
-                val oponente =   currentState.oponente.field.map { false }
+                val valid = currentState.player.field.map { it == null }
+                val oponente = currentState.oponente.field.map { false }
 
-                currentState.copy(actionState = PlayCard(cardToPlay,null,valid,oponente))
-        }
+                currentState.copy(actionState = PlayCard(cardToPlay, null, valid, oponente))
+            }
     }
 
     fun fieldSelected(index: Int) {
-        val action = _uiState.value.actionState
-        when (action){
-            is PlayCard -> playCard(uiState.value,action,index) //todo maybe depect the deal?
+        when (val action = _uiState.value.actionState) {
+            is PlayCard -> playCard(uiState.value, action, index) //todo maybe depect the deal?
             is ActionComposerState.AttackAction -> TODO()
             null -> TODO()
         }
     }
 
-    fun playCard(state: GameState,actionState: PlayCard,index: Int){
+    private fun playCard(state: GameState, actionState: PlayCard, index: Int) {
         _uiState.update {
-
-            state.copy(actionState=null, player = state.player.readyPlayCard(actionState.targetCardIndex,index))
+            state.copy(
+                actionState = null,
+                player = state.player.readyPlayCard(actionState.targetCardIndex, index)
+            )
         }
     }
 }
 
 
-fun PlayerState.readyPlayCard(cardIndex : Int,targetIndex :Int): PlayerState {
+fun PlayerState.readyPlayCard(cardIndex: Int, targetIndex: Int): PlayerState {
 
-    val freeFaild = field.indexOf(null)
-    return when(freeFaild) {
+    return when (field.indexOf(null)) {
         in 0..4 -> {
             val hand = this.hand.toMutableList()
             val field = this.field.toMutableList()
@@ -165,11 +163,17 @@ fun PlayerState.flipHand(): PlayerState {
 
 }
 
-sealed class ActionComposerState{
-     val PLAYER_INDEX = -1
-   data class PlayCard(val targetCardIndex :Int, val field : Int? , val validFields : List<Boolean>,val validOponenteFields : List<Boolean>) : ActionComposerState()
+sealed class ActionComposerState {
+
+    data class PlayCard(
+        val targetCardIndex: Int,
+        val field: Int?,
+        val validFields: List<Boolean>,
+        val validOponenteFields: List<Boolean>
+    ) : ActionComposerState()
+
     //PLAYER_INDEX for player card positon for card
-    data class AttackAction(val Action: CardAction.Attack, val target : Int?) : ActionComposerState()
+    data class AttackAction(val Action: CardAction.Attack, val target: Int?) : ActionComposerState()
 
 }
 
