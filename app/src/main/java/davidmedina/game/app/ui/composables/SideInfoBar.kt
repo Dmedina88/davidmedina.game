@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import davidmedina.game.app.R
 import davidmedina.game.app.ui.theme.Pink80
 import davidmedina.game.app.viewmodel.GameState
@@ -34,8 +33,8 @@ fun SideInfoBar(
         horizontalAlignment = CenterHorizontally
     ) {
         Text(text = "Life")
-        Text(text = "${state.oponente.life} /20")
-        EnergyBar(state.oponente.energy)
+        Text(text = "${state.opponent.life} /20")
+        EnergyBar(state.opponent.energy)
 
         Button(onClick = { turnClicked() }, Modifier.background(Color.Red, CircleShape)) {
             Text(text = "Turn")

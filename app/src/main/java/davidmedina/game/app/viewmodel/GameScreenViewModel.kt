@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 
 data class PlayerState(
@@ -28,7 +27,7 @@ data class GameState(
     val initalized: Boolean = false,
     val turn: Int,
     val player: PlayerState,
-    val oponente: PlayerState,
+    val opponent: PlayerState,
     val actionState: ActionComposerState?
 )
 
@@ -45,7 +44,7 @@ val startingState =
         false,
         turn = 0,
         player = PlayerState(20, 0, mockGetDeck()),
-        oponente = PlayerState(20, 0, mockGetDeck()),
+        opponent = PlayerState(20, 0, mockGetDeck()),
         actionState = null
     )
 
@@ -97,7 +96,7 @@ class GameScreenViewModel : ViewModel() {
         if (_uiState.value.player.hand.isNotEmpty())
             _uiState.update { currentState ->
                 val valid = currentState.player.field.map { it == null }
-                val oponente = currentState.oponente.field.map { false }
+                val oponente = currentState.opponent.field.map { false }
 
                 currentState.copy(actionState = PlayCard(cardToPlay, null, valid, oponente))
             }

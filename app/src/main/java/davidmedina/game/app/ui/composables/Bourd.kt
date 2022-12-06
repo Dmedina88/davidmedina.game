@@ -44,7 +44,7 @@ fun GameField(gameState : GameState){
 private fun OpponiteField(gameState: GameState) {
     Row() {
         LazyRow {
-            items(items = gameState.oponente.field) {
+            items(items = gameState.opponent.field) {
                 AnimatedVisibility(visible = it != null) {
                     it?.let { DMGCard(it) }
                 }
@@ -74,7 +74,7 @@ private fun OpponiteField(gameState: GameState) {
 
             Text(
                 modifier = Modifier.padding(8.dp),
-                text = "Hand ${gameState.oponente.hand.size}"
+                text = "Hand ${gameState.opponent.hand.size}"
             )
         }
 
@@ -94,7 +94,7 @@ private fun OpponiteField(gameState: GameState) {
 
             Text(
                 modifier = Modifier.padding(8.dp),
-                text = "Deck ${gameState.oponente.deck.size}"
+                text = "Deck ${gameState.opponent.deck.size}"
             )
         }
     }
