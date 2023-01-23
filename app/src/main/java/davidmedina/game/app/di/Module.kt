@@ -19,11 +19,9 @@ import org.koin.dsl.module
 val appModule = module {
     singleOf(::DMGameApiImpl) bind DMGameApi::class
     singleOf(::LoginRepositoryImpl) bind LoginRepository::class
-
 }
 val viewModuleModule = module {
     viewModelOf(::LoginViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::GameScreenViewModel)
-
 }

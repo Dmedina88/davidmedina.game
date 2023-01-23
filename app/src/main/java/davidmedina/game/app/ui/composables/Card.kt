@@ -92,11 +92,11 @@ fun DMGCard(cardState: CardState = mockCardState, onPlayAction: (() -> Unit)? = 
                                 .fillMaxWidth()
                                 .padding(8.dp)
                         ) {
-                            items(cardState.cardData.actions) {
-                                when (it) {
-                                    is CardAction.Attack -> Text(text = it.toString())
-                                    is CardAction.DirectAttack -> Text(text = it.toString())
-                                    is CardAction.Heal -> Text(text = it.toString())
+                            items(cardState.cardData.actions) { action ->
+                                when (action) {
+                                    is CardAction.Attack -> Text(text = action.toString())
+                                    is CardAction.DirectAttack -> Text(text = action.toString())
+                                    is CardAction.Heal -> Text(text = action.toString())
                                 }
                             }
                         }

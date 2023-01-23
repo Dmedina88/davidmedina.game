@@ -12,7 +12,6 @@ import timber.log.Timber
 class DMGameApplication : Application() {
     override fun onCreate() {
 
-
         startKoin {
             androidLogger()
             androidContext(this@DMGameApplication)
