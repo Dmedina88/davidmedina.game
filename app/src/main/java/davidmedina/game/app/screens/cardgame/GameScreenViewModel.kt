@@ -106,7 +106,7 @@ class GameScreenViewModel : ViewModel() {
         when (val action = _uiState.value.actionState) {
             is PlayCard -> playCard(uiState.value, action, index) //todo maybe depect the deal?
             is ActionComposerState.AttackAction -> TODO()
-            null -> TODO()
+            else -> {}
         }
     }
 

@@ -1,19 +1,20 @@
-package davidmedina.game.app.ui.screens
+package davidmedina.game.app.screens.cardgame
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import davidmedina.game.app.ui.theme.playingCardSize
 import davidmedina.game.app.viewmodel.ActionComposerState
-
 
 
 @Composable
@@ -24,6 +25,7 @@ fun ActionOverlay(action : ActionComposerState, onTargetSelected: (Int) -> Unit,
             when (action) {
                 is ActionComposerState.PlayCard -> PlayCardOverlay(action, onTargetSelected)
                 is ActionComposerState.AttackAction -> Box() {}
+                else -> {}
             }
 
         Button(modifier = Modifier.playingCardSize(),

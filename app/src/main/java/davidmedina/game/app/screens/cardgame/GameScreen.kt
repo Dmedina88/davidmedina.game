@@ -1,10 +1,13 @@
-package davidmedina.game.app.ui.screens
+package davidmedina.game.app.screens.cardgame
 
 import android.content.pm.ActivityInfo
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,9 +24,11 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
+   val scrollState = rememberScrollState()
     Row(
         Modifier
             .fillMaxSize()
+            .scrollable(scrollState,Orientation.Vertical)
     ) {
         LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
