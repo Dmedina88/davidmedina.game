@@ -1,4 +1,4 @@
-package davidmedina.game.app.screens
+package davidmedina.game.app.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -6,6 +6,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import davidmedina.game.app.ui.composables.TDMButton
+import davidmedina.game.app.ui.screens.worldgen.BoxArtScreen
+import davidmedina.game.app.ui.screens.worldgen.CanvisArtScreen
 
 
 @Composable
@@ -13,6 +16,7 @@ fun MainMenuScreen(
     onNewGameClicked: () -> Unit,
     onLinksClicked: () -> Unit,
     onFeedBackClicked: () -> Unit,
+    onProtoGenClicked: () -> Unit,
     onArtGenClicked: () -> Unit
 ) {
     Column(
@@ -32,8 +36,11 @@ fun MainMenuScreen(
         Button(onClick = { onFeedBackClicked() }) {
             Text(text = "FeedBack")
         }
-        Button(onClick = { onArtGenClicked() }) {
-            Text(text = "art gen")
+        TDMButton("ProtoType") { onProtoGenClicked() }
+
+
+        Button(onClick = {onArtGenClicked()  }) {
+            Text(text = "Composed Art")
         }
     }
 

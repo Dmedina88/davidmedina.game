@@ -1,4 +1,4 @@
-package davidmedina.game.app.screens
+package davidmedina.game.app.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -14,9 +14,7 @@ fun FeedBackScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Text(text = "FeedBack")
-
     }
 }
 

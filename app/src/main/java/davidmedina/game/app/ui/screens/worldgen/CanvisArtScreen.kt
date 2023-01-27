@@ -1,10 +1,11 @@
-package davidmedina.game.app.screens.worldgen
+package davidmedina.game.app.ui.screens.worldgen
 
 import android.content.pm.ActivityInfo
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -23,7 +24,11 @@ import kotlin.random.Random
 
 @Composable
 @Preview
-fun ArtScreen() {
+fun CanvisArtScreen() {
+
+    var refresh    by remember { mutableStateOf(1) }
+
+
     val list = buildList {
         add(ArtGenAsset.BackGround(ImageBitmap.imageResource(backgrounds.random())))
         add(ArtGenAsset.Ground(ImageBitmap.imageResource(ground.random())))
@@ -41,12 +46,14 @@ fun ArtScreen() {
         }
         add(ArtGenAsset.Center(ImageBitmap.imageResource(center.random())))
     }
-    ArtCanvas(list)
+    ArtCanvas(list){
+       // refresh =+1
+    }
 }
 
 @Composable
-@Preview
-fun ArtCanvas(assets: List<ArtGenAsset> = emptyList()) {
+fun ArtCanvas(assets: List<ArtGenAsset> = emptyList(), onClick : () -> Unit) {
+
 
     val flowerSize = IntSize(
         with(LocalDensity.current) { 100.dp.toPx().toInt() },
@@ -55,11 +62,14 @@ fun ArtCanvas(assets: List<ArtGenAsset> = emptyList()) {
 
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
+
     Canvas(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
+            .clickable(onClick =onClick)
     ) {
+
 
         val canvasWidth = size.width
         val canvasHeight = size.height

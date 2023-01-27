@@ -6,5 +6,6 @@ enum class Routes(name: String) {
   GAME("game"),
   FEEDBACK("feedback"),
   LINKS("links"),
+  PROTO_GEN("art_gen"),
   ART_GEN("art_gen"),
 }

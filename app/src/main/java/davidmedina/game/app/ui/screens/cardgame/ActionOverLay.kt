@@ -1,4 +1,4 @@
-package davidmedina.game.app.screens.cardgame
+package davidmedina.game.app.ui.screens.cardgame
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

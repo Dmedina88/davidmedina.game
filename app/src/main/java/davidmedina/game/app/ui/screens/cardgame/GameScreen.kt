@@ -1,4 +1,4 @@
-package davidmedina.game.app.screens.cardgame
+package davidmedina.game.app.ui.screens.cardgame
 
 import android.content.pm.ActivityInfo
 import androidx.compose.foundation.gestures.Orientation

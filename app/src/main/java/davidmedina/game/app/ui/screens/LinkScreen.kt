@@ -1,4 +1,4 @@
-package davidmedina.game.app.screens
+package davidmedina.game.app.ui.screens
 
 import androidx.compose.runtime.Composable
 
