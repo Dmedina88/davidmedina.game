@@ -27,27 +27,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val currentBackStackEntry = navController.currentBackStackEntryAsState()
+           val currentDest = currentBackStackEntry.value?.destination?.route.toString()
             DavidmedinagameTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
                             title = {
-                                Text(text = "TDMG")
-
-                                val int = System.nanoTime().toInt()
-                                Text(
-                                    text = "This app was not mad by an ai   ${
-                                        int.toChar().toString() + int.div(18).toChar() + int.plus(8)
-                                            .toChar()
-                                    }"
-                                )
+                                Text(text = currentDest)
 
 
                             },
                             navigationIcon =
                             {
-                                val currentDest = currentBackStackEntry.value?.destination?.route
-                                if (currentDest != Routes.HOME.name || currentDest != Routes.REGISTER.name) {
+                                if (currentDest != Routes.HOME.name && currentDest != Routes.REGISTER.name) {
                                     IconButton(onClick = { navController.navigateUp() }) {
                                         Icon(Icons.Filled.ArrowBack, "backIcon")
                                     }
