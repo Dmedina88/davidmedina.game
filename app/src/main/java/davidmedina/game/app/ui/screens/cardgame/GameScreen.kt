@@ -17,8 +17,6 @@ import davidmedina.game.app.ui.composables.GameField
 import davidmedina.game.app.ui.composables.LockScreenOrientation
 import davidmedina.game.app.ui.composables.PlayerCards
 import davidmedina.game.app.ui.composables.SideInfoBar
-import davidmedina.game.app.viewmodel.GameScreenViewModel
-import davidmedina.game.app.viewmodel.GameState
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
@@ -48,7 +46,7 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
 //todo move vm out and add created fn for user event
 @Composable
 private fun MainField(
-    state: GameState,
+    state: CardGameState,
     gameScreenViewModel: GameScreenViewModel
 ) {
     Box(Modifier.fillMaxSize()) {

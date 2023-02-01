@@ -3,6 +3,7 @@ package davidmedina.game.app.ui.screens.worldgen
 import android.content.pm.ActivityInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import davidmedina.game.app.data.models.*
 import davidmedina.game.app.ui.composables.LockScreenOrientation
 import davidmedina.game.app.ui.resizeWithCenterOffset
+import org.koin.androidx.compose.koinViewModel
 import kotlin.random.Random
 
 
@@ -28,6 +30,7 @@ import kotlin.random.Random
 @Preview
 fun BoxArtScreen() {
 
+    val vm  : BoxArtViewModal = koinViewModel()
     var refresh by remember { mutableStateOf(1) }
 
     val list = buildList {
@@ -48,13 +51,11 @@ fun BoxArtScreen() {
 
         add(ArtGenAsset.Center(ImageBitmap.imageResource(center.random())))
     }
-    ArtBox(list) {
-        // refresh =+1
-    }
+    ArtBox(list,vm::onAssetClicked)
 }
 
 @Composable
-fun ArtBox(assets: List<ArtGenAsset> = emptyList(), onClick: () -> Unit) {
+fun ArtBox(assets: List<ArtGenAsset> = emptyList(), onClick: (ArtGenAsset) -> Unit) {
 
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -84,47 +85,20 @@ fun ArtBox(assets: List<ArtGenAsset> = emptyList(), onClick: () -> Unit) {
                         Center(asset, screenWidth, screenHeight)
                     is ArtGenAsset.Clouds -> {
                         repeat(5) { _ ->
-                            Clouds(asset, screenWidth, screenHeight)
+                            Clouds(asset, intSize)
                         }
                     }
                     is ArtGenAsset.Flower ->
                         repeat(5) { _ ->
-                            Image(
-                                asset.bitmap, null,
-                                Modifier
-                                    .resizeWithCenterOffset(
-                                        100.dp,
-                                        100.dp,
-                                        x = Random.nextInt(intSize.width).dp,
-                                        y = Random.nextInt(intSize.height.div(2)).dp
-                                    )
-                            )
+                            Flower(asset, intSize, onClick)
                         }
                     is ArtGenAsset.Flying -> repeat(3) { _ ->
 
-
-                        Image(
-                            asset.bitmap, null,
-                            Modifier
-                                .resizeWithCenterOffset(
-                                    200.dp,
-                                    200.dp,
-                                    x = Random.nextInt(-asset.bitmap.width, intSize.width).dp,
-                                    y = Random.nextInt(-asset.bitmap.height, intSize.height).dp
-                                )
-                                .background(Color.Black)
-                        )
+                        Flying(asset, intSize)
 
                     }
                     is ArtGenAsset.Ground -> {
-                        Image(
-                            asset.bitmap, null,
-                            Modifier
-                                .height(screenHeight.div(2))
-                                .width(screenWidth)
-                                .offset(0.dp, screenHeight.div(2)),
-                            contentScale = ContentScale.FillBounds
-                        )
+                        Ground(asset, screenHeight, screenWidth)
 
                     }
                     is ArtGenAsset.GroundCreature -> TODO()
@@ -153,7 +127,6 @@ Image(
             }
 
         Column(Modifier.background(Color.Green)) {
-            Text(text = intSize.width.dp.value.toString(), fontSize = 40.sp)
             Text(text = intSize.toString(), fontSize = 40.sp)
             Text(text = "dp $screenWidth x $screenHeight", fontSize = 40.sp)
 
@@ -161,26 +134,83 @@ Image(
     }
 }
 
+@Composable
+private fun Ground(
+    asset: ArtGenAsset,
+    screenHeight: Dp,
+    screenWidth: Dp
+) {
+    Image(
+        asset.bitmap, null,
+        Modifier
+            .height(screenHeight.div(2))
+            .width(screenWidth)
+            .offset(0.dp, screenHeight.div(2)),
+        contentScale = ContentScale.FillBounds
+    )
+}
+
+@Composable
+private fun Flying(
+    asset: ArtGenAsset,
+    intSize: IntSize
+) {
+    Image(
+        asset.bitmap, null,
+        Modifier
+            .resizeWithCenterOffset(
+                200.dp,
+                200.dp,
+                x = LocalDensity.current.run {
+                    Random
+                        .nextInt(intSize.width)
+                        .toDp()
+                },
+                y = LocalDensity.current.run {
+                    Random
+                        .nextInt(intSize.height.div(2))
+                        .toDp()
+                },
+            )
+            .background(Color.Black)
+    )
+}
+
+
+@Composable
+private fun Flower(
+    asset: ArtGenAsset,
+    intSize: IntSize,
+    onClick: (ArtGenAsset) -> Unit
+) {
+    Image(
+        asset.bitmap, null,
+        Modifier
+            .resizeWithCenterOffset(
+                100.dp,
+                100.dp,
+                x = LocalDensity.current.run { Random.nextInt(intSize.width).toDp() },
+                y = LocalDensity.current.run { Random.nextInt(intSize.height.div(2), intSize.height).toDp() },
+            ).clickable {
+                onClick(asset)
+            }
+    )
+}
+
 
 @Composable
 private fun Clouds(
     asset: ArtGenAsset,
-    screenWidth: Dp,
-    screenHeight: Dp
+intSize: IntSize
 ) {
-    if (screenHeight > 0.dp)
         Image(
             asset.bitmap, null,
             Modifier
                 .resizeWithCenterOffset(
                     200.dp,
                     200.dp,
-                    x = Random.nextInt(-asset.bitmap.width, screenWidth.value.toInt()).dp,
-                    y = Random.nextInt(
-                        screenHeight.value
-                            .toInt()
-                            .div(2),
-                    ).dp,
+                    x = LocalDensity.current.run { Random.nextInt(intSize.width).toDp() },
+                    y = LocalDensity.current.run { Random.nextInt(intSize.height.div(2)).toDp() },
                 )
         )
 }
@@ -195,8 +225,8 @@ private fun Center(
         asset.bitmap, null,
         Modifier
             .resizeWithCenterOffset(
-                200.dp,
-                200.dp,
+                300.dp,
+                300.dp,
                 x = (screenWidth / 2),
                 y = (screenHeight / 2)
             )

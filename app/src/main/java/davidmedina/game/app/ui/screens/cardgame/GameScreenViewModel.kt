@@ -1,11 +1,11 @@
-package davidmedina.game.app.viewmodel
+package davidmedina.game.app.ui.screens.cardgame
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import davidmedina.game.app.data.models.CardAction
 import davidmedina.game.app.ui.composables.CardState
 import davidmedina.game.app.ui.composables.mockCardState
-import davidmedina.game.app.viewmodel.ActionComposerState.PlayCard
+import davidmedina.game.app.ui.screens.cardgame.ActionComposerState.PlayCard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +23,7 @@ data class PlayerState(
 )
 
 
-data class GameState(
+data class CardGameState(
     val initalized: Boolean = false,
     val turn: Int,
     val player: PlayerState,
@@ -40,7 +40,7 @@ fun mockGetDeck(): List<CardState> =
 
 
 val startingState =
-    GameState(
+    CardGameState(
         false,
         turn = 0,
         player = PlayerState(20, 0, mockGetDeck()),
@@ -51,7 +51,7 @@ val startingState =
 class GameScreenViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(startingState)
-    val uiState: StateFlow<GameState> = _uiState
+    val uiState: StateFlow<CardGameState> = _uiState
 
     fun gameStart() {
 
@@ -110,7 +110,7 @@ class GameScreenViewModel : ViewModel() {
         }
     }
 
-    private fun playCard(state: GameState, actionState: PlayCard, index: Int) {
+    private fun playCard(state: CardGameState, actionState: PlayCard, index: Int) {
         _uiState.update {
             state.copy(
                 actionState = null,

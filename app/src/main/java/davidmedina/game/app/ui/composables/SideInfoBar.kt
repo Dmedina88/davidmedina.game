@@ -17,11 +17,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import davidmedina.game.app.R
 import davidmedina.game.app.ui.theme.Pink80
-import davidmedina.game.app.viewmodel.GameState
+import davidmedina.game.app.ui.screens.cardgame.CardGameState
 
 @Composable
 fun SideInfoBar(
-    state: GameState,
+    state: CardGameState,
     turnClicked: () -> Unit = {}
 ) {
     Column(

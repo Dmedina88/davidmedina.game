@@ -8,12 +8,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import davidmedina.game.app.ui.theme.playingCardSize
-import davidmedina.game.app.viewmodel.GameScreenViewModel
-import davidmedina.game.app.viewmodel.GameState
+import davidmedina.game.app.ui.screens.cardgame.GameScreenViewModel
+import davidmedina.game.app.ui.screens.cardgame.CardGameState
 
 @Composable
 fun PlayerCards(
-    state: GameState,
+    state: CardGameState,
     gameScreenViewModel: GameScreenViewModel
 ) {
     Row {

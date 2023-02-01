@@ -1,4 +1,4 @@
-package davidmedina.game.app.screens
+package davidmedina.game.app.ui.screens.login
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -10,13 +10,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import davidmedina.game.app.ui.composables.PasswordText
-import davidmedina.game.app.viewmodel.LoginViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogInScreen(  onLogin :()-> Unit, loginViewModel: LoginViewModel = viewModel()) {
+fun LogInScreen(onLogin :()-> Unit, loginViewModel: LoginViewModel = koinViewModel()) {
     Column(
         Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -28,8 +27,8 @@ fun LogInScreen(  onLogin :()-> Unit, loginViewModel: LoginViewModel = viewModel
         val state = loginViewModel.uiState
 
         val modifier = Modifier
-          .padding(16.dp)
-          .fillMaxWidth()
+            .padding(16.dp)
+            .fillMaxWidth()
 
         //CircularProgressIndicator()
 
@@ -52,8 +51,6 @@ fun LogInScreen(  onLogin :()-> Unit, loginViewModel: LoginViewModel = viewModel
         }
         if (state.logInNavPending) {
             onLogin()
-
-
         }
     }
 }

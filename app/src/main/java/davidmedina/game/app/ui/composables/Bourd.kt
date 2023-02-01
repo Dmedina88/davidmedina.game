@@ -15,10 +15,10 @@ import androidx.compose.ui.unit.dp
 import davidmedina.game.app.R
 import davidmedina.game.app.ui.theme.PurpleGrey80
 import davidmedina.game.app.ui.theme.playingCardSize
-import davidmedina.game.app.viewmodel.GameState
+import davidmedina.game.app.ui.screens.cardgame.CardGameState
 
 @Composable
-fun GameField(gameState : GameState){
+fun GameField(gameState : CardGameState){
     Column() {
 
         //spike check to see if using grid would be better for animations
@@ -41,7 +41,7 @@ fun GameField(gameState : GameState){
 }
 
 @Composable
-private fun OpponiteField(gameState: GameState) {
+private fun OpponiteField(gameState: CardGameState) {
     Row() {
         LazyRow {
             items(items = gameState.opponent.field) {

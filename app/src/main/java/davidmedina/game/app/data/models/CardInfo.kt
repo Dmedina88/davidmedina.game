@@ -1,6 +1,6 @@
 package davidmedina.game.app.data.models
 
-class CardInfo
+data class CardInfo(val name: String,val lore: String, val life: Int, val power : Int, val actions: List<CardAction>)
 
 
 sealed class CardAction(val cost : Int){

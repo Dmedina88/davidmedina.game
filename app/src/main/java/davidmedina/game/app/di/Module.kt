@@ -2,11 +2,12 @@ package davidmedina.game.app.di
 
 import davidmedina.game.app.data.network.DMGameApi
 import davidmedina.game.app.data.network.DMGameApiImpl
-import davidmedina.game.app.data.repository.LoginRepository
-import davidmedina.game.app.data.repository.LoginRepositoryImpl
-import davidmedina.game.app.viewmodel.LoginViewModel
-import davidmedina.game.app.viewmodel.HomeViewModel
-import davidmedina.game.app.viewmodel.GameScreenViewModel
+import davidmedina.game.app.data.repository.*
+import davidmedina.game.app.ui.screens.login.LoginViewModel
+import davidmedina.game.app.ui.screens.cardgame.GameScreenViewModel
+import davidmedina.game.app.ui.screens.mainmenu.MainMenuViewModel
+import davidmedina.game.app.ui.screens.register.RegisterViewModel
+import davidmedina.game.app.ui.screens.worldgen.BoxArtViewModal
 
 
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -17,11 +18,15 @@ import org.koin.dsl.module
 
 
 val appModule = module {
+
     singleOf(::DMGameApiImpl) bind DMGameApi::class
-    singleOf(::LoginRepositoryImpl) bind LoginRepository::class
+    singleOf(::MetaGameRepositoryInMemory) bind MetaGameRepository::class
 }
 val viewModuleModule = module {
     viewModelOf(::LoginViewModel)
-    viewModelOf(::HomeViewModel)
+    viewModelOf(::MainMenuViewModel)
+    viewModelOf(::RegisterViewModel)
+
+    viewModelOf(::BoxArtViewModal)
     viewModelOf(::GameScreenViewModel)
 }

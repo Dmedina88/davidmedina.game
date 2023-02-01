@@ -1,4 +1,4 @@
-package davidmedina.game.app.viewmodel
+package davidmedina.game.app.ui.screens.login
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,13 +11,13 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 data class LoginState(
-  val userName: String = "",
+  val userName: String = "Davis Dedaina",
   val password: String = "",
   val isLoading: Boolean = false,
   val logInNavPending: Boolean = false
 )
 
-class LoginViewModel (val loginRepository: LoginRepository) : ViewModel() {
+class LoginViewModel ( loginRepository: LoginRepository) : ViewModel() {
 
 
   var uiState by mutableStateOf(LoginState())

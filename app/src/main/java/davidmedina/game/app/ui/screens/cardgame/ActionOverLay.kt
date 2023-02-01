@@ -14,11 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import davidmedina.game.app.ui.theme.playingCardSize
-import davidmedina.game.app.viewmodel.ActionComposerState
 
 
 @Composable
-fun ActionOverlay(action : ActionComposerState, onTargetSelected: (Int) -> Unit,cansel: (() -> Unit) = {} , confirm: (() -> Unit) = {} )  {
+fun ActionOverlay(action : ActionComposerState, onTargetSelected: (Int) -> Unit, cansel: (() -> Unit) = {}, confirm: (() -> Unit) = {} )  {
 
     Row(modifier = Modifier.fillMaxSize()) {
 
@@ -41,7 +40,7 @@ fun ActionOverlay(action : ActionComposerState, onTargetSelected: (Int) -> Unit,
 }
 
 @Composable
-private fun PlayCardOverlay( action :ActionComposerState.PlayCard,onClick: (Int) -> Unit ){
+private fun PlayCardOverlay(action : ActionComposerState.PlayCard, onClick: (Int) -> Unit ){
 
        Column() {
            LazyRow {
