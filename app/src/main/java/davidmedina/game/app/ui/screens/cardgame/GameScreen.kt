@@ -15,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import davidmedina.game.app.ui.composables.GameField
 import davidmedina.game.app.ui.composables.LockScreenOrientation
-import davidmedina.game.app.ui.composables.PlayerCards
-import davidmedina.game.app.ui.composables.SideInfoBar
 import org.koin.androidx.compose.koinViewModel
 
 @Preview

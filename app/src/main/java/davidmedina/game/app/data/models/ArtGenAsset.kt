@@ -134,7 +134,7 @@ val ground = listOf(
     R.drawable.gen_ground_5)
 
 val landTrait = listOf(
-    R.drawable.gen_land_trait_11,
+    R.drawable.gen_land_trait_big_mushroom,
     R.drawable.gen_land_trait_12,
     R.drawable.gen_land_trait_13,
     R.drawable.gen_land_trait_14,
@@ -187,6 +187,5 @@ val structures = listOf(
     R.drawable.gen_structure_9,
     R.drawable.gen_structure_10,
     R.drawable.gen_structure_11,
-    R.drawable.gen_structure_12,
     R.drawable.gen_structure_13
 )

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidmedina.game.app.data.models.*
 import davidmedina.game.app.ui.composables.LockScreenOrientation
-import davidmedina.game.app.ui.resizeWithCenterOffset
+import davidmedina.game.app.ui.composables.resizeWithCenterOffset
 import org.koin.androidx.compose.koinViewModel
 import kotlin.random.Random
 

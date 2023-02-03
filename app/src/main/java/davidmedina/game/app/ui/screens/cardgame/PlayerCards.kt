@@ -1,4 +1,4 @@
-package davidmedina.game.app.ui.composables
+package davidmedina.game.app.ui.screens.cardgame
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
@@ -7,9 +7,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import davidmedina.game.app.ui.composables.DMGCard
 import davidmedina.game.app.ui.theme.playingCardSize
-import davidmedina.game.app.ui.screens.cardgame.GameScreenViewModel
-import davidmedina.game.app.ui.screens.cardgame.CardGameState
 
 @Composable
 fun PlayerCards(
