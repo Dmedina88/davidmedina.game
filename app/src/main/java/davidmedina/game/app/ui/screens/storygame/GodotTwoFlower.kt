@@ -1,12 +1,14 @@
 package davidmedina.game.app.ui.screens.storygame
 
-import android.content.pm.ActivityInfo
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -18,8 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidmedina.game.app.R
 import davidmedina.game.app.data.models.ArtGenAsset
-import davidmedina.game.app.ui.composables.LockScreenOrientation
-import davidmedina.game.app.ui.composables.TheHostCharacter
+import davidmedina.game.app.ui.composables.artwidget.TheHostCharacter
 import davidmedina.game.app.ui.composables.resizeWithCenterOffset
 import kotlin.random.Random
 
@@ -33,7 +34,7 @@ fun GodotTwoFlower() {
 //    var screenWidth by remember { mutableStateOf(Dp(0f)) }
 //    var screenHeight by remember { mutableStateOf(Dp(0f)) }
 
-    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+    // LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
     //change to box with constrints
     BoxWithConstraints(
         Modifier
@@ -43,18 +44,25 @@ fun GodotTwoFlower() {
 
         val screenWidth = this.maxWidth
         val screenHeight = this.maxHeight
-
+        val centerX = screenWidth.div(2.dp)
+        val centerY = screenHeight.div(2.dp)
 
         BackGround(screenHeight = screenHeight, screenWidth = screenWidth)
         Sky(screenHeight = screenHeight, screenWidth = screenWidth)
 
         Ground(screenHeight = screenHeight, screenWidth = screenWidth)
 
-        Box(Modifier.offset((screenWidth / 2) - 100.dp, screenHeight / 2).size(100.dp,100.dp)) {
-            TheHostCharacter()
-        }
+        Fort(screenHeight = screenHeight)
 
 
+        TheHostCharacter(
+            modifier = Modifier.resizeWithCenterOffset(
+                200.dp,
+                250.dp,
+                centerX.dp,
+                centerY.dp + 100.dp
+            )
+        )
 
         Trees(screenWidth = screenWidth, screenHeight = screenHeight)
 
@@ -65,6 +73,15 @@ fun GodotTwoFlower() {
             Text(text = " ${screenWidth.value} x ${screenHeight.value}", fontSize = 40.sp)
         }
     }
+}
+
+@Composable
+fun Fort(screenHeight: Dp) {
+    Image(
+        painter = painterResource(id = R.drawable.gen_structure_green_fort), null,
+        Modifier.offset(24.dp, screenHeight.div(3)),
+        contentScale = ContentScale.FillBounds
+    )
 }
 
 @Composable
@@ -135,54 +152,93 @@ private fun Flowers(
 ) {
     Image(
         painter = painterResource(id = R.drawable.gen_flower_man), null,
-        Modifier.offset(screenWidth - 180.dp, screenHeight - 225.dp),
+        Modifier.offset(screenWidth - 280.dp, screenHeight - 325.dp),
         contentScale = ContentScale.FillBounds
     )
 
     Image(
         painter = painterResource(id = R.drawable.gen_flower_man), null,
-        Modifier.offset(screenWidth - 250.dp, screenHeight - 225.dp),
+        Modifier.offset(screenWidth - 350.dp, screenHeight - 325.dp),
         contentScale = ContentScale.FillBounds
     )
 }
 
+@Preview
 @Composable
 private fun Trees(
-    screenWidth: Dp,
-    screenHeight: Dp
+    screenWidth: Dp = 1000.dp,
+    screenHeight: Dp = 800.dp,
 ) {
 
-    val treeHeight = screenHeight / 3
-    val treeWidth = screenWidth / 8
-    val treex = screenWidth - treeWidth
-    val treey = screenHeight / 2
+
+    Box(modifier = Modifier.size(screenWidth, screenHeight)) {
+        val treeHeight by remember {
+            mutableStateOf(screenHeight / 2)
+        }
+        val treeWidth by remember {
+            mutableStateOf(300.dp)
+        }
+        val treeX by remember {
+            mutableStateOf( screenWidth - treeWidth.div(2))
+        }
+
+        val treeY  by remember {
+            mutableStateOf(screenHeight / 2)
+        }
 
 
-    Image(
-        painter = painterResource(id = R.drawable.gen_land_trait_apple_tree), null,
-        Modifier.resizeWithCenterOffset(treeWidth, treeHeight , treex, treey),
-        contentScale = ContentScale.FillBounds
-    )
 
-    Image(
-        painter = painterResource(id = R.drawable.gen_land_trait_apple_tree), null,
-        Modifier.resizeWithCenterOffset(
-            treeWidth,
-            treeHeight,
-            treex -treeWidth,
-            treey
-        ),
-        contentScale = ContentScale.FillBounds
-    )
+        Image(
+            painter = painterResource(id = R.drawable.gen_land_trait_apple_tree), null,
+            Modifier
+                .resizeWithCenterOffset(
+                    treeWidth,
+                    treeHeight,
+                    treeX,
+                    treeY + 34.dp
+                )
+                .rotate(40f),
+            contentScale = ContentScale.FillBounds,
+        )
 
-    Image(
-        painter = painterResource(id = R.drawable.gen_land_trait_apple_tree), null,
-        Modifier.resizeWithCenterOffset(
-            treeWidth,
-            treeHeight,
-            treex - 250.dp,
-            treey - 225.dp
-        ),
-        contentScale = ContentScale.FillBounds
-    )
+        Image(
+            painter = painterResource(id = R.drawable.gen_land_trait_apple_tree), null,
+            Modifier.resizeWithCenterOffset(
+                treeWidth,
+                treeHeight,
+                treeX - treeWidth,
+                treeY
+            ),
+            contentScale = ContentScale.FillBounds
+        )
+
+        var treeState by remember { mutableStateOf(true) }
+
+        val offsetAnimation: Float by animateFloatAsState(
+            if (treeState) -16f else 60f,
+            animationSpec = tween(
+                durationMillis = 2000,
+                delayMillis = 40,
+                easing = LinearOutSlowInEasing
+            )
+
+        )
+
+
+        Image(
+            painter = painterResource(id = R.drawable.gen_land_trait_apple_tree), null,
+            Modifier
+                .resizeWithCenterOffset(
+                    treeWidth,
+                    treeHeight,
+                    treeX - treeWidth.div(2),
+                    treeY + 34.dp
+                )
+                .clickable { treeState = treeState.not() }
+                .rotate(offsetAnimation),
+            contentScale = ContentScale.FillBounds
+        )
+
+
+    }
 }

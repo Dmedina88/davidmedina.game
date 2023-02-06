@@ -183,7 +183,7 @@ val structures = listOf(
     R.drawable.gen_structure_5,
     R.drawable.gen_structure_6,
     R.drawable.gen_structure_7,
-    R.drawable.gen_structure_8,
+    R.drawable.gen_structure_green_fort,
     R.drawable.gen_structure_9,
     R.drawable.gen_structure_10,
     R.drawable.gen_structure_11,
