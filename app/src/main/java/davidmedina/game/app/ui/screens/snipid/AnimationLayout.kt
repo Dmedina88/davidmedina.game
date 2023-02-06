@@ -1,4 +1,4 @@
-package davidmedina.game.app.ui.screens
+package davidmedina.game.app.ui.screens.snipid
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf

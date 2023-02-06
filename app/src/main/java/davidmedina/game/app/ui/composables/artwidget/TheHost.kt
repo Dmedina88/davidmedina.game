@@ -7,6 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -22,7 +24,11 @@ fun TheHostCharacter(modifier: Modifier = Modifier.size(400.dp, 500.dp)) {
 
     // //4/5s
 
-    BoxWithConstraints(modifier = modifier.drawBehind { drawGrid() }) {
+    BoxWithConstraints(modifier = modifier.drawWithContent {
+       drawContent()
+        drawGrid()
+
+    }) {
 
         val screenWidth = this.maxWidth
         val screenHeight = this.maxHeight

@@ -3,13 +3,13 @@ package davidmedina.game.app.ui.screens.storygame
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -21,7 +21,10 @@ import androidx.compose.ui.unit.sp
 import davidmedina.game.app.R
 import davidmedina.game.app.data.models.ArtGenAsset
 import davidmedina.game.app.ui.composables.artwidget.TheHostCharacter
+import davidmedina.game.app.ui.composables.noRippleClickable
 import davidmedina.game.app.ui.composables.resizeWithCenterOffset
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
@@ -213,16 +216,33 @@ private fun Trees(
         )
 
         var treeState by remember { mutableStateOf(true) }
-
+/*
         val offsetAnimation: Float by animateFloatAsState(
-            if (treeState) -16f else 60f,
+            if (treeState) -16f else 30f,
             animationSpec = tween(
                 durationMillis = 2000,
                 delayMillis = 40,
                 easing = LinearOutSlowInEasing
             )
-
         )
+
+ */
+        val floatAnimation: Float by animateFloatAsState(
+            if (treeState) -16f else 30f,
+            animationSpec = repeatable(
+                iterations = 3,
+                animation = tween(durationMillis = 200),
+                repeatMode = RepeatMode.Reverse)
+            )
+
+
+        LaunchedEffect("tree"){
+            while (true) {
+                delay(5000)
+                treeState = treeState.not()
+            }
+        }
+
 
 
         Image(
@@ -234,8 +254,14 @@ private fun Trees(
                     treeX - treeWidth.div(2),
                     treeY + 34.dp
                 )
-                .clickable { treeState = treeState.not() }
-                .rotate(offsetAnimation),
+                .noRippleClickable { treeState = treeState.not() }
+                //.rotate(offsetAnimation)
+                .graphicsLayer {
+                    rotationZ = floatAnimation
+                    rotationY = floatAnimation.div(2)
+
+
+                },
             contentScale = ContentScale.FillBounds
         )
 
