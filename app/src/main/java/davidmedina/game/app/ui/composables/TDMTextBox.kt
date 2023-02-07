@@ -2,7 +2,10 @@ package davidmedina.game.app.ui.composables
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,19 +38,23 @@ fun TDMTextBox(text: String ) {
             nextText[index] = s
         }
     }
+    val scrollState = rememberScrollState()
+
     Row(
         modifier = Modifier
             .fillMaxHeight(.2f)
             .fillMaxWidth()
             .border(
-                width = 4.dp,
+                width = 12.dp,
                 brush = Brush.verticalGradient(colors = listOf(Color.Green, Color.Blue)),
                 shape = RoundedCornerShape(percent = 2)
             )
             // To make the ripple round
-            .clip(shape = RoundedCornerShape(percent = 5))
+            .clip(shape = RoundedCornerShape(percent = 12))
             .padding(20.dp)
+            .scrollable(scrollState,Orientation.Vertical)
     ) {
+
 
         nextText.forEachIndexed { index, text ->
 
