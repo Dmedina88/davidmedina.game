@@ -52,7 +52,6 @@ fun TDMTextBox(text: String ) {
             // To make the ripple round
             .clip(shape = RoundedCornerShape(percent = 12))
             .padding(20.dp)
-            .scrollable(scrollState,Orientation.Vertical)
     ) {
 
 
