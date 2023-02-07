@@ -34,8 +34,6 @@ class MainActivity : ComponentActivity() {
                         TopAppBar(
                             title = {
                                 Text(text = currentDest)
-
-
                             },
                             navigationIcon =
                             {

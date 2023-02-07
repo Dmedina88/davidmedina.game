@@ -10,4 +10,5 @@ enum class Routes() {
   ART_GEN(),
   REGISTER(),
   SETTINGS(),
+  STORY_MODE(),
 }

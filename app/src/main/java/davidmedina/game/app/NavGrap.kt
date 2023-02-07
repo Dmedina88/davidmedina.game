@@ -14,6 +14,7 @@ import davidmedina.game.app.ui.screens.cardgame.GameScreen
 import davidmedina.game.app.ui.screens.login.LoginViewModel
 import davidmedina.game.app.ui.screens.register.RegisterScreen
 import davidmedina.game.app.ui.screens.register.RegisterViewModel
+import davidmedina.game.app.ui.screens.storygame.GodotTwoFlower
 import davidmedina.game.app.ui.screens.worldgen.BoxArtScreen
 import davidmedina.game.app.ui.screens.worldgen.CanvisArtScreen
 import org.koin.androidx.compose.koinViewModel
@@ -22,9 +23,21 @@ import org.koin.androidx.compose.koinViewModel
 fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
     NavHost(
         navController = navController,
-        startDestination = Routes.REGISTER.name,
+        startDestination = Routes.HOME.name,
         modifier = androidx.compose.ui.Modifier.padding(innerPadding)
     ) {
+
+        composable(Routes.HOME.name) {
+            MainMenuScreen(
+                { navController.navigate(Routes.GAME.name) },
+                { navController.navigate(Routes.LINKS.name) },
+                { navController.navigate(Routes.FEEDBACK.name) },
+                { navController.navigate(Routes.PROTO_GEN.name) },
+                { navController.navigate(Routes.ART_GEN.name) },
+                { navController.navigate(Routes.STORY_MODE.name) },
+                )
+        }
+
         composable(Routes.REGISTER.name) {
             RegisterScreen({
                 navController.navigate(Routes.HOME.name) {
@@ -46,16 +59,7 @@ fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
             }, loginViewModel)
         }
         //consider movi here for   wase of wierint
-        composable(Routes.HOME.name) {
-            MainMenuScreen(
-                { navController.navigate(Routes.GAME.name) },
-                { navController.navigate(Routes.LINKS.name) },
-                { navController.navigate(Routes.FEEDBACK.name) },
-                { navController.navigate(Routes.PROTO_GEN.name) },
-                { navController.navigate(Routes.ART_GEN.name) },
 
-            )
-        }
         composable(Routes.FEEDBACK.name) {
             FeedBackScreen()
         }
@@ -68,8 +72,8 @@ fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
         composable(Routes.PROTO_GEN.name) {
             CanvisArtScreen()
         }
-        composable(Routes.ART_GEN.name) {
-            BoxArtScreen()
+        composable(Routes.STORY_MODE.name) {
+            GodotTwoFlower()
         }
     }
 }

@@ -25,7 +25,9 @@ fun MainMenuScreen(
     onFeedBackClicked: () -> Unit = {},
     onProtoGenClicked: () -> Unit = {},
     onArtGenClicked: () -> Unit = {},
-) {
+    onStoryModeClicked: () -> Unit = {},
+
+    ) {
 
     val vm = koinViewModel<MainMenuViewModel>()
 
@@ -57,6 +59,9 @@ fun MainMenuScreen(
             Text(text = "Composed Art")
         }
 
+        Button(onClick = { onStoryModeClicked() }) {
+            Text(text = "Blue_Ogre_Story")
+        }
         if (vm.uiState.debugMode) {
 
             Text(text = vm.uiState.gameState.toString())
@@ -102,6 +107,7 @@ private fun Title(charClicked: (Char) -> Unit = { }) {
                 },
             text = "A", fontSize = 34.sp
         )
+
     }
 }
 

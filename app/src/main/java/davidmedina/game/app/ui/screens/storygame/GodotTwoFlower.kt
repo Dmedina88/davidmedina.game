@@ -1,6 +1,9 @@
 package davidmedina.game.app.ui.screens.storygame
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,18 +27,12 @@ import davidmedina.game.app.ui.composables.artwidget.TheHostCharacter
 import davidmedina.game.app.ui.composables.noRippleClickable
 import davidmedina.game.app.ui.composables.resizeWithCenterOffset
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
 @Composable
 @Preview
 fun GodotTwoFlower() {
-
-
-//    var intSize by remember { mutableStateOf(IntSize.Zero) }
-//    var screenWidth by remember { mutableStateOf(Dp(0f)) }
-//    var screenHeight by remember { mutableStateOf(Dp(0f)) }
 
     // LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
     //change to box with constrints
@@ -173,7 +170,6 @@ private fun Trees(
     screenHeight: Dp = 800.dp,
 ) {
 
-
     Box(modifier = Modifier.size(screenWidth, screenHeight)) {
         val treeHeight by remember {
             mutableStateOf(screenHeight / 2)
@@ -188,7 +184,6 @@ private fun Trees(
         val treeY  by remember {
             mutableStateOf(screenHeight / 2)
         }
-
 
 
         Image(
@@ -216,31 +211,21 @@ private fun Trees(
         )
 
         var treeState by remember { mutableStateOf(true) }
-/*
-        val offsetAnimation: Float by animateFloatAsState(
-            if (treeState) -16f else 30f,
-            animationSpec = tween(
-                durationMillis = 2000,
-                delayMillis = 40,
-                easing = LinearOutSlowInEasing
-            )
-        )
 
- */
+
         val floatAnimation: Float by animateFloatAsState(
             if (treeState) -16f else 30f,
             animationSpec = repeatable(
                 iterations = 3,
-                animation = tween(durationMillis = 200),
+                animation = tween(durationMillis = 500),
                 repeatMode = RepeatMode.Reverse)
             )
 
 
-        LaunchedEffect("tree"){
-            while (true) {
+        LaunchedEffect(treeState){
                 delay(5000)
                 treeState = treeState.not()
-            }
+
         }
 
 
@@ -259,7 +244,6 @@ private fun Trees(
                 .graphicsLayer {
                     rotationZ = floatAnimation
                     rotationY = floatAnimation.div(2)
-
 
                 },
             contentScale = ContentScale.FillBounds
