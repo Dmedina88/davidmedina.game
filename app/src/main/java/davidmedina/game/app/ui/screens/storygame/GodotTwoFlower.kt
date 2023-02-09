@@ -49,7 +49,6 @@ fun GodotTwoFlower() {
 
         BackGround(screenHeight = screenHeight, screenWidth = screenWidth)
         Sky(screenHeight = screenHeight, screenWidth = screenWidth)
-
         Ground(screenHeight = screenHeight, screenWidth = screenWidth)
 
         Fort(screenHeight = screenHeight)

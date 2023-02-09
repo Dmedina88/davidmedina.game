@@ -34,8 +34,7 @@ fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
                 { navController.navigate(Routes.FEEDBACK.name) },
                 { navController.navigate(Routes.PROTO_GEN.name) },
                 { navController.navigate(Routes.ART_GEN.name) },
-                { navController.navigate(Routes.STORY_MODE.name) },
-                )
+                { navController.navigate(Routes.STORY_MODE.name) })
         }
 
         composable(Routes.REGISTER.name) {

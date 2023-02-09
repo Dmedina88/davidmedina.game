@@ -24,7 +24,7 @@ val backgrounds = listOf(
     R.drawable.gen_background_2,
     R.drawable.gen_background_3,
     R.drawable.gen_background_4,
-    R.drawable.gen_background_5,
+    R.drawable.gen_story_splats_5,
     R.drawable.gen_background_6,
     R.drawable.gen_background_7,
     R.drawable.gen_background_8,
@@ -129,7 +129,7 @@ val flying = listOf(
 val ground = listOf(
     R.drawable.gen_ground_1,
     R.drawable.gen_ground_2,
-    R.drawable.gen_ground_3,
+    R.drawable.gen_japan_ground_3,
     R.drawable.gen_ground_4,
     R.drawable.gen_ground_5)
 
@@ -172,14 +172,14 @@ val sky = listOf(
     R.drawable.gen_sky_5,
     R.drawable.gen_sky_6,
     R.drawable.gen_sky_7,
-    R.drawable.gen_sky_8
+    R.drawable.gen_perp_sky_8
 )
 
 val structures = listOf(
     R.drawable.gen_structure_1,
     R.drawable.gen_structure_2,
     R.drawable.gen_structure_3,
-    R.drawable.gen_structure_4,
+    R.drawable.gen_structure_hut_4,
     R.drawable.gen_structure_5,
     R.drawable.gen_structure_6,
     R.drawable.gen_structure_7,
