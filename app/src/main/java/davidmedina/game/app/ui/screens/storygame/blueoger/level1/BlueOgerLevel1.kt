@@ -209,13 +209,14 @@ private fun Ogers(
     Image(
         painter = painterResource(id = R.drawable.other_oger), null,
         Modifier
-            .background(Color.Blue)
             .resizeWithCenterOffset(
                 width,
                 height,
                 x - height,
                 y
             )
+            .background(Color.Blue)
+
             .rotate(floatAnimation)
             .offset(dpOffset, dpOffset)
             .graphicsLayer {
@@ -227,14 +228,13 @@ private fun Ogers(
     Image(
         painter = painterResource(id = R.drawable.other_oger), null,
         Modifier
-            .background(Color.Yellow)
-
             .resizeWithCenterOffset(
                 width,
                 height,
                 x + width,
                 y + 34.dp
             )
+            .background(Color.Yellow)
             .rotate(floatAnimation)
             .offset(y = dpOffset)
             .graphicsLayer {
@@ -246,14 +246,14 @@ private fun Ogers(
     Image(
         painter = painterResource(id = R.drawable.other_oger), null,
         Modifier
-            .background(Color.Green)
-
             .resizeWithCenterOffset(
                 width,
                 height,
                 x,
                 y + 34.dp
             )
+            .background(Color.Green)
+
             .rotate(floatAnimation)
             .graphicsLayer {
                 rotationY = 180F
