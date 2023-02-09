@@ -20,12 +20,7 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
-   val scrollState = rememberScrollState()
-    Row(
-        Modifier
-            .fillMaxSize()
-            .scrollable(scrollState,Orientation.Vertical)
-    ) {
+    Row() {
         LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
         val state by gameScreenViewModel.uiState.collectAsState()
@@ -47,7 +42,8 @@ private fun MainField(
     state: CardGameState,
     gameScreenViewModel: GameScreenViewModel
 ) {
-    Box(Modifier.fillMaxSize()) {
+
+    Box() {
         Column {
             GameField(state)
             PlayerCards(state, gameScreenViewModel)

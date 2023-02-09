@@ -1,6 +1,6 @@
 package davidmedina.game.app.ui.screens.storygame.blueoger.level1
 
-import android.util.Log
+import android.content.pm.ActivityInfo
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidmedina.game.app.R
+import davidmedina.game.app.ui.composables.LockScreenOrientation
 import davidmedina.game.app.ui.composables.TDMTextBox
 import davidmedina.game.app.ui.composables.noRippleClickable
 import davidmedina.game.app.ui.composables.resizeWithCenterOffset
@@ -30,16 +31,16 @@ import kotlinx.coroutines.launch
 @Preview
 fun BlueOgerOpening() {
 
-
     val scope = rememberCoroutineScope()
     //anaiamtion
-
+    LockScreenOrientation(orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
     ) {
         val screenHeight = this.maxHeight
         val screenWidth = this.maxWidth
+
         BackGround(screenHeight = screenHeight, screenWidth = screenWidth)
         Sky(screenHeight = screenHeight, screenWidth = screenWidth)
         Ground(screenHeight = screenHeight, screenWidth = screenWidth)
@@ -72,8 +73,6 @@ fun BlueOgerOpening() {
             }
         }
     })
-
-   
 
 }
 
@@ -182,9 +181,8 @@ private fun Ogers(
     screenHeight: Dp = 800.dp,
 ) {
     val height = 150.dp
-
     val width = 100.dp
-    val x = screenWidth - width.times(2)
+    val x = screenWidth.div(2)
     val y = screenHeight / 2
     var danceState by remember { mutableStateOf(true) }
 

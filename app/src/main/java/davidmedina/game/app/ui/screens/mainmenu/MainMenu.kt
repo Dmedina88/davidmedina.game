@@ -1,4 +1,4 @@
-package davidmedina.game.app.ui.screens
+package davidmedina.game.app.ui.screens.mainmenu
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidmedina.game.app.ui.composables.TDMButton
 import davidmedina.game.app.ui.composables.noRippleClickable
-import davidmedina.game.app.ui.screens.mainmenu.MainMenuViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
@@ -26,8 +25,9 @@ fun MainMenuScreen(
     onProtoGenClicked: () -> Unit = {},
     onArtGenClicked: () -> Unit = {},
     onStoryModeClicked: () -> Unit = {},
+    onStoryTestClicked: () -> Unit = {}
 
-    ) {
+) {
 
     val vm = koinViewModel<MainMenuViewModel>()
 
@@ -39,8 +39,6 @@ fun MainMenuScreen(
     ) {
 
         Title(vm::onTitleClicked)
-
-
 
 
         Button(onClick = { onNewGameClicked() }) {
@@ -61,6 +59,9 @@ fun MainMenuScreen(
 
         Button(onClick = { onStoryModeClicked() }) {
             Text(text = "Blue_Ogre_Story")
+        }
+        TDMButton(text = "Waiting For Godot Test"){
+            onStoryTestClicked()
         }
         if (vm.uiState.debugMode) {
 

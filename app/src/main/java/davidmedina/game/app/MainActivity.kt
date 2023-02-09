@@ -27,7 +27,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val currentBackStackEntry = navController.currentBackStackEntryAsState()
-           val currentDest = currentBackStackEntry.value?.destination?.route.toString()
+            val currentDest =
+                if (currentBackStackEntry.value != null) currentBackStackEntry.value?.destination?.route.toString() else ""
             DavidmedinagameTheme {
                 Scaffold(
                     topBar = {

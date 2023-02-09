@@ -11,4 +11,5 @@ enum class Routes() {
   REGISTER(),
   SETTINGS(),
   STORY_MODE(),
+  STORY_TEST(),
 }
