@@ -1,6 +1,8 @@
 package davidmedina.game.app.ui.screens.mainmenu
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,9 +33,11 @@ fun MainMenuScreen(
 
     val vm = koinViewModel<MainMenuViewModel>()
 
-
+    val scrollState = rememberScrollState()
     Column(
-        Modifier.fillMaxSize(),
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -60,7 +64,7 @@ fun MainMenuScreen(
         Button(onClick = { onStoryModeClicked() }) {
             Text(text = "Blue_Ogre_Story")
         }
-        TDMButton(text = "Waiting For Godot Test"){
+        TDMButton(text = "Waiting For Godot Test") {
             onStoryTestClicked()
         }
         if (vm.uiState.debugMode) {
@@ -68,8 +72,9 @@ fun MainMenuScreen(
             Text(text = vm.uiState.gameState.toString())
 
         }
+        }
     }
-}
+
 
 @Composable
 private fun Title(charClicked: (Char) -> Unit = { }) {
