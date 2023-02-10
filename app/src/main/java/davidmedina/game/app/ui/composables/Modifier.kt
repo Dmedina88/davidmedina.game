@@ -41,7 +41,6 @@ fun Modifier.resizeWithOffset(width: Dp, height: Dp, x: Dp, y: Dp) : Modifier {
         this
             .padding(start = ajustedX, top = ajustedY)
             .offset(offsetX, offsetY)
-
             .height(height)
             .width(width)
     )

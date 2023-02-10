@@ -19,12 +19,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidmedina.game.app.R
+import davidmedina.game.app.data.models.clouds
 import davidmedina.game.app.ui.composables.LockScreenOrientation
 import davidmedina.game.app.ui.composables.TDMTextBox
 import davidmedina.game.app.ui.composables.noRippleClickable
 import davidmedina.game.app.ui.composables.resizeWithCenterOffset
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 
 val sourceX = 1280.dp
@@ -46,10 +48,19 @@ fun BlueOgerOpening() {
         val screenHeight = this.maxHeight
         val screenWidth = this.maxWidth
 
-        val screenInfo =ScreenInfo(this.maxWidth,this.maxHeight,this.maxWidth/sourceX,this.maxHeight/ sourceY)
+        val screenInfo = ScreenInfo(
+            this.maxWidth,
+            this.maxHeight,
+            this.maxWidth / sourceX,
+            this.maxHeight / sourceY
+        )
 
         BackGround(screenHeight = screenHeight, screenWidth = screenWidth)
         Sky(screenHeight = screenHeight, screenWidth = screenWidth)
+        repeat(8) {
+            Clouds(screenInfo)
+        }
+
         Ground(screenHeight = screenHeight, screenWidth = screenWidth)
         Homes(screenHeight = screenHeight, screenWidth = screenWidth)
         Ogers(screenInfo)
@@ -67,7 +78,6 @@ fun BlueOgerOpening() {
         mutableStateOf(1)
     }
 
-
     TDMTextBox(text, { step += 1 }, { step += 1 })
 
     LaunchedEffect(key1 = step, block = {
@@ -81,6 +91,56 @@ fun BlueOgerOpening() {
         }
     })
 
+}
+
+@Composable
+fun Clouds(screenInfo: ScreenInfo) {
+    val clouds = remember {
+        clouds.random()
+    }
+
+    val startingX = remember { Random.nextInt(screenInfo.screenWidth.value.toInt()).dp }
+    val startingY = remember { Random.nextInt(screenInfo.screenHeight.value.div(3).toInt()).dp }
+
+    val height = 75.dp * screenInfo.yScale
+    val width = 200.dp * screenInfo.yScale
+
+    var cloudToggle by remember {
+        mutableStateOf(false)
+    }
+    val dpOffset: Dp by animateDpAsState(
+        targetValue = if (cloudToggle) -5.dp else 5.dp,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    LaunchedEffect("Unit") {
+        cloudToggle = cloudToggle.not()
+    }
+
+
+    Text(
+        text = dpOffset.toString(),
+        modifier = Modifier
+            .padding(100.dp, 100.dp)
+            .background(Color.Yellow)
+    )
+    Image(
+        painter = painterResource(id = clouds), null,
+        Modifier
+            .resizeWithCenterOffset(
+                width,
+                height,
+                startingX,
+                startingY + dpOffset
+            )
+            .graphicsLayer {
+                rotationY = dpOffset.value
+            },
+        contentScale = ContentScale.FillBounds
+    )
 }
 
 
@@ -134,6 +194,7 @@ private fun Homes(
             (this.density * 150f).toDp()
         }
     val width = 100.dp
+
     val x = screenWidth - width
     val y = screenHeight / 1.6f
 
@@ -217,8 +278,6 @@ private fun Ogers(
                 x - height,
                 y
             )
-            .background(Color.Blue)
-
             .rotate(floatAnimation)
             .offset(dpOffset, dpOffset)
             .graphicsLayer {
@@ -234,9 +293,8 @@ private fun Ogers(
                 width,
                 height,
                 x + width,
-                y + 34.dp
+                y + 36.dp
             )
-            .background(Color.Yellow)
             .rotate(floatAnimation)
             .offset(y = dpOffset)
             .graphicsLayer {
@@ -254,8 +312,6 @@ private fun Ogers(
                 x,
                 y + 34.dp
             )
-            .background(Color.Green)
-
             .rotate(floatAnimation)
             .graphicsLayer {
                 rotationY = 180F
@@ -270,9 +326,9 @@ private fun Ogers(
 private fun BlueOger(
     screenInfo: ScreenInfo
 ) {
+
     val width = 115.dp * screenInfo.yScale
     val height = 175.dp * screenInfo.yScale
-
 
     var danceState by remember { mutableStateOf(true) }
 

@@ -15,6 +15,7 @@ import davidmedina.game.app.ui.screens.login.LoginViewModel
 import davidmedina.game.app.ui.screens.register.RegisterScreen
 import davidmedina.game.app.ui.screens.storygame.GodotTwoFlower
 import davidmedina.game.app.ui.screens.storygame.blueoger.level1.BlueOgerOpening
+import davidmedina.game.app.ui.screens.worldgen.BoxArtScreen
 import davidmedina.game.app.ui.screens.worldgen.CanvisArtScreen
 import org.koin.androidx.compose.koinViewModel
 
@@ -70,6 +71,9 @@ fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
         }
         composable(Routes.PROTO_GEN.name) {
             CanvisArtScreen()
+        }
+        composable(Routes.ART_GEN.name) {
+            BoxArtScreen()
         }
         composable(Routes.STORY_MODE.name) {
             BlueOgerOpening()
