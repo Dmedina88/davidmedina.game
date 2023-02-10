@@ -27,6 +27,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+val sourceX = 1280.dp
+val sourceY = 820.dp
+
+data class ScreenInfo(val screenWidth: Dp,val screenHeight: Dp,val xScale: Float, val yScale: Float)
+
 @Composable
 @Preview
 fun BlueOgerOpening() {
@@ -41,12 +46,14 @@ fun BlueOgerOpening() {
         val screenHeight = this.maxHeight
         val screenWidth = this.maxWidth
 
+        val screenInfo =ScreenInfo(this.maxWidth,this.maxHeight,this.maxWidth/sourceX,this.maxHeight/ sourceY)
+
         BackGround(screenHeight = screenHeight, screenWidth = screenWidth)
         Sky(screenHeight = screenHeight, screenWidth = screenWidth)
         Ground(screenHeight = screenHeight, screenWidth = screenWidth)
         Homes(screenHeight = screenHeight, screenWidth = screenWidth)
-         Ogers(screenHeight = screenHeight, screenWidth = screenWidth)
-        BlueOger(screenHeight = screenHeight, screenWidth = screenWidth)
+        Ogers(screenInfo)
+        BlueOger(screenInfo)
 
         Column(Modifier.background(Color.Green)) {
             Text(text = " ${screenWidth.value} x ${screenHeight.value}", fontSize = 40.sp)
@@ -128,7 +135,7 @@ private fun Homes(
         }
     val width = 100.dp
     val x = screenWidth - width
-    val y = screenHeight / 2
+    val y = screenHeight / 1.6f
 
     Image(
         painter = painterResource(id = R.drawable.gen_structure_hut_4), null,
@@ -148,10 +155,7 @@ private fun Homes(
         painter = painterResource(id = R.drawable.gen_structure_hut_4), null,
         Modifier
             .resizeWithCenterOffset(
-                width,
-                height,
-                x - height,
-                y + 34.dp
+                width, height, x - height, y + 34.dp
             )
             .noRippleClickable { treeState = treeState.not() }
         //.rotate(offsetAnimation)
@@ -174,20 +178,19 @@ private fun Homes(
 }
 
 
-@Preview
 @Composable
 private fun Ogers(
-    screenWidth: Dp = 1000.dp,
-    screenHeight: Dp = 800.dp,
+ screenInfo: ScreenInfo
 ) {
-    val height = 150.dp
-    val width = 100.dp
-    val x = screenWidth.div(2)
-    val y = screenHeight / 2
+    val width = 100.dp * screenInfo.yScale
+    val height = 150.dp * screenInfo.yScale
+
+    val x =  screenInfo.screenWidth - screenInfo.screenWidth.div(3)
+    val y = screenInfo.screenHeight - height
     var danceState by remember { mutableStateOf(true) }
 
     val floatAnimation: Float by animateFloatAsState(
-        if (danceState) -10f else 10f,
+        if (danceState) -15f else 15f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 1000),
             repeatMode = RepeatMode.Reverse
@@ -200,7 +203,8 @@ private fun Ogers(
             repeatMode = RepeatMode.Reverse
         )
     )
-    LaunchedEffect(danceState) {
+    LaunchedEffect("key") {
+       // delay(100)
         danceState = danceState.not()
     }
 
@@ -262,14 +266,13 @@ private fun Ogers(
 }
 
 
-@Preview
 @Composable
 private fun BlueOger(
-    screenWidth: Dp = 1000.dp,
-    screenHeight: Dp = 800.dp,
+    screenInfo: ScreenInfo
 ) {
-    val height = 175.dp
-    val width = 115.dp
+    val width = 115.dp * screenInfo.yScale
+    val height = 175.dp * screenInfo.yScale
+
 
     var danceState by remember { mutableStateOf(true) }
 
@@ -299,8 +302,8 @@ private fun BlueOger(
             .resizeWithCenterOffset(
                 width,
                 height,
-                screenWidth / 2.8f,
-                screenHeight - width
+                screenInfo.screenWidth / 2.8f,
+                screenInfo.screenHeight - width
             )
             .rotate(floatAnimation)
             .offset(dpOffset, dpOffset),
