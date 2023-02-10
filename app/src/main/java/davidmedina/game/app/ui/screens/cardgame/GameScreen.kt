@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,7 +21,10 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
-    Row() {
+
+    val scrollState = rememberScrollState()
+
+    Row(Modifier.verticalScroll(scrollState)) {
         LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
         val state by gameScreenViewModel.uiState.collectAsState()
