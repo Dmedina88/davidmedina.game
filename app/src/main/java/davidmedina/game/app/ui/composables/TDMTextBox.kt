@@ -74,13 +74,7 @@ fun TDMTextBox(
                 }
             }) {
             portrait?.let {
-                AnimatedContent(
-                    targetState = it,
-                    transitionSpec = {
-                        slideInVertically { -it } with slideOutVertically { it }
-                    }) {
 
-                }
 
                 Image(
                     painter = it, contentDescription = "", modifier = Modifier

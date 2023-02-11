@@ -6,17 +6,17 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import davidmedina.game.app.ui.screens.login.LogInScreen
-import davidmedina.game.app.ui.screens.FeedBackScreen
-import davidmedina.game.app.ui.screens.LinkScreen
-import davidmedina.game.app.ui.screens.mainmenu.MainMenuScreen
-import davidmedina.game.app.ui.screens.cardgame.GameScreen
-import davidmedina.game.app.ui.screens.login.LoginViewModel
-import davidmedina.game.app.ui.screens.register.RegisterScreen
-import davidmedina.game.app.ui.screens.storygame.GodotTwoFlower
-import davidmedina.game.app.ui.screens.storygame.blueoger.level1.BlueOgerOpening
-import davidmedina.game.app.ui.screens.worldgen.BoxArtScreen
-import davidmedina.game.app.ui.screens.worldgen.CanvisArtScreen
+import davidmedina.game.app.features.login.LogInScreen
+import davidmedina.game.app.features.FeedBackScreen
+import davidmedina.game.app.features.LinkScreen
+import davidmedina.game.app.features.mainmenu.MainMenuScreen
+import davidmedina.game.app.features.cardgame.GameScreen
+import davidmedina.game.app.features.login.LoginViewModel
+import davidmedina.game.app.features.register.RegisterScreen
+import davidmedina.game.app.features.storygame.GodotTwoFlower
+import davidmedina.game.app.features.storygame.blueoger.level1.BlueOgerOpening
+import davidmedina.game.app.features.worldgen.BoxArtScreen
+import davidmedina.game.app.features.worldgen.CanvisArtScreen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
