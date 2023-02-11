@@ -74,19 +74,32 @@ fun BlueOgerOpening() {
     var text by remember {
         mutableStateOf("")
     }
+    var portite by remember {
+        mutableStateOf(R.drawable.blue_oger_portrite)
+    }
     var step by remember {
         mutableStateOf(1)
     }
 
-    TDMTextBox(text, { step += 1 }, { step += 1 })
+    TDMTextBox(text, painterResource(id = portite), { }, {
+        step += 1
+    })
 
     LaunchedEffect(key1 = step, block = {
         scope.launch {
             delay(500)
-            text = if (step == 1) {
-                "My name is  David"
-            } else {
-                ""
+            when (step) {
+                1 -> {
+                    text = "My name is  Blue Oger... Bloger"
+                    portite = R.drawable.blue_oger_portrite
+                }
+                2 -> {
+                    text = "other ogeer other oger"
+                    portite = R.drawable.other_oger_portrite
+                }
+                else -> {
+                    text = " "
+                }
             }
         }
     })
@@ -266,6 +279,89 @@ private fun Ogers(
     )
     LaunchedEffect("key") {
        // delay(100)
+        danceState = danceState.not()
+    }
+
+    Image(
+        painter = painterResource(id = R.drawable.other_oger), null,
+        Modifier
+            .resizeWithCenterOffset(
+                width,
+                height,
+                x - height,
+                y
+            )
+            .rotate(floatAnimation)
+            .offset(dpOffset, dpOffset)
+            .graphicsLayer {
+                rotationY = 180F
+            },
+        contentScale = ContentScale.FillBounds
+    )
+
+    Image(
+        painter = painterResource(id = R.drawable.other_oger), null,
+        Modifier
+            .resizeWithCenterOffset(
+                width,
+                height,
+                x + width,
+                y + 36.dp
+            )
+            .rotate(floatAnimation)
+            .offset(y = dpOffset)
+            .graphicsLayer {
+                rotationY = 180F
+            },
+        contentScale = ContentScale.FillBounds
+    )
+
+    Image(
+        painter = painterResource(id = R.drawable.other_oger), null,
+        Modifier
+            .resizeWithCenterOffset(
+                width,
+                height,
+                x,
+                y + 34.dp
+            )
+            .rotate(floatAnimation)
+            .graphicsLayer {
+                rotationY = 180F
+            },
+        contentScale = ContentScale.FillBounds,
+    )
+
+}
+
+
+@Composable
+private fun Forest(
+    screenInfo: ScreenInfo
+) {
+    val width = 100.dp * screenInfo.yScale
+    val height = 150.dp * screenInfo.yScale
+
+    val x = screenInfo.screenWidth - screenInfo.screenWidth.div(3)
+    val y = screenInfo.screenHeight - height
+    var danceState by remember { mutableStateOf(true) }
+
+    val floatAnimation: Float by animateFloatAsState(
+        if (danceState) -15f else 15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val dpOffset: Dp by animateDpAsState(
+        targetValue = if (danceState) 0.dp else 10.dp,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 500),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    LaunchedEffect("key") {
+        // delay(100)
         danceState = danceState.not()
     }
 
