@@ -18,13 +18,12 @@ import davidmedina.game.app.ui.composables.gameBoxBackground
 fun BattleMenu(
     playerCharacters: List<CharacterStats>,
     modifier: Modifier = Modifier,
-    onAction: () -> Unit = {},
+    onAction: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
             .then(Modifier)
             .fillMaxWidth()
-
             .gameBoxBackground()
     ) {
         Column(
@@ -74,48 +73,80 @@ fun BattleMenu(
 @Composable
 fun CharacterInfo(characterStats: CharacterStats) {
 
-    ConstraintLayout() {
-        val (image, hp, will, hpBar,willBar) = createRefs()
+    Button(
+        onClick = { /*TODO*/ },
 
-        val textBarrier = createEndBarrier(hp,will)
-        Image(
-            modifier = Modifier
-                .size(75.dp)
-                .constrainAs(image) {},
-            painter = painterResource(id = characterStats.characterID.battleImage),
-            contentDescription = characterStats.name
-        )
+        ) {
 
-        Text(
-            modifier = Modifier.constrainAs(hp) {
-                this.start.linkTo(image.end)
-                this.top.linkTo(image.top)
-            },
-            text = "HP : ${characterStats.Hp}"
-        )
-        Text(
-            modifier = Modifier.constrainAs(will) {
-                this.start.linkTo(image.end)
-                this.top.linkTo(hp.bottom, margin = 5.dp)
-            },
-            text = "Will : ${characterStats.Will}"
-        )
+        ConstraintLayout {
+            val (image, hp, will, hpBar, willBar, speed, speedBar) = createRefs()
 
-        Box(modifier = Modifier.constrainAs(hpBar){
-            start.linkTo(textBarrier,margin = 5.dp)
-            top.linkTo(hp.top)
-            bottom.linkTo(hp.bottom)
-        }.width(180.dp).height(20.dp).background(Color.Red))
+            val textBarrier = createEndBarrier(hp, will)
+            Image(
+                modifier = Modifier
+                    .size(75.dp)
+                    .constrainAs(image) {},
+                painter = painterResource(id = characterStats.characterID.battleImage),
+                contentDescription = characterStats.name
+            )
 
-        Box(modifier = Modifier.constrainAs(willBar){
-            start.linkTo(textBarrier, margin = 5.dp)
-            top.linkTo(will.top)
-            bottom.linkTo(will.bottom)
-        }.width(180.dp).height(20.dp).background(Color.Blue))
+            Text(
+                modifier = Modifier.constrainAs(hp) {
+                    this.start.linkTo(image.end)
+                    this.top.linkTo(image.top)
+                },
+                text = "HP : ${characterStats.Hp}"
+            )
+            Text(
+                modifier = Modifier.constrainAs(will) {
+                    this.start.linkTo(image.end)
+                    this.top.linkTo(hp.bottom, margin = 5.dp)
+                },
+                text = "Will : ${characterStats.Will}"
+            )
+
+            Box(modifier = Modifier
+                .constrainAs(hpBar) {
+                    start.linkTo(textBarrier, margin = 5.dp)
+                    top.linkTo(hp.top)
+                    bottom.linkTo(hp.bottom)
+                }
+                .width(180.dp)
+                .height(20.dp)
+                .background(Color.Red))
+
+            Box(modifier = Modifier
+                .constrainAs(willBar) {
+                    start.linkTo(textBarrier, margin = 5.dp)
+                    top.linkTo(will.top)
+                    bottom.linkTo(will.bottom)
+                }
+                .width(180.dp)
+                .height(20.dp)
+                .background(Color.Blue))
+
+            Text(
+                modifier = Modifier.constrainAs(speed) {
+                    this.start.linkTo(image.end)
+                    this.top.linkTo(will.bottom, margin = 5.dp)
+                },
+                text = "Speed:"
+            )
 
 
+            Box(modifier = Modifier
+                .width(180.dp)
+                .height(20.dp)
+                .constrainAs(speedBar) {
+                    start.linkTo(textBarrier, margin = 5.dp)
+                    top.linkTo(speed.top)
+                    bottom.linkTo(speed.bottom)
+                    end.linkTo(willBar.end)
+                }
+                .background(Color.Yellow))
+
+        }
     }
-
 }
 
 
