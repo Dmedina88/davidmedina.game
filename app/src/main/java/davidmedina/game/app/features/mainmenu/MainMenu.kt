@@ -55,7 +55,7 @@ fun MainMenuScreen(
         Button(onClick = { onFeedBackClicked() }) {
             Text(text = "FeedBack")
         }
-        TDMButton("ProtoType") { onProtoGenClicked() }
+        TDMButton(text = "ProtoType") { onProtoGenClicked() }
 
         Button(onClick = { onArtGenClicked() }) {
             Text(text = "Composed Art")

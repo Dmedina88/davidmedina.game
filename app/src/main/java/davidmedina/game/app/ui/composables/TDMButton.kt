@@ -35,7 +35,7 @@ fun ButtonSideBySide(){
 
 @Preview()
 @Composable
-fun TDMButton(text: String = "Button", onClick: () -> Unit = {}) {
+fun TDMButton(modifier: Modifier = Modifier,text: String = "Button", onClick: () -> Unit = {}, ) {
 
     Box(modifier = Modifier
         .clickable(onClick = onClick)
