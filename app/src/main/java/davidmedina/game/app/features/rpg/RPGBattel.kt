@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -15,16 +17,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
+import davidmedina.game.app.data.models.Items
+import davidmedina.game.app.ui.composables.Onlifecycal
 import davidmedina.game.app.ui.drawGrid
 
 
-class BattleState(val enemys: List<CharacterStats>, val playerCharacter: List<CharacterStats>)
 
 @Composable
 @Preview
 fun RPGBattle() {
 
-    val battleState = BattleState(
+
+    val battleStateMachine = BattleStateMachine()
+
+
+    battleStateMachine.init(
         listOf(
             CharacterId.OTHER_OGER.createCharacter(),
             CharacterId.OTHER_OGER.createCharacter(),
@@ -32,9 +39,17 @@ fun RPGBattle() {
             CharacterId.OTHER_OGER.createCharacter(),
             CharacterId.OTHER_OGER.createCharacter(),
             CharacterId.OTHER_OGER.createCharacter(),
-        ),
-        listOf(CharacterId.BLUE_OGER.createCharacter())
+        ), listOf(
+            CharacterId.BLUE_OGER.createCharacter(),
+        ), listOf(Items.Potion)
     )
+
+    Onlifecycal(onResume = { battleStateMachine.onResume() }, {
+        battleStateMachine.onPause()
+    })
+
+    val battleState by battleStateMachine.state.collectAsState()
+
     ConstraintLayout() {
 
         val (battleMenu, enemy) = createRefs()
@@ -60,9 +75,9 @@ fun RPGBattle() {
             bottom.linkTo(battleMenu.top)
         }) {
 
-            items(battleState.enemys) {
+            items(battleState.enemyCharacters) {
                 Image(
-                    painter = painterResource(id = it.characterID.battleImage),
+                    painter = painterResource(id = it.characterStats.characterID.battleImage),
                     contentDescription = "",
                     contentScale = ContentScale.Fit
                 )
@@ -72,7 +87,7 @@ fun RPGBattle() {
 
 
         BattleMenu(
-            playerCharacters = battleState.playerCharacter,
+            playerCharacters = battleState.playerCharacters,
             modifier = Modifier.constrainAs(battleMenu) {
                 bottom.linkTo(parent.bottom)
             })

@@ -19,6 +19,7 @@ data class MetaGameState(
 
 sealed class Items {
 
+    object Potion : Items()
 
 }
 

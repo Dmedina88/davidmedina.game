@@ -1,11 +1,14 @@
 package davidmedina.game.app.features.rpg
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -16,7 +19,7 @@ import davidmedina.game.app.ui.composables.gameBoxBackground
 
 @Composable
 fun BattleMenu(
-    playerCharacters: List<CharacterStats>,
+    playerCharacters: List<BattleCharacter>,
     modifier: Modifier = Modifier,
     onAction: () -> Unit = {}
 ) {
@@ -71,12 +74,36 @@ fun BattleMenu(
 
 
 @Composable
-fun CharacterInfo(characterStats: CharacterStats) {
+fun CharacterInfo(characterStats: BattleCharacter) {
 
-    Button(
-        onClick = { /*TODO*/ },
 
-        ) {
+    Button(onClick = { /*TODO*/ }) {
+
+        var startAnimation by remember() {
+            mutableStateOf(false)
+        }
+        val speedBarAnimation by animateFloatAsState(
+            targetValue =
+            if (!startAnimation) 0f
+            else characterStats.speedBuilt,
+            animationSpec = tween(durationMillis = 300)
+        )
+        val healthAnimation by animateFloatAsState(
+            targetValue =
+            if (!startAnimation) 0f
+            else characterStats.characterStats.hp.percentage,
+            animationSpec = tween(durationMillis = 300)
+        )
+        val willAnimation by animateFloatAsState(
+            targetValue =
+            if (!startAnimation) 0f
+            else characterStats.characterStats.will.percentage,
+            animationSpec = tween(durationMillis = 300)
+        )
+
+        SideEffect {
+            startAnimation = true
+        }
 
         ConstraintLayout {
             val (image, hp, will, hpBar, willBar, speed, speedBar) = createRefs()
@@ -86,8 +113,8 @@ fun CharacterInfo(characterStats: CharacterStats) {
                 modifier = Modifier
                     .size(75.dp)
                     .constrainAs(image) {},
-                painter = painterResource(id = characterStats.characterID.battleImage),
-                contentDescription = characterStats.name
+                painter = painterResource(id = characterStats.characterStats.characterID.battleImage),
+                contentDescription = characterStats.characterStats.name
             )
 
             Text(
@@ -95,56 +122,62 @@ fun CharacterInfo(characterStats: CharacterStats) {
                     this.start.linkTo(image.end)
                     this.top.linkTo(image.top)
                 },
-                text = "HP : ${characterStats.Hp}"
-            )
-            Text(
-                modifier = Modifier.constrainAs(will) {
-                    this.start.linkTo(image.end)
-                    this.top.linkTo(hp.bottom, margin = 5.dp)
-                },
-                text = "Will : ${characterStats.Will}"
+                text = "HP : ${characterStats.characterStats.hp}"
             )
 
-            Box(modifier = Modifier
+
+            LinearProgressIndicator(modifier = Modifier
                 .constrainAs(hpBar) {
                     start.linkTo(textBarrier, margin = 5.dp)
                     top.linkTo(hp.top)
                     bottom.linkTo(hp.bottom)
                 }
                 .width(180.dp)
-                .height(20.dp)
-                .background(Color.Red))
+                .height(20.dp),
+            color = Color.Red,
+            progress = healthAnimation
+                )
 
-            Box(modifier = Modifier
+            Text(
+                modifier = Modifier.constrainAs(will) {
+                    this.start.linkTo(image.end)
+                    this.top.linkTo(hp.bottom, margin = 5.dp)
+                },
+                text = "Will : ${characterStats.characterStats.will}"
+            )
+
+            LinearProgressIndicator(modifier = Modifier
                 .constrainAs(willBar) {
                     start.linkTo(textBarrier, margin = 5.dp)
                     top.linkTo(will.top)
                     bottom.linkTo(will.bottom)
                 }
                 .width(180.dp)
-                .height(20.dp)
-                .background(Color.Blue))
+                .height(20.dp), color = Color.Blue,
+                progress = willAnimation
+            )
+
 
             Text(
                 modifier = Modifier.constrainAs(speed) {
                     this.start.linkTo(image.end)
                     this.top.linkTo(will.bottom, margin = 5.dp)
                 },
-                text = "Speed:"
+                text = "Speed: ${characterStats.turns}"
             )
 
-
-            Box(modifier = Modifier
-                .width(180.dp)
-                .height(20.dp)
-                .constrainAs(speedBar) {
-                    start.linkTo(textBarrier, margin = 5.dp)
-                    top.linkTo(speed.top)
-                    bottom.linkTo(speed.bottom)
-                    end.linkTo(willBar.end)
-                }
-                .background(Color.Yellow))
-
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .width(180.dp)
+                    .height(20.dp)
+                    .constrainAs(speedBar) {
+                        start.linkTo(textBarrier, margin = 5.dp)
+                        top.linkTo(speed.top)
+                        bottom.linkTo(speed.bottom)
+                        end.linkTo(willBar.end)
+                    }, color = Color.Yellow,
+                progress = speedBarAnimation
+            )
         }
     }
 }
