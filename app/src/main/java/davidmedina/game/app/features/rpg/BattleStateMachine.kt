@@ -42,17 +42,6 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
     var paused by mutableStateOf(false)
         private set
 
-
-    private val tickHandler = TickHandler(scope, tickInterval)
-
-    private fun onTick(work: () -> Unit) {
-        scope.launch {
-            tickHandler.tickFlow.collect {
-                work()
-            }
-        }
-    }
-
     private var Battler.characterStats
         get() =
             when (this) {
@@ -65,6 +54,17 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
                 is Battler.Player -> playerCharacters[this.index] = value
             }
         }
+
+    private val tickHandler = TickHandler(scope, tickInterval)
+
+
+    private fun onTick(work: () -> Unit) {
+        scope.launch {
+            tickHandler.tickFlow.collect {
+                work()
+            }
+        }
+    }
 
 
     fun init(

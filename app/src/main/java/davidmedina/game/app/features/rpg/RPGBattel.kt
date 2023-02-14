@@ -45,7 +45,7 @@ fun RPGBattle() {
     })
 
 
-    ConstraintLayout() {
+    ConstraintLayout {
 
         val (battleMenu, enemy) = createRefs()
 
