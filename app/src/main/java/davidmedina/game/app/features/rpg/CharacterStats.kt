@@ -12,6 +12,10 @@ data class CharacterStats(
     val speed: Float
 ) {
     val isAlive get() = hp.current > 0
+
+    val damage get() = strength.div(4)
+
+
 }
 
 

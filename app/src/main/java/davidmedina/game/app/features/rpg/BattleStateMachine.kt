@@ -1,14 +1,10 @@
 package davidmedina.game.app.features.rpg
 
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import androidx.compose.runtime.*
 import davidmedina.game.app.data.models.Items
 import davidmedina.game.app.util.TickHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
@@ -19,72 +15,113 @@ data class BattleCharacter(
 )
 
 
-sealed class RPGBattleState{
-
-}
- data class BattleState(
-    val playerCharacters: List<BattleCharacter> = emptyList(),
-    val enemyCharacters: List<BattleCharacter> = emptyList(),
-    val playerInventory: List<Items> = emptyList(),
-    val paused : Boolean = false,
-    )
-
-
 const val maxTurns = 3
 const val tickInterval = 250L
+
+sealed class Battler(open val index: Int) {
+    data class Player(override val index: Int) : Battler(index)
+    data class Enemy(override val index: Int) : Battler(index)
+    val isValid get() =  index>-1
+}
+
+
+sealed class Action() {
+    data class Attack(var attacker: Battler, val defender: Battler) : Action()
+}
 
 
 class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)) {
 
 
-    private val _state = MutableStateFlow(BattleState())
-    val state: StateFlow<BattleState> = _state
+    var playerCharacters = mutableStateListOf<BattleCharacter>()
+        private set
+    var enemyCharacters = mutableStateListOf<BattleCharacter>()
+        private set
+    var playerInventory = mutableStateListOf<Items>()
+        private set
+    var paused by mutableStateOf(false)
+        private set
+
 
     private val tickHandler = TickHandler(scope, tickInterval)
 
     private fun onTick(work: () -> Unit) {
         scope.launch {
             tickHandler.tickFlow.collect {
-                    work()
-                }
+                work()
+            }
         }
     }
+
+    private var Battler.characterStats
+        get() =
+            when (this) {
+                is Battler.Enemy -> enemyCharacters[this.index]
+                is Battler.Player -> playerCharacters[this.index]
+            }
+        set(value) {
+            when (this) {
+                is Battler.Enemy -> enemyCharacters[this.index] = value
+                is Battler.Player -> playerCharacters[this.index] = value
+            }
+        }
+
 
     fun init(
         enemys: List<CharacterStats>,
-        playerCharacter: List<CharacterStats>,
+        players: List<CharacterStats>,
         items: List<Items>
     ) {
-        _state.update {
-            BattleState(
-                playerCharacter.map { BattleCharacter(it) },
-                enemys.map { BattleCharacter(it) },
-                playerInventory = items
-            )
 
-        }
+        playerCharacters = players.map { BattleCharacter(it) }.toMutableStateList()
+        enemyCharacters = enemys.map { BattleCharacter(it) }.toMutableStateList()
+        playerInventory = items.toMutableStateList()
+
 
         onTick {
-            if (!_state.value.paused) {
-                _state.update { battleState ->
-                    battleState.copy(
-                        playerCharacters = battleState.playerCharacters
-                            .filter { it.characterStats.isAlive }
-                            .map { updateSpeed(it) },
-                        enemyCharacters = battleState.enemyCharacters
-                            .filter { it.characterStats.isAlive }
-                            .map { updateSpeed(it) }
+            if (!paused) {
+
+                for (index in playerCharacters.indices) {
+                    playerCharacters[index] = updateSpeed(playerCharacters[index])
+                }
+                for (index in enemyCharacters.indices) {
+                    enemyCharacters[index] = updateSpeed(enemyCharacters[index])
+
+                    // enemy attack
+                    val target = Battler.Player(playerCharacters.indexOfFirst { it.characterStats.isAlive })
+                    val attacker = Battler.Enemy(enemyCharacters.indexOfFirst { it.turns > 0 })
+                    attack(Action.Attack(attacker, target))
+                }
+
+
+            }
+
+        }
+
+    }
+
+
+    private fun attack(action: Action.Attack) {
+
+        if (action.attacker.isValid && action.defender.isValid) {
+            if (action.attacker.characterStats.turns > 0) {
+                val newHp =
+                    action.defender.characterStats.characterStats.hp.current - action.attacker.characterStats.characterStats.damage
+                action.defender.characterStats =
+                    action.defender.characterStats.copy(
+                        characterStats = action.defender.characterStats.characterStats.copy(
+                            hp = action.defender.characterStats.characterStats.hp.copy(current = newHp)
+                        )
                     )
 
-                }
+
+                action.attacker.characterStats =
+                    action.attacker.characterStats.copy(turns = action.attacker.characterStats.turns - 1)
             }
-            //todo check enamy
         }
-    }
-
-    fun playerImput() {
 
     }
+
 
     private fun updateSpeed(battleCharacter: BattleCharacter): BattleCharacter {
         var newSpeedBuilt = battleCharacter.speedBuilt + battleCharacter.characterStats.speed
@@ -101,16 +138,24 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
         return battleCharacter.copy(speedBuilt = newSpeedBuilt, turns = newTurns)
     }
 
-     fun onPause() {
-        _state.update {
-            it.copy(paused = true)
+
+    fun onAction(action: Action) {
+        when (action) {
+            is Action.Attack -> {
+
+            }
         }
     }
 
-     fun onResume() {
-        _state.update {
-            it.copy(paused = false)
-        }
+
+    fun onPause() {
+        paused = true
+    }
+
+
+    fun onResume() {
+        paused = false
+
     }
 
 }

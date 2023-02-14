@@ -12,4 +12,5 @@ enum class Routes() {
   SETTINGS(),
   STORY_MODE(),
   STORY_TEST(),
+  RPG(),
 }

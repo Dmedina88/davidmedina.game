@@ -35,10 +35,6 @@ fun RPGBattle() {
         listOf(
             CharacterId.OTHER_OGER.createCharacter(),
             CharacterId.OTHER_OGER.createCharacter(),
-            CharacterId.OTHER_OGER.createCharacter(),
-            CharacterId.OTHER_OGER.createCharacter(),
-            CharacterId.OTHER_OGER.createCharacter(),
-            CharacterId.OTHER_OGER.createCharacter(),
         ), listOf(
             CharacterId.BLUE_OGER.createCharacter(),
         ), listOf(Items.Potion)
@@ -48,7 +44,6 @@ fun RPGBattle() {
         battleStateMachine.onPause()
     })
 
-    val battleState by battleStateMachine.state.collectAsState()
 
     ConstraintLayout() {
 
@@ -75,7 +70,7 @@ fun RPGBattle() {
             bottom.linkTo(battleMenu.top)
         }) {
 
-            items(battleState.enemyCharacters) {
+            items(battleStateMachine.enemyCharacters) {
                 Image(
                     painter = painterResource(id = it.characterStats.characterID.battleImage),
                     contentDescription = "",
@@ -87,7 +82,7 @@ fun RPGBattle() {
 
 
         BattleMenu(
-            playerCharacters = battleState.playerCharacters,
+            playerCharacters = battleStateMachine.playerCharacters,
             modifier = Modifier.constrainAs(battleMenu) {
                 bottom.linkTo(parent.bottom)
             })

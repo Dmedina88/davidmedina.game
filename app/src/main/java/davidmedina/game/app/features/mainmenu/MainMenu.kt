@@ -27,7 +27,8 @@ fun MainMenuScreen(
     onProtoGenClicked: () -> Unit = {},
     onArtGenClicked: () -> Unit = {},
     onStoryModeClicked: () -> Unit = {},
-    onStoryTestClicked: () -> Unit = {}
+    onStoryTestClicked: () -> Unit = {},
+    onRpgClicked: () -> Unit = {},
 
 ) {
 
@@ -67,8 +68,11 @@ fun MainMenuScreen(
         TDMButton(text = "Waiting For Godot Test") {
             onStoryTestClicked()
         }
-        if (vm.uiState.debugMode) {
 
+        TDMButton(text = "RPG") {
+            onRpgClicked()
+        }
+        if (vm.uiState.debugMode) {
             Text(text = vm.uiState.gameState.toString())
 
         }

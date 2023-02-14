@@ -13,6 +13,7 @@ import davidmedina.game.app.features.mainmenu.MainMenuScreen
 import davidmedina.game.app.features.cardgame.GameScreen
 import davidmedina.game.app.features.login.LoginViewModel
 import davidmedina.game.app.features.register.RegisterScreen
+import davidmedina.game.app.features.rpg.RPGBattle
 import davidmedina.game.app.features.storygame.GodotTwoFlower
 import davidmedina.game.app.features.storygame.blueoger.level1.BlueOgerOpening
 import davidmedina.game.app.features.worldgen.BoxArtScreen
@@ -35,7 +36,8 @@ fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
                 { navController.navigate(Routes.PROTO_GEN.name) },
                 { navController.navigate(Routes.ART_GEN.name) },
                 { navController.navigate(Routes.STORY_MODE.name) },
-                { navController.navigate(Routes.STORY_TEST.name) })
+                { navController.navigate(Routes.STORY_TEST.name) },
+                { navController.navigate(Routes.RPG.name) })
         }
 
         composable(Routes.REGISTER.name) {
@@ -80,6 +82,9 @@ fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
         }
         composable(Routes.STORY_TEST.name) {
             GodotTwoFlower()
+        }
+        composable(Routes.RPG.name) {
+            RPGBattle()
         }
     }
 }
