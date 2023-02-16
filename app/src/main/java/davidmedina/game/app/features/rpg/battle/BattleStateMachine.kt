@@ -1,19 +1,18 @@
-package davidmedina.game.app.features.rpg
+package davidmedina.game.app.features.rpg.battle
 
 import androidx.compose.runtime.*
 import davidmedina.game.app.data.models.Items
+import davidmedina.game.app.features.rpg.*
 import davidmedina.game.app.util.TickHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
 data class BattleCharacter(
-    val characterStats: CharacterStats,
+    val characterStats: Character,
     val turns: Int = 0,
     val speedBuilt: Float = 0F
 )
-
 
 const val maxTurns = 3
 const val tickInterval = 250L
@@ -25,13 +24,10 @@ sealed class Battler(open val index: Int) {
 }
 
 
-sealed class Action() {
-    data class Attack(var attacker: Battler, val defender: Battler) : Action()
-}
+data class Action(var ability: Ability, var attacker: Battler, val defender: Battler)
 
 
 class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)) {
-
 
     var playerCharacters = mutableStateListOf<BattleCharacter>()
         private set
@@ -42,7 +38,7 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
     var paused by mutableStateOf(false)
         private set
 
-    private var Battler.characterStats
+    private var Battler.battleInfo
         get() =
             when (this) {
                 is Battler.Enemy -> enemyCharacters[this.index]
@@ -55,7 +51,10 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
             }
         }
 
-    private val tickHandler = TickHandler(scope, tickInterval)
+    private val tickHandler = TickHandler(
+        scope,
+        tickInterval
+    )
 
 
     private fun onTick(work: () -> Unit) {
@@ -68,59 +67,49 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
 
 
     fun init(
-        enemys: List<CharacterStats>,
-        players: List<CharacterStats>,
+        enemy: List<Character>,
+        players: List<Character>,
         items: List<Items>
     ) {
 
-        playerCharacters = players.map { BattleCharacter(it) }.toMutableStateList()
-        enemyCharacters = enemys.map { BattleCharacter(it) }.toMutableStateList()
+        playerCharacters = players.map {
+            BattleCharacter(
+                it
+            )
+        }.toMutableStateList()
+        enemyCharacters = enemy.map {
+            BattleCharacter(
+                it
+            )
+        }.toMutableStateList()
         playerInventory = items.toMutableStateList()
 
 
         onTick {
             if (!paused) {
-
                 for (index in playerCharacters.indices) {
                     playerCharacters[index] = updateSpeed(playerCharacters[index])
                 }
                 for (index in enemyCharacters.indices) {
                     enemyCharacters[index] = updateSpeed(enemyCharacters[index])
 
-                    // enemy attack
-                    val target = Battler.Player(playerCharacters.indexOfFirst { it.characterStats.isAlive })
-                    val attacker = Battler.Enemy(enemyCharacters.indexOfFirst { it.turns > 0 })
-                    attack(Action.Attack(attacker, target))
+                    // enemy logic
+                    val target =
+                        Battler.Player(
+                            playerCharacters.indexOfFirst { it.characterStats.isAlive })
+                    val attacker =
+                        Battler.Enemy(
+                            enemyCharacters.indexOfFirst { it.turns > 0 })
+
+                    attack(attacker, target)
                 }
-
-
-            }
-
-        }
-
-    }
-
-
-    private fun attack(action: Action.Attack) {
-
-        if (action.attacker.isValid && action.defender.isValid) {
-            if (action.attacker.characterStats.turns > 0) {
-                val newHp =
-                    action.defender.characterStats.characterStats.hp.current - action.attacker.characterStats.characterStats.damage
-                action.defender.characterStats =
-                    action.defender.characterStats.copy(
-                        characterStats = action.defender.characterStats.characterStats.copy(
-                            hp = action.defender.characterStats.characterStats.hp.copy(current = newHp)
-                        )
-                    )
-
-
-                action.attacker.characterStats =
-                    action.attacker.characterStats.copy(turns = action.attacker.characterStats.turns - 1)
             }
         }
 
     }
+
+
+
 
 
     private fun updateSpeed(battleCharacter: BattleCharacter): BattleCharacter {
@@ -138,13 +127,22 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
         return battleCharacter.copy(speedBuilt = newSpeedBuilt, turns = newTurns)
     }
 
-
-    fun onAction(action: Action) {
-        when (action) {
-            is Action.Attack -> {
-
+    private fun attack(attacker: Battler, defender: Battler) {
+        if (attacker.isValid && defender.isValid) {
+            if (attacker.battleInfo.turns > 0) {
+                defender.battleInfo = defender.battleInfo.copy(
+                    characterStats = defender.battleInfo.characterStats.takeDamage(
+                        attack.damageType, attacker.battleInfo.characterStats.performAttack(attack)
+                    )
+                )
+                attacker.battleInfo =
+                    attacker.battleInfo.copy(turns = attacker.battleInfo.turns - 1)
             }
         }
+    }
+
+    fun onAction(action: Action) {
+
     }
 
 

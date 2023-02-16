@@ -1,10 +1,11 @@
-package davidmedina.game.app.features.rpg
+package davidmedina.game.app.features.rpg.battle
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
@@ -14,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import davidmedina.game.app.features.rpg.battleImage
 import davidmedina.game.app.ui.composables.gameBoxBackground
 
 
@@ -29,45 +31,52 @@ fun BattleMenu(
             .fillMaxWidth()
             .gameBoxBackground()
     ) {
-        Column(
-            modifier
-                .fillMaxWidth(.20f)
-                .gameBoxBackground()
-        ) {
-            Button(
-                {},
-                modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                Text(text = "Attack")
-            }
-            Button(
-                {}, modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                Text(text = "Ability")
-            }
-            Button(
-                {}, modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                Text(text = "Item")
-            }
-            Button(
-                {}, modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                Text(text = "Item")
-            }
-        }
+        AbilitySelectMenu(modifier)
+
         Column(modifier.fillMaxWidth(.80f)) {
             playerCharacters.forEach {
                 CharacterInfo(characterStats = it)
             }
+        }
+    }
+}
+
+@Composable
+private fun AbilitySelectMenu(modifier: Modifier) {
+    Column(
+        modifier
+            .fillMaxWidth(.20f)
+            .gameBoxBackground()
+    ) {
+
+        Button(
+            {},
+            modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            Text(text = "Attack")
+        }
+        Button(
+            {}, modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            Text(text = "Ability")
+        }
+        Button(
+            {}, modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            Text(text = "Item")
+        }
+        Button(
+            {}, modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            Text(text = "Item")
         }
     }
 }

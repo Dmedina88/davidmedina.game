@@ -13,7 +13,7 @@ import davidmedina.game.app.features.mainmenu.MainMenuScreen
 import davidmedina.game.app.features.cardgame.GameScreen
 import davidmedina.game.app.features.login.LoginViewModel
 import davidmedina.game.app.features.register.RegisterScreen
-import davidmedina.game.app.features.rpg.RPGBattle
+import davidmedina.game.app.features.rpg.battle.RPGBattle
 import davidmedina.game.app.features.storygame.GodotTwoFlower
 import davidmedina.game.app.features.storygame.blueoger.level1.BlueOgerOpening
 import davidmedina.game.app.features.worldgen.BoxArtScreen
