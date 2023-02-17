@@ -7,6 +7,7 @@ import davidmedina.game.app.util.TickHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 data class BattleCharacter(
     val characterStats: Character,
@@ -88,31 +89,42 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
         onTick {
             if (!paused) {
                 for (index in playerCharacters.indices) {
-                    playerCharacters[index] = updateSpeed(playerCharacters[index])
+                    playerCharacters[index] = updateSpeed(playerCharacters[index]
+                    ) {
+                    //todo auto attack
+                    }
                 }
                 for (index in enemyCharacters.indices) {
                     enemyCharacters[index] = updateSpeed(enemyCharacters[index])
-
-                    // enemy logic
-                    val target =
-                        Battler.Player(
-                            playerCharacters.indexOfFirst { it.characterStats.isAlive })
-                    val attacker =
-                        Battler.Enemy(
-                            enemyCharacters.indexOfFirst { it.turns > 0 })
-
-                    attack(attacker, target)
+                    enimeyAi()
                 }
+
             }
         }
 
     }
 
+    private fun enimeyAi() {
+        //get attacker
+        val attacker =
+            Battler.Enemy(
+                enemyCharacters.indexOfFirst { it.turns > 0 })
+        //get target
+        val target =
+            Battler.Player(
+                playerCharacters.indexOfFirst { it.characterStats.isAlive })
+
+        //chose action
+        val action = attack
+        if (Random.nextInt(12) == 3)
+            offensiveAction(attacker, target, action)
+    }
 
 
-
-
-    private fun updateSpeed(battleCharacter: BattleCharacter): BattleCharacter {
+    private fun updateSpeed(
+        battleCharacter: BattleCharacter,
+        speedOverFlowCallBack: () -> Unit = {}
+    ): BattleCharacter {
         var newSpeedBuilt = battleCharacter.speedBuilt + battleCharacter.characterStats.speed
         var newTurns = battleCharacter.turns
         if (newSpeedBuilt > 1) {
@@ -120,19 +132,23 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
                 newTurns += 1
                 newSpeedBuilt -= 1f
             } else {
-                // random Attack
+                // callback for auto attack
+                speedOverFlowCallBack()
                 newSpeedBuilt -= 1f
             }
         }
         return battleCharacter.copy(speedBuilt = newSpeedBuilt, turns = newTurns)
     }
 
-    private fun attack(attacker: Battler, defender: Battler) {
+    private fun <T : DamageType> offensiveAction(
+        attacker: Battler, defender: Battler,
+        action: Ability.Offensive<T>
+    ) {
         if (attacker.isValid && defender.isValid) {
             if (attacker.battleInfo.turns > 0) {
                 defender.battleInfo = defender.battleInfo.copy(
                     characterStats = defender.battleInfo.characterStats.takeDamage(
-                        attack.damageType, attacker.battleInfo.characterStats.performAttack(attack)
+                        attack.damageType, attacker.battleInfo.characterStats.performAttack(action)
                     )
                 )
                 attacker.battleInfo =
@@ -141,9 +157,7 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
         }
     }
 
-    fun onAction(action: Action) {
-
-    }
+    fun onAction(action: Action) {}
 
 
     fun onPause() {
