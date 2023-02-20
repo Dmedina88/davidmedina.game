@@ -3,9 +3,10 @@ package davidmedina.game.app.features.rpg.battle
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
@@ -15,6 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import davidmedina.game.app.features.rpg.Ability
+import davidmedina.game.app.features.rpg.attack
 import davidmedina.game.app.features.rpg.battleImage
 import davidmedina.game.app.ui.composables.gameBoxBackground
 
@@ -23,7 +26,9 @@ import davidmedina.game.app.ui.composables.gameBoxBackground
 fun BattleMenu(
     playerCharacters: List<BattleCharacter>,
     modifier: Modifier = Modifier,
-    onAction: () -> Unit = {}
+    onCharacterSelected: (Battler) -> Unit,
+
+    onAbility: (Ability) -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -31,18 +36,20 @@ fun BattleMenu(
             .fillMaxWidth()
             .gameBoxBackground()
     ) {
-        AbilitySelectMenu(modifier)
+        AbilitySelectMenu(modifier,onAbility)
 
         Column(modifier.fillMaxWidth(.80f)) {
-            playerCharacters.forEach {
-                CharacterInfo(characterStats = it)
+            playerCharacters.forEachIndexed { index, battleCharacter ->
+                CharacterInfo(characterStats = battleCharacter, onCharacterSelected = {onCharacterSelected(Battler.Player(index = index))})
             }
+
         }
+
     }
 }
 
 @Composable
-private fun AbilitySelectMenu(modifier: Modifier) {
+private fun AbilitySelectMenu(modifier: Modifier,    onAbility: (Ability) -> Unit,) {
     Column(
         modifier
             .fillMaxWidth(.20f)
@@ -50,7 +57,7 @@ private fun AbilitySelectMenu(modifier: Modifier) {
     ) {
 
         Button(
-            {},
+            {onAbility(attack)},
             modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -83,10 +90,11 @@ private fun AbilitySelectMenu(modifier: Modifier) {
 
 
 @Composable
-fun CharacterInfo(characterStats: BattleCharacter) {
+fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Unit) {
 
 
-    Button(onClick = { /*TODO*/ }) {
+    Button(
+        onClick = onCharacterSelected) {
 
         var startAnimation by remember() {
             mutableStateOf(false)

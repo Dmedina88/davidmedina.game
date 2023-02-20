@@ -21,11 +21,22 @@ const val tickInterval = 250L
 sealed class Battler(open val index: Int) {
     data class Player(override val index: Int) : Battler(index)
     data class Enemy(override val index: Int) : Battler(index)
-    val isValid get() =  index>-1
+    val isValid get() = index > -1
 }
 
+//now that i added this I DO wish i out all my state into one state class for the screen
+//sealed class BattleStage {
+//    object BattleStart : BattleStage()
+//    object BattleLost : BattleStage()
+//    object BattleWon : BattleStage()
+//    object BattleInProgress : BattleStage()
+//}
 
-data class Action(var ability: Ability, var attacker: Battler, val defender: Battler)
+data class Action(
+    var ability: Ability? = null,
+    var attacker: Battler? = null,
+    val defender: Battler? = null
+)
 
 
 class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)) {
@@ -38,14 +49,17 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
         private set
     var paused by mutableStateOf(false)
         private set
+    var currentPlayerAction by mutableStateOf<Action?>(null)
+        private set
 
-    private var Battler.battleInfo
+
+    var Battler.battleInfo
         get() =
             when (this) {
                 is Battler.Enemy -> enemyCharacters[this.index]
                 is Battler.Player -> playerCharacters[this.index]
             }
-        set(value) {
+        private set(value) {
             when (this) {
                 is Battler.Enemy -> enemyCharacters[this.index] = value
                 is Battler.Player -> playerCharacters[this.index] = value
@@ -87,17 +101,26 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
 
 
         onTick {
-            if (!paused) {
+            if (!paused ) {
                 for (index in playerCharacters.indices) {
-                    playerCharacters[index] = updateSpeed(playerCharacters[index]
+                    playerCharacters[index] = updateSpeed(
+                        playerCharacters[index]
                     ) {
-                    //todo auto attack
+                        //todo auto attack
                     }
                 }
                 for (index in enemyCharacters.indices) {
                     enemyCharacters[index] = updateSpeed(enemyCharacters[index])
                     enimeyAi()
                 }
+                //check if lost
+
+                if (playerCharacters.all { !it.characterStats.isAlive }) {
+                    //lose
+                } else if (enemyCharacters.all { !it.characterStats.isAlive }) {
+                   //win
+                }
+
 
             }
         }
@@ -110,14 +133,16 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
             Battler.Enemy(
                 enemyCharacters.indexOfFirst { it.turns > 0 })
         //get target
-        val target =
-            Battler.Player(
-                playerCharacters.indexOfFirst { it.characterStats.isAlive })
+        if (attacker.isValid && attacker.battleInfo.characterStats.isAlive) {
+            val target =
+                Battler.Player(
+                    playerCharacters.indexOfFirst { it.characterStats.isAlive })
 
-        //chose action
-        val action = attack
-        if (Random.nextInt(12) == 3)
-            offensiveAction(attacker, target, action)
+            //chose action
+            val action = attack
+            if (Random.nextInt(12) == 3)
+                offensiveAction(attacker, target, action)
+        }
     }
 
 
@@ -144,20 +169,47 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
         attacker: Battler, defender: Battler,
         action: Ability.Offensive<T>
     ) {
-        if (attacker.isValid && defender.isValid) {
-            if (attacker.battleInfo.turns > 0) {
-                defender.battleInfo = defender.battleInfo.copy(
-                    characterStats = defender.battleInfo.characterStats.takeDamage(
-                        attack.damageType, attacker.battleInfo.characterStats.performAttack(action)
-                    )
+        if (attacker.isValid && defender.isValid && attacker.battleInfo.turns > 0) {
+
+            defender.battleInfo = defender.battleInfo.copy(
+                characterStats = defender.battleInfo.characterStats.takeDamage(
+                    attack.damageType, attacker.battleInfo.characterStats.performAttack(action)
                 )
-                attacker.battleInfo =
-                    attacker.battleInfo.copy(turns = attacker.battleInfo.turns - 1)
-            }
+            )
+            attacker.battleInfo =
+                attacker.battleInfo.copy(turns = attacker.battleInfo.turns - 1)
+
         }
     }
 
-    fun onAction(action: Action) {}
+    fun onAction(action: Action) {
+        when (action.ability) {
+            is Ability.Offensive<*> ->
+                offensiveAction(
+                    action.attacker!!, action.defender!!,
+                    action.ability!! as Ability.Offensive<*>
+                )
+            null -> {}
+        }
+    }
+
+
+    fun characterSelected(battleCharacter: Battler) {
+        currentPlayerAction = Action(attacker = battleCharacter)
+    }
+
+    fun onAbilitySelected(ability: Ability) {
+        currentPlayerAction = currentPlayerAction?.copy(ability = ability)
+    }
+
+    fun targetSelected(target: Battler) {
+        currentPlayerAction = currentPlayerAction?.copy(defender = target)
+        //
+        currentPlayerAction?.let {
+            onAction(it)
+        }
+        currentPlayerAction = null
+    }
 
 
     fun onPause() {
