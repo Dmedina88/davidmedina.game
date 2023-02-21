@@ -34,8 +34,6 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         AnimatedVisibility(visible = currentDest != Routes.RPG.name) {
-
-
                             TopAppBar(
                                 title = {
                                     Text(text = currentDest)
