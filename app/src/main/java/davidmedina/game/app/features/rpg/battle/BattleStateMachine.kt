@@ -25,12 +25,12 @@ sealed class Battler(open val index: Int) {
 }
 
 //now that i added this I DO wish i out all my state into one state class for the screen
-//sealed class BattleStage {
-//    object BattleStart : BattleStage()
-//    object BattleLost : BattleStage()
-//    object BattleWon : BattleStage()
-//    object BattleInProgress : BattleStage()
-//}
+sealed class BattleStage {
+    object BattleStart : BattleStage()
+    object BattleLost : BattleStage()
+    object BattleWon : BattleStage()
+    object BattleInProgress : BattleStage()
+}
 
 data class Action(
     var ability: Ability? = null,
@@ -52,6 +52,8 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
     var currentPlayerAction by mutableStateOf<Action?>(null)
         private set
 
+    var battleStage by mutableStateOf<BattleStage>(BattleStage.BattleStart)
+        private set
 
     var Battler.battleInfo
         get() =
@@ -66,10 +68,7 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
             }
         }
 
-    private val tickHandler = TickHandler(
-        scope,
-        tickInterval
-    )
+    private val tickHandler = TickHandler(scope, tickInterval)
 
 
     private fun onTick(work: () -> Unit) {
@@ -88,26 +87,20 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
     ) {
 
         playerCharacters = players.map {
-            BattleCharacter(
-                it
-            )
+            BattleCharacter(it, turns = 3)
         }.toMutableStateList()
         enemyCharacters = enemy.map {
-            BattleCharacter(
-                it
-            )
+            BattleCharacter(it)
         }.toMutableStateList()
         playerInventory = items.toMutableStateList()
 
-
+        battleStage = BattleStage.BattleInProgress
         onTick {
-            if (!paused ) {
+            if (!paused && battleStage == BattleStage.BattleInProgress) {
                 for (index in playerCharacters.indices) {
                     playerCharacters[index] = updateSpeed(
                         playerCharacters[index]
-                    ) {
-                        //todo auto attack
-                    }
+                    ) { autoAttack() }
                 }
                 for (index in enemyCharacters.indices) {
                     enemyCharacters[index] = updateSpeed(enemyCharacters[index])
@@ -116,9 +109,9 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
                 //check if lost
 
                 if (playerCharacters.all { !it.characterStats.isAlive }) {
-                    //lose
+                    battleStage = BattleStage.BattleLost
                 } else if (enemyCharacters.all { !it.characterStats.isAlive }) {
-                   //win
+                    battleStage = BattleStage.BattleWon
                 }
 
 
@@ -145,24 +138,44 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
         }
     }
 
+    private fun autoAttack() {
+        //get attacker
+        val attacker =
+            Battler.Player(
+                playerCharacters.indexOfFirst { it.turns == 3 })
+        //get target
+        if (attacker.isValid && attacker.battleInfo.characterStats.isAlive) {
+            val target =
+                Battler.Enemy(
+                    enemyCharacters.indexOfFirst { it.characterStats.isAlive })
+
+            //chose action
+            val action = attack
+            offensiveAction(attacker, target, action)
+        }
+    }
+
 
     private fun updateSpeed(
         battleCharacter: BattleCharacter,
         speedOverFlowCallBack: () -> Unit = {}
     ): BattleCharacter {
-        var newSpeedBuilt = battleCharacter.speedBuilt + battleCharacter.characterStats.speed
-        var newTurns = battleCharacter.turns
-        if (newSpeedBuilt > 1) {
-            if (maxTurns >= newTurns + 1) {
-                newTurns += 1
-                newSpeedBuilt -= 1f
-            } else {
-                // callback for auto attack
-                speedOverFlowCallBack()
-                newSpeedBuilt -= 1f
+        return if (battleCharacter.characterStats.isAlive) {
+            var newSpeedBuilt = battleCharacter.speedBuilt + battleCharacter.characterStats.speed
+            var newTurns = battleCharacter.turns
+            if (newSpeedBuilt > 1) {
+                if (maxTurns >= newTurns + 1) {
+                    newTurns += 1
+                    newSpeedBuilt -= 1f
+                } else {
+                    speedOverFlowCallBack()
+                    newSpeedBuilt -= 1f
+                }
             }
+            battleCharacter.copy(speedBuilt = newSpeedBuilt, turns = newTurns)
+        } else {
+            battleCharacter
         }
-        return battleCharacter.copy(speedBuilt = newSpeedBuilt, turns = newTurns)
     }
 
     private fun <T : DamageType> offensiveAction(

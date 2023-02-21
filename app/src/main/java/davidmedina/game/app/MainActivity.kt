@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -32,11 +33,14 @@ class MainActivity : ComponentActivity() {
             DavidmedinagameTheme {
                 Scaffold(
                     topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(text = currentDest)
-                            },
-                            navigationIcon =
+                        AnimatedVisibility(visible = currentDest != Routes.RPG.name) {
+
+
+                            TopAppBar(
+                                title = {
+                                    Text(text = currentDest)
+                                },
+                                navigationIcon =
                             {
                                 if (currentDest != Routes.HOME.name && currentDest != Routes.REGISTER.name) {
                                     IconButton(onClick = { navController.navigateUp() }) {
@@ -46,8 +50,8 @@ class MainActivity : ComponentActivity() {
                                     Spacer(Modifier)
                                 }
                             })
-                            }
-
+                        }
+                    }
                     ) { innerPadding ->
 
 

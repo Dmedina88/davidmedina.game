@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -16,6 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import davidmedina.game.app.data.models.Items
 import davidmedina.game.app.features.rpg.CharacterId
@@ -23,6 +25,7 @@ import davidmedina.game.app.features.rpg.DiminishableStates
 import davidmedina.game.app.features.rpg.battleImage
 import davidmedina.game.app.features.rpg.createCharacter
 import davidmedina.game.app.ui.composables.Onlifecycal
+import davidmedina.game.app.ui.composables.gameBoxBackground
 import davidmedina.game.app.ui.composables.noRippleClickable
 import davidmedina.game.app.ui.drawGrid
 
@@ -38,20 +41,25 @@ fun RPGBattle() {
 
     battleStateMachine.init(
         listOf(
-            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(2, 20)),
-            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(3, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
-
-            ), listOf(
+            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
+            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
+            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
+            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
+        ), listOf(
             CharacterId.BLUE_OGER.createCharacter(),
         ), listOf(Items.Potion)
     )
 
-
+    Box(
+        Modifier
+            .background(Color.Black)
+            .fillMaxSize()
+    ) {
         BattleScreen(battleStateMachine)
-
+    }
 
 
 }
@@ -59,60 +67,88 @@ fun RPGBattle() {
 
 @Composable
 private fun BattleScreen(battleStateMachine: BattleStateMachine) {
-    ConstraintLayout {
+    AnimatedVisibility(visible = battleStateMachine.battleStage == BattleStage.BattleInProgress) {
 
-        val (battleMenu, enemy, actionChip) = createRefs()
+        ConstraintLayout {
+            val (battleMenu, enemy) = createRefs()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+            )
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-        )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        //  rotationZ = 40f
+                        rotationX = 80f
+                    }
+                    .drawBehind {
+                        drawGrid()
+                    })
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    //  rotationZ = 40f
-                    rotationX = 80f
+            LazyRow(Modifier.constrainAs(enemy) {
+                centerTo(parent)
+                bottom.linkTo(battleMenu.top)
+            }) {
+
+                itemsIndexed(battleStateMachine.enemyCharacters) { int, enamy ->
+                    AnimatedVisibility(visible = enamy.characterStats.isAlive) {
+                        Image(
+                            modifier = Modifier.noRippleClickable {
+                                battleStateMachine.targetSelected(Battler.Enemy(int))
+                            },
+                            painter = painterResource(id = enamy.characterStats.characterID.battleImage),
+                            contentDescription = "",
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
-                .drawBehind {
-                    drawGrid()
-                })
-
-        LazyRow(Modifier.constrainAs(enemy) {
-            centerTo(parent)
-            bottom.linkTo(battleMenu.top)
-        }) {
-
-            itemsIndexed(battleStateMachine.enemyCharacters) { int, enamy ->
-                AnimatedVisibility(visible = enamy.characterStats.isAlive) {
-                    Image(
-                        modifier = Modifier.noRippleClickable {
-                            battleStateMachine.targetSelected(Battler.Enemy(int))
-                        },
-                        painter = painterResource(id = enamy.characterStats.characterID.battleImage),
-                        contentDescription = "",
-                        contentScale = ContentScale.Fit
-                    )
-                }
-
             }
+
+
+
+            BattleMenu(
+                playerCharacters = battleStateMachine.playerCharacters,
+                modifier = Modifier.constrainAs(battleMenu) {
+                    top.linkTo(enemy.bottom)
+                    bottom.linkTo(parent.bottom)
+                },
+                onCharacterSelected = battleStateMachine::characterSelected,
+                onAbility = battleStateMachine::onAbilitySelected
+            )
+            ActionChip(battleStateMachine = battleStateMachine)
         }
+    }
 
+    AnimatedVisibility(visible = battleStateMachine.battleStage == BattleStage.BattleLost) {
+        Box(
+            modifier = Modifier
+                .gameBoxBackground()
+                .fillMaxSize()
+        ) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = "LOSER!",
+                color = Color.Yellow,
+                fontSize = 32.sp
+            )
+        }
+    }
 
-
-        BattleMenu(
-            playerCharacters = battleStateMachine.playerCharacters,
-            modifier = Modifier.constrainAs(battleMenu) {
-                top.linkTo(enemy.bottom)
-                bottom.linkTo(parent.bottom)
-            },
-            onCharacterSelected = battleStateMachine::characterSelected,
-            onAbility = battleStateMachine::onAbilitySelected
-        )
-        ActionChip(battleStateMachine = battleStateMachine)
-
+    AnimatedVisibility(visible = battleStateMachine.battleStage == BattleStage.BattleWon) {
+        Box(
+            modifier = Modifier
+                .gameBoxBackground()
+                .fillMaxSize()
+        ) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = battleStateMachine.battleStage.toString(),
+                color = Color.Yellow
+            )
+        }
     }
 }
 
