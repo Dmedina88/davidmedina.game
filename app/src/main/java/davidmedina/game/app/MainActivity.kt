@@ -11,13 +11,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import davidmedina.game.app.data.repository.MetaGameRepository
 import davidmedina.game.app.ui.theme.DavidmedinagameTheme
+import org.koin.android.ext.android.getKoin
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,11 +27,20 @@ class MainActivity : ComponentActivity() {
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
+        val metaGameRepositoryInMemory = getKoin().get<MetaGameRepository>()
+
+
         setContent {
             val navController = rememberNavController()
             val currentBackStackEntry = navController.currentBackStackEntryAsState()
             val currentDest =
                 if (currentBackStackEntry.value != null) currentBackStackEntry.value?.destination?.route.toString() else ""
+
+            LaunchedEffect(currentBackStackEntry.value.toString()) {
+                metaGameRepositoryInMemory.logRoute(Routes.valueOf(currentBackStackEntry.value?.destination?.route.toString()))
+
+            }
+
             DavidmedinagameTheme {
                 Scaffold(
                     topBar = {
@@ -39,7 +50,7 @@ class MainActivity : ComponentActivity() {
                                     Text(text = currentDest)
                                 },
                                 navigationIcon =
-                            {
+                                {
                                 if (currentDest != Routes.HOME.name && currentDest != Routes.REGISTER.name) {
                                     IconButton(onClick = { navController.navigateUp() }) {
                                         Icon(Icons.Filled.ArrowBack, "backIcon")

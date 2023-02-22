@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import davidmedina.game.app.data.models.Items
+import davidmedina.game.app.features.mainmenu.MainMenuViewModel
 import davidmedina.game.app.features.rpg.CharacterId
 import davidmedina.game.app.features.rpg.DiminishableStates
 import davidmedina.game.app.features.rpg.battleImage
@@ -28,13 +29,14 @@ import davidmedina.game.app.ui.composables.Onlifecycal
 import davidmedina.game.app.ui.composables.gameBoxBackground
 import davidmedina.game.app.ui.composables.noRippleClickable
 import davidmedina.game.app.ui.drawGrid
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 @Preview
 fun RPGBattle() {
 
-    val battleStateMachine = BattleStateMachine()
+    val battleStateMachine = koinViewModel<BattleStateMachine>()
     Onlifecycal(onResume = { battleStateMachine.onResume() }, {
         battleStateMachine.onPause()
     })
@@ -48,9 +50,9 @@ fun RPGBattle() {
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
-        ), listOf(
-            CharacterId.BLUE_OGER.createCharacter(),
-        ), listOf(Items.Potion)
+            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
+            )
+        , listOf(Items.Potion)
     )
 
     Box(

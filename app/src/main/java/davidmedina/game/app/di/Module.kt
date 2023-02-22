@@ -7,6 +7,8 @@ import davidmedina.game.app.features.login.LoginViewModel
 import davidmedina.game.app.features.cardgame.GameScreenViewModel
 import davidmedina.game.app.features.mainmenu.MainMenuViewModel
 import davidmedina.game.app.features.register.RegisterViewModel
+import davidmedina.game.app.features.rpg.battle.BattleStateMachine
+
 import davidmedina.game.app.features.worldgen.BoxArtViewModal
 
 
@@ -24,6 +26,8 @@ val appModule = module {
 }
 val viewModuleModule = module {
     viewModelOf(::LoginViewModel)
+    viewModelOf(::BattleStateMachine)
+
     viewModelOf(::MainMenuViewModel)
     viewModelOf(::RegisterViewModel)
 

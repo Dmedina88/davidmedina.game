@@ -1,15 +1,15 @@
 package davidmedina.game.app.data.models
 
 import davidmedina.game.app.Routes
+import davidmedina.game.app.features.rpg.Character
 import java.util.*
 
 data class MetaGameState(
     val userName: String = "",
     val id: UUID? = null,
-    //cards
-    //invintory
-    //pick flowers
-    val screensVisited: Map<Routes, Int> = emptyMap()
+    val screensVisited: Map<Routes, Int> = emptyMap(),
+    val rpgCharacter :  List<Character>,
+    val rpgItems :  List<Items>
 )
 
 //data class ScreenVisited(val routes: Routes, val count : Int)
@@ -18,8 +18,6 @@ data class MetaGameState(
 
 
 sealed class Items {
-
     object Potion : Items()
-
 }
 

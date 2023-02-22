@@ -62,7 +62,7 @@ fun Modifier.gameBoxBackground() = this.then(this
         brush = Brush.verticalGradient(colors = listOf(Color.Green, Color.Blue)),
         shape = RoundedCornerShape(percent = 2)
     )
-    .clip(shape = RoundedCornerShape(percent = 6))
+    .clip(shape = RoundedCornerShape(percent = 2))
     .drawBehind {
         drawRect(Color.Gray)
     }

@@ -11,8 +11,10 @@ data class Character(
     val strength: Int,
     val defense: Int,
     val speed: Float,
-    val mind: Int
-) {
+    val mind: Int,
+    val exp: Int =0,
+    val level: Int =0,
+    ) {
     val isAlive get() = hp.current > 0
     val damage get() = strength.div(4)
 }
@@ -39,7 +41,7 @@ fun CharacterId.createCharacter(name: String? = null) = when (this) {
         CharacterId.BLUE_OGER,
         DiminishableStates(20, 20),
         DiminishableStates(15, 20),
-        10,
+        16,
         10,
         .03f,
         10

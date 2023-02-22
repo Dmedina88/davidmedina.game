@@ -1,11 +1,13 @@
 package davidmedina.game.app.features.rpg.battle
 
 import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import davidmedina.game.app.data.models.Items
+import davidmedina.game.app.data.repository.MetaGameRepository
 import davidmedina.game.app.features.rpg.*
 import davidmedina.game.app.util.TickHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -39,7 +41,7 @@ data class Action(
 )
 
 
-class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)) {
+class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : ViewModel() {
 
     var playerCharacters = mutableStateListOf<BattleCharacter>()
         private set
@@ -51,7 +53,6 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
         private set
     var currentPlayerAction by mutableStateOf<Action?>(null)
         private set
-
     var battleStage by mutableStateOf<BattleStage>(BattleStage.BattleStart)
         private set
 
@@ -68,11 +69,10 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
             }
         }
 
-    private val tickHandler = TickHandler(scope, tickInterval)
 
-
-    private fun onTick(work: () -> Unit) {
-        scope.launch {
+    private fun onTick(work: suspend () -> Unit) {
+        val tickHandler = TickHandler(this.viewModelScope, tickInterval)
+        viewModelScope.launch {
             tickHandler.tickFlow.collect {
                 work()
             }
@@ -82,42 +82,44 @@ class BattleStateMachine(private val scope: CoroutineScope = CoroutineScope(Disp
 
     fun init(
         enemy: List<Character>,
-        players: List<Character>,
         items: List<Items>
     ) {
+        viewModelScope.launch {
+            val metaGame = metaGameRepository.getGameState().first()
+            playerCharacters = metaGame.rpgCharacter.map {
+                BattleCharacter(it, turns = 3)
+            }.toMutableStateList()
+            enemyCharacters = enemy.map {
+                BattleCharacter(it)
+            }.toMutableStateList()
+            playerInventory = items.toMutableStateList()
 
-        playerCharacters = players.map {
-            BattleCharacter(it, turns = 3)
-        }.toMutableStateList()
-        enemyCharacters = enemy.map {
-            BattleCharacter(it)
-        }.toMutableStateList()
-        playerInventory = items.toMutableStateList()
+            battleStage = BattleStage.BattleInProgress
+            onTick {
+                if (!paused && battleStage == BattleStage.BattleInProgress) {
+                    for (index in playerCharacters.indices) {
+                        playerCharacters[index] = updateSpeed(
+                            playerCharacters[index]
+                        ) { autoAttack() }
+                    }
+                    for (index in enemyCharacters.indices) {
+                        enemyCharacters[index] = updateSpeed(enemyCharacters[index])
+                        enimeyAi()
+                    }
+                    //check if lost
 
-        battleStage = BattleStage.BattleInProgress
-        onTick {
-            if (!paused && battleStage == BattleStage.BattleInProgress) {
-                for (index in playerCharacters.indices) {
-                    playerCharacters[index] = updateSpeed(
-                        playerCharacters[index]
-                    ) { autoAttack() }
+                    if (playerCharacters.all { !it.characterStats.isAlive }) {
+                        battleStage = BattleStage.BattleLost
+                    } else if (enemyCharacters.all { !it.characterStats.isAlive }) {
+                        battleStage = BattleStage.BattleWon
+                        metaGameRepository.updateParty(playerCharacters.map { it.characterStats })
+
+                    }
+
+
                 }
-                for (index in enemyCharacters.indices) {
-                    enemyCharacters[index] = updateSpeed(enemyCharacters[index])
-                    enimeyAi()
-                }
-                //check if lost
-
-                if (playerCharacters.all { !it.characterStats.isAlive }) {
-                    battleStage = BattleStage.BattleLost
-                } else if (enemyCharacters.all { !it.characterStats.isAlive }) {
-                    battleStage = BattleStage.BattleWon
-                }
-
-
             }
         }
-
     }
 
     private fun enimeyAi() {
