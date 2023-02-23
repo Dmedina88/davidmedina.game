@@ -6,14 +6,16 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import davidmedina.game.app.features.login.LogInScreen
 import davidmedina.game.app.features.FeedBackScreen
 import davidmedina.game.app.features.LinkScreen
-import davidmedina.game.app.features.mainmenu.MainMenuScreen
+import davidmedina.game.app.features.ai.ShapeScreen_Ai_Assisted
 import davidmedina.game.app.features.cardgame.GameScreen
+import davidmedina.game.app.features.login.LogInScreen
 import davidmedina.game.app.features.login.LoginViewModel
+import davidmedina.game.app.features.mainmenu.MainMenuScreen
 import davidmedina.game.app.features.register.RegisterScreen
 import davidmedina.game.app.features.rpg.battle.RPGBattle
+import davidmedina.game.app.features.rpg.states.CharacterScreen
 import davidmedina.game.app.features.storygame.GodotTwoFlower
 import davidmedina.game.app.features.storygame.blueoger.level1.BlueOgerOpening
 import davidmedina.game.app.features.worldgen.BoxArtScreen
@@ -37,7 +39,10 @@ fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
                 { navController.navigate(Routes.ART_GEN.name) },
                 { navController.navigate(Routes.STORY_MODE.name) },
                 { navController.navigate(Routes.STORY_TEST.name) },
-                { navController.navigate(Routes.RPG.name) })
+                { navController.navigate(Routes.RPG.name) },
+                { navController.navigate(Routes.RPG_CHARACTER.name) },
+                { navController.navigate(Routes.AI_ART.name) })
+
         }
 
         composable(Routes.REGISTER.name) {
@@ -85,6 +90,12 @@ fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
         }
         composable(Routes.RPG.name) {
             RPGBattle()
+        }
+        composable(Routes.RPG_CHARACTER.name) {
+            CharacterScreen()
+        }
+        composable(Routes.AI_ART.name) {
+            ShapeScreen_Ai_Assisted()
         }
     }
 }

@@ -13,4 +13,6 @@ enum class Routes() {
   STORY_MODE(),
   STORY_TEST(),
   RPG(),
+  RPG_CHARACTER(),
+  AI_ART(),
 }

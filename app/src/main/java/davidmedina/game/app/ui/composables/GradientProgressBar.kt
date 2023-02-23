@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 
@@ -28,7 +30,9 @@ fun GradientProgressBar(
 
     Canvas(
         modifier = modifier
-            .fillMaxWidth(),
+            .border( 3.dp,color = Color.Gray, shape = RoundedCornerShape(borderRadius))
+
+
     ) {
         val barWidth = size.width * progress
 

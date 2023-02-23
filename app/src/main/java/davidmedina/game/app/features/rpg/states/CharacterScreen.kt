@@ -2,20 +2,15 @@ package davidmedina.game.app.features.rpg.states
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -127,37 +122,38 @@ fun CharacterCard(character: Character) {
                 )
                 Text(
                     text = "Level ${character.level}",
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.labelMedium
                 )
                 Text(
                     text = "ID: ${character.characterID}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row {
                     Text(
-                        text = "Health: ",
+                        text = "Health: ${character.hp.battleText}",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    GradientProgressBar(
-                        progress = character.hp.percentage,
-                        gradientColors = GradientColors.RedGradient.colors,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-                Row {
-                    Text(
-                        text = "Willpower: ",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    GradientProgressBar(
-                        progress = character.will.percentage,
-                        gradientColors = GradientColors.BlueGradient.colors,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
+
+                GradientProgressBar(
+                    progress = character.hp.percentage,
+                    gradientColors = GradientColors.RedGradient.colors,
+                    modifier = Modifier
+                        .width(250.dp)
+                        .height(20.dp)
+                )
+                Text(
+                    text = "Willpower: ${character.will.battleText}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                GradientProgressBar(
+                    progress = character.will.percentage,
+                    gradientColors = GradientColors.BlueGradient.colors,
+                    modifier = Modifier
+                        .width(250.dp)
+                        .height(20.dp)
+
+                )
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Strength: ${character.strength}",
@@ -176,23 +172,21 @@ fun CharacterCard(character: Character) {
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row() {
-                    Text(
-                        text = "Experience: ",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    GradientProgressBar(
-                        progress = character.exp.toFloat() / (character.level * 10),
-                        gradientColors = GradientColors.GreenGradient.colors,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                    Text(
-                        text = "${character.exp}/${character.level * 10}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+
+                Text(
+                    text = "Experience: ${character.exp}/${character.level * 10}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                GradientProgressBar(
+                    progress = character.exp.toFloat() / (character.level * 10),
+                    gradientColors = GradientColors.GreenGradient.colors,
+                    modifier = Modifier
+                        .width(250.dp)
+                        .height(20.dp)
+                )
+
             }
+
         }
     }
 }

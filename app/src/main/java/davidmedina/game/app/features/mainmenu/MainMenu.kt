@@ -29,7 +29,8 @@ fun MainMenuScreen(
     onStoryModeClicked: () -> Unit = {},
     onStoryTestClicked: () -> Unit = {},
     onRpgClicked: () -> Unit = {},
-
+    onRpgCharacterClicked: () -> Unit = {},
+    AiArtClicked: () -> Unit = {},
 ) {
 
     val vm = koinViewModel<MainMenuViewModel>()
@@ -69,12 +70,19 @@ fun MainMenuScreen(
             onStoryTestClicked()
         }
 
+        Button(onClick = { onRpgCharacterClicked() }) {
+            Text(text = "RPG Charicter View Stats")
+        }
+
+        Button(onClick = { AiArtClicked() }) {
+            Text(text = "I asked AI to do this")
+        }
+
         TDMButton(text = "RPG") {
             onRpgClicked()
         }
         if (vm.uiState.debugMode) {
             Text(text = vm.uiState.gameState.toString())
-
         }
         }
     }

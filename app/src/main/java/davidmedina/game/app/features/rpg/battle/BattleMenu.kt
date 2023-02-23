@@ -90,7 +90,7 @@ private fun AbilitySelectMenu(modifier: Modifier,    onAbility: (Ability) -> Uni
 
 
 @Composable
-fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Unit) {
+private fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Unit) {
 
 
     Button(

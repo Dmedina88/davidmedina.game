@@ -94,7 +94,6 @@ val CharacterId.battleImage: Int
 //these will mape to fuctions on how to do the damge// think battle actions
 sealed class Ability(open val name: String) {
      data class Offensive< T: DamageType>(override val name: String,  val damageType : T) : Ability(name)
-
 }
 
 val attack = Ability.Offensive("Attack",DamageType.Physical(1f))
