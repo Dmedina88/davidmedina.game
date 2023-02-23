@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(currentBackStackEntry.value.toString()) {
                 metaGameRepositoryInMemory.logRoute(Routes.valueOf(currentBackStackEntry.value?.destination?.route.toString()))
 
+
             }
 
             DavidmedinagameTheme {

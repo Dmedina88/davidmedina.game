@@ -17,7 +17,7 @@ data class MetaGameState(
 
 
 
-sealed class Items {
-    object Potion : Items()
+sealed class Items(val expPoints :Int) {
+    object Potion : Items(10)
 }
 

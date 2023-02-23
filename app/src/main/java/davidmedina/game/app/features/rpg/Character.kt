@@ -1,6 +1,7 @@
 package davidmedina.game.app.features.rpg
 
 import davidmedina.game.app.R
+import davidmedina.game.app.data.models.Items
 import kotlin.math.max
 
 data class Character(
@@ -12,22 +13,40 @@ data class Character(
     val defense: Int,
     val speed: Float,
     val mind: Int,
-    val exp: Int =0,
-    val level: Int =0,
-    ) {
+    val exp: Int = 0,
+    val level: Int = 1,
+) {
     val isAlive get() = hp.current > 0
-    val damage get() = strength.div(4)
-}
+    val damage get() = strength / 4
 
-
-data class DiminishableStates(val current: Int, val max: Int) {
-
-    override fun toString(): String {
-        return "$current / $max"
+    // Extension function to calculate experience gained from absorbing an item
+    fun absorbItem(item: Items): Character {
+        val newExp = exp + item.expPoints
+        return if (newExp >= level * 10) {
+            // Character has leveled up
+            this.levelUp(newExp)
+        } else {
+            this.copy(exp = newExp)
+        }
     }
 
-    val percentage: Float get() = current.toFloat() / max
+    // Extension function to calculate new stats after leveling up
+    private fun levelUp(newExp : Int): Character {
+        return Character(
+            name = name,
+            characterID = characterID,
+            hp = hp.increaseMax(10),
+            will = will.increaseMax(10),
+            strength = strength + 2,
+            defense = defense + 2,
+            speed = speed + 0.1f,
+            mind = mind + 2,
+            exp = newExp,
+            level = level +1
+        )
+    }
 }
+
 
 
 enum class CharacterId {
@@ -75,23 +94,16 @@ sealed class Ability(open val name: String) {
 val attack = Ability.Offensive("Attack",DamageType.Physical(1f))
 
 fun Character.takeDamage(damageType: DamageType, damageValue : Int): Character {
-
     //cacuilate resistinces
     val finalValue : Int = damageValue
-    //check for status effects
-
-    val newHp = max(hp.current - finalValue, 0)
-
+    val newHp = (hp.current - finalValue).coerceAtLeast(0)
     return copy(
         hp = hp.copy(current = newHp)
     )
-
 }
 
 
 fun <T: DamageType> Character.performAttack(ability: Ability.Offensive<T>): Int {
-
-
     return  max(
         when (ability.damageType) {
             is DamageType.Physical -> (ability.damageType.damageFactor * this.damage).toInt()
@@ -108,7 +120,6 @@ sealed class DamageType() {
     data class Physical( val damageFactor: Float) : DamageType()
     data class Dream(val damageFactor: Float) : DamageType()
     data class Posion( val damageFactor: Float,val procValue: Float) : DamageType()
-
 }
 
 

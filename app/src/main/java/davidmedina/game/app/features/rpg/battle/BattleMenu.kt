@@ -19,6 +19,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import davidmedina.game.app.features.rpg.Ability
 import davidmedina.game.app.features.rpg.attack
 import davidmedina.game.app.features.rpg.battleImage
+import davidmedina.game.app.features.rpg.percentage
 import davidmedina.game.app.ui.composables.gameBoxBackground
 
 
