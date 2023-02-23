@@ -18,40 +18,42 @@ data class Character(
 ) {
     val isAlive get() = hp.current > 0
     val damage get() = strength / 4
-
-    // Extension function to calculate experience gained from absorbing an item
-    fun absorbItem(item: Items): Character {
-        val newExp = exp + item.expPoints
-        return if (newExp >= level * 10) {
-            // Character has leveled up
-            this.levelUp(newExp)
-        } else {
-            this.copy(exp = newExp)
-        }
-    }
-
-    // Extension function to calculate new stats after leveling up
-    private fun levelUp(newExp : Int): Character {
-        return Character(
-            name = name,
-            characterID = characterID,
-            hp = hp.increaseMax(10),
-            will = will.increaseMax(10),
-            strength = strength + 2,
-            defense = defense + 2,
-            speed = speed + 0.1f,
-            mind = mind + 2,
-            exp = newExp,
-            level = level +1
-        )
-    }
 }
 
 
 
+// Extension function to calculate experience gained from absorbing an item
+fun Character.absorbItem(item: Items): Character {
+    val newExp = exp + item.expPoints
+    return if (newExp >= level * 10) {
+        // Character has leveled up
+        this.levelUp(newExp)
+    } else {
+        this.copy(exp = newExp)
+    }
+}
+
+// Extension function to calculate new stats after leveling up
+private fun Character.levelUp(newExp : Int): Character {
+    return Character(
+        name = name,
+        characterID = characterID,
+        hp = hp.increaseMax(10),
+        will = will.increaseMax(10),
+        strength = strength + 2,
+        defense = defense + 2,
+        speed = speed + 0.1f,
+        mind = mind + 2,
+        exp = newExp,
+        level = level +1
+    )
+}
 enum class CharacterId {
     BLUE_OGER,
     OTHER_OGER,
+    Berserker,
+    Wizard,
+    Paladin
 }
 
 fun CharacterId.createCharacter(name: String? = null) = when (this) {
@@ -76,12 +78,16 @@ fun CharacterId.createCharacter(name: String? = null) = when (this) {
         .03f,
         10
     )
+    CharacterId.Berserker -> TODO()
+    CharacterId.Wizard -> TODO()
+    CharacterId.Paladin -> TODO()
 }
 
 val CharacterId.battleImage: Int
     get() = when (this) {
         CharacterId.BLUE_OGER -> R.drawable.blue_oger_portrite
         CharacterId.OTHER_OGER -> R.drawable.other_oger
+        else -> {R.drawable.gen_land_trait_apple_tree}
     }
 
 

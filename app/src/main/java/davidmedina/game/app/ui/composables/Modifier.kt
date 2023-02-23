@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import davidmedina.game.app.ui.GradientColors
 
 
 fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
@@ -59,7 +60,7 @@ fun Modifier.resizeWithCenterOffset(width: Dp, height: Dp, x: Dp, y: Dp) =
 fun Modifier.gameBoxBackground() = this.then(this
     .border(
         width = 12.dp,
-        brush = Brush.verticalGradient(colors = listOf(Color.Green, Color.Blue)),
+        brush = Brush.verticalGradient(colors = GradientColors.GreenToBlueGradient.colors),
         shape = RoundedCornerShape(percent = 2)
     )
     .clip(shape = RoundedCornerShape(percent = 2))

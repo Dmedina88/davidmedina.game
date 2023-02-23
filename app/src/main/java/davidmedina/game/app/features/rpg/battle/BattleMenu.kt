@@ -16,10 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import davidmedina.game.app.features.rpg.Ability
-import davidmedina.game.app.features.rpg.attack
-import davidmedina.game.app.features.rpg.battleImage
-import davidmedina.game.app.features.rpg.percentage
+import davidmedina.game.app.features.rpg.*
+import davidmedina.game.app.ui.GradientColors
+import davidmedina.game.app.ui.composables.GradientProgressBar
 import davidmedina.game.app.ui.composables.gameBoxBackground
 
 
@@ -140,11 +139,12 @@ fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Un
                     this.start.linkTo(image.end)
                     this.top.linkTo(image.top)
                 },
-                text = "HP : ${characterStats.characterStats.hp}"
+                text = "HP : ${characterStats.characterStats.hp.battleText}"
             )
 
 
-            LinearProgressIndicator(modifier = Modifier
+
+            GradientProgressBar(modifier = Modifier
                 .constrainAs(hpBar) {
                     start.linkTo(textBarrier, margin = 5.dp)
                     top.linkTo(hp.top)
@@ -152,26 +152,28 @@ fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Un
                 }
                 .width(180.dp)
                 .height(20.dp),
-            color = Color.Red,
+            gradientColors =GradientColors.RedGradient.colors,
             progress = healthAnimation
-                )
+            )
 
             Text(
                 modifier = Modifier.constrainAs(will) {
                     this.start.linkTo(image.end)
                     this.top.linkTo(hp.bottom, margin = 5.dp)
                 },
-                text = "Will : ${characterStats.characterStats.will}"
+                text = "Will : ${characterStats.characterStats.will.battleText}"
             )
 
-            LinearProgressIndicator(modifier = Modifier
+
+            GradientProgressBar(modifier = Modifier
                 .constrainAs(willBar) {
                     start.linkTo(textBarrier, margin = 5.dp)
                     top.linkTo(will.top)
                     bottom.linkTo(will.bottom)
                 }
                 .width(180.dp)
-                .height(20.dp), color = Color.Blue,
+                .height(20.dp),
+                gradientColors = GradientColors.BlueGradient.colors,
                 progress = willAnimation
             )
 
@@ -184,7 +186,7 @@ fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Un
                 text = "Speed: ${characterStats.turns}"
             )
 
-            LinearProgressIndicator(
+            GradientProgressBar(
                 modifier = Modifier
                     .width(180.dp)
                     .height(20.dp)
@@ -193,7 +195,7 @@ fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Un
                         top.linkTo(speed.top)
                         bottom.linkTo(speed.bottom)
                         end.linkTo(willBar.end)
-                    }, color = Color.Yellow,
+                    }, gradientColors = GradientColors.YellowGradient.colors,
                 progress = speedBarAnimation
             )
         }

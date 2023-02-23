@@ -12,11 +12,6 @@ data class MetaGameState(
     val rpgItems :  List<Items>
 )
 
-//data class ScreenVisited(val routes: Routes, val count : Int)
-
-
-
-
 sealed class Items(val expPoints :Int) {
     object Potion : Items(10)
 }

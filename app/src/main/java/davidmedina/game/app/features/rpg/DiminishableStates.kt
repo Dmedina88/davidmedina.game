@@ -1,5 +1,7 @@
 package davidmedina.game.app.features.rpg
 
+
+
 data class DiminishableStates(val current: Int, val max: Int)
 
 fun DiminishableStates.increaseMax(increment: Int): DiminishableStates {
@@ -9,7 +11,7 @@ fun DiminishableStates.increaseMax(increment: Int): DiminishableStates {
 
 val DiminishableStates.percentage: Float get() = current.toFloat() / max
 
-val DiminishableStates.states: String get() =
+val DiminishableStates.battleText: String get() =
      "$current / $max"
 
 
