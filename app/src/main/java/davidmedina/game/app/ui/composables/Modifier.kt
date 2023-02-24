@@ -28,8 +28,7 @@ fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
 }
 
 
-
-fun Modifier.resizeWithOffset(width: Dp, height: Dp, x: Dp, y: Dp) : Modifier {
+fun Modifier.resizeWithOffset(width: Dp, height: Dp, x: Dp, y: Dp): Modifier {
     var ajustedX = x
     var ajustedY = y
     var offsetX = 0.dp
@@ -37,11 +36,11 @@ fun Modifier.resizeWithOffset(width: Dp, height: Dp, x: Dp, y: Dp) : Modifier {
 
     if (x < 0.dp) {
         offsetX = x
-        ajustedX =0.dp
+        ajustedX = 0.dp
     }
     if (y < 0.dp) {
         offsetY = y
-        ajustedY =0.dp
+        ajustedY = 0.dp
     }
     return this.then(
         this

@@ -46,15 +46,15 @@ fun SideInfoBar(
 }
 
 @Composable
-fun EnergyBar(energy: Int){
-    val icon = when (energy){
-        0-> R.drawable.ic_baseline_battery_0_bar_24
-        1-> R.drawable.ic_baseline_battery_1_bar_24
-        2-> R.drawable.ic_baseline_battery_2_bar_24
-        3-> R.drawable.ic_baseline_battery_3_bar_24
-        4-> R.drawable.ic_baseline_battery_4_bar_24
-        5-> R.drawable.ic_baseline_battery_5_bar_24
-        6-> R.drawable.ic_baseline_battery_5_bar_24
+fun EnergyBar(energy: Int) {
+    val icon = when (energy) {
+        0 -> R.drawable.ic_baseline_battery_0_bar_24
+        1 -> R.drawable.ic_baseline_battery_1_bar_24
+        2 -> R.drawable.ic_baseline_battery_2_bar_24
+        3 -> R.drawable.ic_baseline_battery_3_bar_24
+        4 -> R.drawable.ic_baseline_battery_4_bar_24
+        5 -> R.drawable.ic_baseline_battery_5_bar_24
+        6 -> R.drawable.ic_baseline_battery_5_bar_24
         else -> R.drawable.ic_baseline_battery_full_24
     }
     Image(

@@ -84,8 +84,8 @@ fun MainMenuScreen(
         if (vm.uiState.debugMode) {
             Text(text = vm.uiState.gameState.toString())
         }
-        }
     }
+}
 
 
 @Composable

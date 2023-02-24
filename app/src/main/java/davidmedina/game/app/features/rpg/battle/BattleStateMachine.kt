@@ -22,6 +22,7 @@ const val tickInterval = 250L
 sealed class Battler(open val index: Int) {
     data class Player(override val index: Int) : Battler(index)
     data class Enemy(override val index: Int) : Battler(index)
+
     val isValid get() = index > -1
 }
 

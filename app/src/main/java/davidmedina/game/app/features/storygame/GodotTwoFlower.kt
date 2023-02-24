@@ -177,10 +177,10 @@ private fun Trees(
             mutableStateOf(300.dp)
         }
         val treeX by remember {
-            mutableStateOf( screenWidth - treeWidth.div(2))
+            mutableStateOf(screenWidth - treeWidth.div(2))
         }
 
-        val treeY  by remember {
+        val treeY by remember {
             mutableStateOf(screenHeight / 2)
         }
 
@@ -217,13 +217,14 @@ private fun Trees(
             animationSpec = repeatable(
                 iterations = 3,
                 animation = tween(durationMillis = 500),
-                repeatMode = RepeatMode.Reverse)
+                repeatMode = RepeatMode.Reverse
             )
+        )
 
 
-        LaunchedEffect(treeState){
-                delay(5000)
-                treeState = treeState.not()
+        LaunchedEffect(treeState) {
+            delay(5000)
+            treeState = treeState.not()
 
         }
 

@@ -14,29 +14,29 @@ import androidx.compose.ui.text.input.VisualTransformation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordText(modifier : Modifier = Modifier ,password : String, onTextChange : (String) -> Unit){
-  var passwordVisibility by remember { mutableStateOf(false) }
+fun PasswordText(modifier: Modifier = Modifier, password: String, onTextChange: (String) -> Unit) {
+    var passwordVisibility by remember { mutableStateOf(false) }
 
-  OutlinedTextField(
-    modifier =  modifier,
-    value = password,
-    placeholder = { Text("Password") },
-    onValueChange = onTextChange,
-    visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-    label = { Text("Password") },
-    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-    trailingIcon = {
-      val image = if (passwordVisibility)
-        Icons.Filled.AddCircle
-      else Icons.Filled.CheckCircle
+    OutlinedTextField(
+        modifier = modifier,
+        value = password,
+        placeholder = { Text("Password") },
+        onValueChange = onTextChange,
+        visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
+        label = { Text("Password") },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        trailingIcon = {
+            val image = if (passwordVisibility)
+                Icons.Filled.AddCircle
+            else Icons.Filled.CheckCircle
 
-      IconButton(onClick = {
-        passwordVisibility = !passwordVisibility
-      }) {
-        Icon(imageVector  = image, "")
-      }
-    }
-  )
+            IconButton(onClick = {
+                passwordVisibility = !passwordVisibility
+            }) {
+                Icon(imageVector = image, "")
+            }
+        }
+    )
 
 
 }

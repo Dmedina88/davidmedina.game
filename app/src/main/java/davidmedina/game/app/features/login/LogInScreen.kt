@@ -15,7 +15,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogInScreen(onLogin :()-> Unit, loginViewModel: LoginViewModel = koinViewModel()) {
+fun LogInScreen(onLogin: () -> Unit, loginViewModel: LoginViewModel = koinViewModel()) {
     Column(
         Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,

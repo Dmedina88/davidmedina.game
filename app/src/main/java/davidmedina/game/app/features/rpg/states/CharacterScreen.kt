@@ -61,10 +61,10 @@ fun CharacterCard(character: Character) {
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Health: ${character.hp.battleText}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                Text(
+                    text = "Health: ${character.hp.battleText}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
 
                 GradientProgressBar(
                     progress = character.hp.percentage,

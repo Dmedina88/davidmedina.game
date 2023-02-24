@@ -14,6 +14,7 @@ enum class CharacterId {
     Minion,
     Dreamer
 }
+
 fun CharacterId.createCharacter(name: String? = null) = when (this) {
     CharacterId.BLUE_OGER -> Character(
         name ?: "BlueOger",
@@ -255,5 +256,6 @@ val CharacterId.battleImage: Int
         CharacterId.BLUE_OGER -> R.drawable.blue_oger_portrite
         CharacterId.OTHER_OGER -> R.drawable.other_oger
         else -> {
-            R.drawable.gen_land_trait_apple_tree}
+            R.drawable.gen_land_trait_apple_tree
+        }
     }

@@ -23,7 +23,7 @@ import davidmedina.game.app.features.worldgen.CanvisArtScreen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun NavGraph(navController: NavHostController, innerPadding : PaddingValues) {
+fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
     NavHost(
         navController = navController,
         startDestination = Routes.HOME.name,

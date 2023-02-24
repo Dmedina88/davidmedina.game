@@ -4,15 +4,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Button
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -35,11 +30,13 @@ fun BattleMenu(
             .fillMaxWidth()
             .gameBoxBackground()
     ) {
-        AbilitySelectMenu(modifier,onAbility)
+        AbilitySelectMenu(modifier, onAbility)
 
         Column(modifier.fillMaxWidth(.80f)) {
             playerCharacters.forEachIndexed { index, battleCharacter ->
-                CharacterInfo(characterStats = battleCharacter, onCharacterSelected = {onCharacterSelected(Battler.Player(index = index))})
+                CharacterInfo(
+                    characterStats = battleCharacter,
+                    onCharacterSelected = { onCharacterSelected(Battler.Player(index = index)) })
             }
 
         }
@@ -48,7 +45,7 @@ fun BattleMenu(
 }
 
 @Composable
-private fun AbilitySelectMenu(modifier: Modifier,    onAbility: (Ability) -> Unit,) {
+private fun AbilitySelectMenu(modifier: Modifier, onAbility: (Ability) -> Unit) {
     Column(
         modifier
             .fillMaxWidth(.20f)
@@ -56,7 +53,7 @@ private fun AbilitySelectMenu(modifier: Modifier,    onAbility: (Ability) -> Uni
     ) {
 
         Button(
-            {onAbility(attack)},
+            { onAbility(attack) },
             modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -93,7 +90,8 @@ private fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: 
 
 
     Button(
-        onClick = onCharacterSelected) {
+        onClick = onCharacterSelected
+    ) {
 
         var startAnimation by remember() {
             mutableStateOf(false)
@@ -151,8 +149,8 @@ private fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: 
                 }
                 .width(180.dp)
                 .height(20.dp),
-            gradientColors =GradientColors.RedGradient.colors,
-            progress = healthAnimation
+                gradientColors = GradientColors.RedGradient.colors,
+                progress = healthAnimation
             )
 
             Text(

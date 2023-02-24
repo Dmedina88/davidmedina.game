@@ -49,6 +49,7 @@ fun BoxArtScreen() {
     }
     ArtBox(list)
 }
+
 @Composable
 fun ArtBox(assets: List<ArtGenAsset> = emptyList()) {
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -184,18 +185,18 @@ private fun Flower(
 @Composable
 private fun Clouds(
     asset: ArtGenAsset,
-intSize: IntSize
+    intSize: IntSize
 ) {
-        Image(
-            asset.bitmap, null,
-            Modifier
-                .resizeWithCenterOffset(
-                    200.dp,
-                    200.dp,
-                    x = LocalDensity.current.run { Random.nextInt(intSize.width).toDp() },
-                    y = LocalDensity.current.run { Random.nextInt(intSize.height.div(2)).toDp() },
-                )
-        )
+    Image(
+        asset.bitmap, null,
+        Modifier
+            .resizeWithCenterOffset(
+                200.dp,
+                200.dp,
+                x = LocalDensity.current.run { Random.nextInt(intSize.width).toDp() },
+                y = LocalDensity.current.run { Random.nextInt(intSize.height.div(2)).toDp() },
+            )
+    )
 }
 
 @Composable
@@ -260,7 +261,9 @@ private fun LandTrait(
                 150.dp,
                 150.dp,
                 x = LocalDensity.current.run { Random.nextInt(intSize.width).toDp() },
-                y = LocalDensity.current.run { Random.nextInt(intSize.height.div(2), intSize.height).toDp() },
+                y = LocalDensity.current.run {
+                    Random.nextInt(intSize.height.div(2), intSize.height).toDp()
+                },
             )
     )
 }
@@ -277,7 +280,9 @@ private fun Scatter(
                 50.dp,
                 50.dp,
                 x = LocalDensity.current.run { Random.nextInt(intSize.width).toDp() },
-                y = LocalDensity.current.run { Random.nextInt(intSize.height.div(2), intSize.height).toDp() },
+                y = LocalDensity.current.run {
+                    Random.nextInt(intSize.height.div(2), intSize.height).toDp()
+                },
             )
     )
 }
@@ -302,7 +307,9 @@ private fun Structures(asset: ArtGenAsset, intSize: IntSize) {
                 150.dp,
                 150.dp,
                 x = LocalDensity.current.run { Random.nextInt(intSize.width).toDp() },
-                y = LocalDensity.current.run { Random.nextInt(intSize.height.div(2), intSize.height).toDp() },
+                y = LocalDensity.current.run {
+                    Random.nextInt(intSize.height.div(2), intSize.height).toDp()
+                },
             )
     )
 }

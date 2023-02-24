@@ -2,15 +2,14 @@ package davidmedina.game.app.di
 
 import davidmedina.game.app.data.network.DMGameApi
 import davidmedina.game.app.data.network.DMGameApiImpl
-import davidmedina.game.app.data.repository.*
-import davidmedina.game.app.features.login.LoginViewModel
+import davidmedina.game.app.data.repository.MetaGameRepository
+import davidmedina.game.app.data.repository.MetaGameRepositoryInMemory
 import davidmedina.game.app.features.cardgame.GameScreenViewModel
+import davidmedina.game.app.features.login.LoginViewModel
 import davidmedina.game.app.features.mainmenu.MainMenuViewModel
 import davidmedina.game.app.features.register.RegisterViewModel
 import davidmedina.game.app.features.rpg.battle.BattleStateMachine
-
 import org.koin.androidx.viewmodel.dsl.viewModelOf
-
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module

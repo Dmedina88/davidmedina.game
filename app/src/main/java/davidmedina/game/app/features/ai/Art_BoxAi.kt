@@ -16,7 +16,7 @@ import davidmedina.game.app.data.models.*
 
 @Preview
 @Composable
-fun ArtBox_AI( ) {
+fun ArtBox_AI() {
     val assetList = buildList {
         add(ArtGenAsset.BackGround(ImageBitmap.imageResource(backgrounds.random())))
         add(ArtGenAsset.Ground(ImageBitmap.imageResource(ground.random())))
@@ -45,9 +45,11 @@ fun ArtBox_AI( ) {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(modifier = Modifier
-            .height(imageHeight.times(3).dp)
-            .fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .height(imageHeight.times(3).dp)
+                .fillMaxWidth()
+        ) {
             assetList.filterIsInstance<ArtGenAsset.BackGround>().forEach {
                 Image(
                     bitmap = it.bitmap,
@@ -97,9 +99,11 @@ fun ArtBox_AI( ) {
                 )
             }
         }
-        Box(modifier = Modifier
-            .height(imageHeight.times(2).dp)
-            .fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .height(imageHeight.times(2).dp)
+                .fillMaxWidth()
+        ) {
             assetList.filterIsInstance<ArtGenAsset.Ground>().forEach {
                 Image(
                     bitmap = it.bitmap,

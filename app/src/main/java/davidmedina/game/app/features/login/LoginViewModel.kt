@@ -11,47 +11,47 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 data class LoginState(
-  val userName: String = "Davis Dedaina",
-  val password: String = "",
-  val isLoading: Boolean = false,
-  val logInNavPending: Boolean = false
+    val userName: String = "Davis Dedaina",
+    val password: String = "",
+    val isLoading: Boolean = false,
+    val logInNavPending: Boolean = false
 )
 
-class LoginViewModel ( loginRepository: LoginRepository) : ViewModel() {
+class LoginViewModel(loginRepository: LoginRepository) : ViewModel() {
 
 
-  var uiState by mutableStateOf(LoginState())
-  private set
+    var uiState by mutableStateOf(LoginState())
+        private set
 
-  fun updateUserName(userName: String) {
+    fun updateUserName(userName: String) {
 
-    viewModelScope.launch {
-      uiState = uiState.copy(userName = userName)
+        viewModelScope.launch {
+            uiState = uiState.copy(userName = userName)
+        }
     }
-  }
 
-  fun updatePassword(password: String) {
-    viewModelScope.launch {
-      uiState = uiState.copy(password = password)
+    fun updatePassword(password: String) {
+        viewModelScope.launch {
+            uiState = uiState.copy(password = password)
+        }
     }
-  }
 
-  fun login() {
+    fun login() {
 
-    uiState = uiState.copy(isLoading = true)
-    viewModelScope.launch {
-      delay(3000)
-      uiState = uiState.copy(isLoading = false, logInNavPending = true)
+        uiState = uiState.copy(isLoading = true)
+        viewModelScope.launch {
+            delay(3000)
+            uiState = uiState.copy(isLoading = false, logInNavPending = true)
 
+        }
     }
-  }
 
-  fun navigated() {
-    uiState = uiState.copy(logInNavPending = false)
-  }
+    fun navigated() {
+        uiState = uiState.copy(logInNavPending = false)
+    }
 
-  override fun onCleared() {
-    Timber.i("onCleared")
-    super.onCleared()
-  }
+    override fun onCleared() {
+        Timber.i("onCleared")
+        super.onCleared()
+    }
 }

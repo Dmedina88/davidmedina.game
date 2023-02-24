@@ -9,8 +9,8 @@ data class MetaGameState(
     val userName: String = "",
     val id: UUID? = null,
     val screensVisited: Map<Routes, Int> = emptyMap(),
-    val rpgCharacter :  List<Character>,
-    val rpgItems :  List<Items>
+    val rpgCharacter: List<Character>,
+    val rpgItems: List<Items>
 )
 
 

@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 
 @Preview()
 @Composable
-fun ButtonSideBySide(){
+fun ButtonSideBySide() {
     Column {
 
         TDMButton()
@@ -35,7 +35,7 @@ fun ButtonSideBySide(){
 
 @Preview()
 @Composable
-fun TDMButton(modifier: Modifier = Modifier,text: String = "Button", onClick: () -> Unit = {}, ) {
+fun TDMButton(modifier: Modifier = Modifier, text: String = "Button", onClick: () -> Unit = {}) {
 
     Box(modifier = Modifier
         .clickable(onClick = onClick)
@@ -81,7 +81,9 @@ fun TDMButton(modifier: Modifier = Modifier,text: String = "Button", onClick: ()
 
 
         }) {
-            Text(text = text, Modifier.padding(4.dp),
-            color = Color.Blue, fontSize = 15.sp)
+        Text(
+            text = text, Modifier.padding(4.dp),
+            color = Color.Blue, fontSize = 15.sp
+        )
     }
 }

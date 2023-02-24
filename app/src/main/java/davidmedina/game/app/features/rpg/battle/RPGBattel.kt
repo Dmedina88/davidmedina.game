@@ -37,15 +37,16 @@ fun RPGBattle() {
     })
 
     battleStateMachine.init(
-        listOf(CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
+        listOf(
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
-            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)))
-        , listOf(Items.Potion(50))
+            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
+            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20))
+        ), listOf(Items.Potion(50))
     )
 
     Box(

@@ -7,7 +7,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun BoxDrag(){
+fun BoxDrag() {
     BoxWithConstraints {
         Text("My minHeight is $minHeight while my maxWidth is $maxWidth")
     }

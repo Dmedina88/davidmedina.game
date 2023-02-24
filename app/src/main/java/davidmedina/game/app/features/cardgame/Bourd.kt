@@ -13,12 +13,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import davidmedina.game.app.R
+import davidmedina.game.app.features.cardgame.CardGameState
 import davidmedina.game.app.ui.theme.PurpleGrey80
 import davidmedina.game.app.ui.theme.playingCardSize
-import davidmedina.game.app.features.cardgame.CardGameState
 
 @Composable
-fun GameField(gameState : CardGameState){
+fun GameField(gameState: CardGameState) {
     Column() {
 
         //spike check to see if using grid would be better for animations
@@ -31,7 +31,8 @@ fun GameField(gameState : CardGameState){
                 }
                 if (it == null) {
                     Box(
-                        Modifier.playingCardSize()
+                        Modifier
+                            .playingCardSize()
                             .background(PurpleGrey80)
                     )
                 }

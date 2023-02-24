@@ -1,19 +1,17 @@
 package davidmedina.game.app.ui.composables
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Size
 
 @Composable
 fun GradientProgressBar(
@@ -30,7 +28,7 @@ fun GradientProgressBar(
 
     Canvas(
         modifier = modifier
-            .border( 3.dp,color = Color.Gray, shape = RoundedCornerShape(borderRadius))
+            .border(3.dp, color = Color.Gray, shape = RoundedCornerShape(borderRadius))
 
 
     ) {

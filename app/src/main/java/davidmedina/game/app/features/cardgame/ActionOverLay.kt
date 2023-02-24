@@ -17,22 +17,27 @@ import davidmedina.game.app.ui.theme.playingCardSize
 
 
 @Composable
-fun ActionOverlay(action : ActionComposerState, onTargetSelected: (Int) -> Unit, cansel: (() -> Unit) = {}, confirm: (() -> Unit) = {} )  {
+fun ActionOverlay(
+    action: ActionComposerState,
+    onTargetSelected: (Int) -> Unit,
+    cansel: (() -> Unit) = {},
+    confirm: (() -> Unit) = {}
+) {
 
     Row(modifier = Modifier.fillMaxSize()) {
 
-            when (action) {
-                is ActionComposerState.PlayCard -> PlayCardOverlay(action, onTargetSelected)
-                is ActionComposerState.AttackAction -> Box() {}
-                else -> {}
-            }
+        when (action) {
+            is ActionComposerState.PlayCard -> PlayCardOverlay(action, onTargetSelected)
+            is ActionComposerState.AttackAction -> Box() {}
+            else -> {}
+        }
 
         Button(modifier = Modifier.playingCardSize(),
-            onClick = {cansel()}) {
+            onClick = { cansel() }) {
             Text(text = "cansel")
         }
         Button(modifier = Modifier.playingCardSize(),
-            onClick = {confirm()}) {
+            onClick = { confirm() }) {
             Text(text = "confirm")
         }
     }
@@ -40,26 +45,26 @@ fun ActionOverlay(action : ActionComposerState, onTargetSelected: (Int) -> Unit,
 }
 
 @Composable
-private fun PlayCardOverlay(action : ActionComposerState.PlayCard, onClick: (Int) -> Unit ){
+private fun PlayCardOverlay(action: ActionComposerState.PlayCard, onClick: (Int) -> Unit) {
 
-       Column() {
-           LazyRow {
-               itemsIndexed(items = action.validOponenteFields) { index, valid ->
-                   SelectableField(valid = valid, selected = action.field == index) {
-                       onClick(index)
-                   }
-               }
-           }
+    Column() {
+        LazyRow {
+            itemsIndexed(items = action.validOponenteFields) { index, valid ->
+                SelectableField(valid = valid, selected = action.field == index) {
+                    onClick(index)
+                }
+            }
+        }
 
-           LazyRow {
-               itemsIndexed(items = action.validFields) { index, valid ->
-                   SelectableField(valid = valid, selected = action.field == index) {
-                       onClick(index)
-                   }
-               }
-           }
+        LazyRow {
+            itemsIndexed(items = action.validFields) { index, valid ->
+                SelectableField(valid = valid, selected = action.field == index) {
+                    onClick(index)
+                }
+            }
+        }
 
-       }
+    }
 
 }
 

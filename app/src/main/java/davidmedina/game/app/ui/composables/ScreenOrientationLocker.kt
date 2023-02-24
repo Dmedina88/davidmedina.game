@@ -8,7 +8,6 @@ import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.DefaultLifecycleObserver
 
 @Composable
 fun LockScreenOrientation(orientation: Int) {
@@ -31,7 +30,7 @@ fun Context.findActivity(): Activity? = when (this) {
 }
 
 @Composable
-fun Onlifecycal(onResume: ()-> Unit, onPause: ()->Unit) {
+fun Onlifecycal(onResume: () -> Unit, onPause: () -> Unit) {
     val context = LocalContext.current
     DisposableEffect(Unit) {
         val activity = context.findActivity() ?: return@DisposableEffect onDispose {}

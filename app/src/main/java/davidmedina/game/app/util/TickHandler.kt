@@ -16,7 +16,7 @@ class TickHandler(
 
     init {
         externalScope.launch {
-            while(true) {
+            while (true) {
                 _tickFlow.emit(Unit)
                 delay(tickIntervalMs)
             }

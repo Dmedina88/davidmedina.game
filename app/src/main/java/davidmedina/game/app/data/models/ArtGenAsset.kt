@@ -124,14 +124,15 @@ val flying = listOf(
     R.drawable.gen_flying_17,
     R.drawable.gen_flying_18,
     R.drawable.gen_flying_19,
-    )
+)
 
 val ground = listOf(
     R.drawable.gen_ground_1,
     R.drawable.gen_ground_2,
     R.drawable.gen_japan_ground_3,
     R.drawable.gen_ground_4,
-    R.drawable.gen_ground_5)
+    R.drawable.gen_ground_5
+)
 
 val landTrait = listOf(
     R.drawable.gen_land_trait_big_mushroom,
@@ -162,7 +163,8 @@ val scatter = listOf(
     R.drawable.gen_scater_17,
     R.drawable.gen_scater_18,
     R.drawable.gen_scater_19,
-    R.drawable.gen_scater_20)
+    R.drawable.gen_scater_20
+)
 
 val sky = listOf(
     R.drawable.gen_sky_1,

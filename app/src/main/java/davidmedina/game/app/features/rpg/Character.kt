@@ -33,13 +33,9 @@ fun Character.absorbItem(item: Items): Character {
 }
 
 
-
-
-
-
-fun Character.takeDamage(damageType: DamageType, damageValue : Int): Character {
+fun Character.takeDamage(damageType: DamageType, damageValue: Int): Character {
     //cacuilate resistinces
-    val finalValue : Int = damageValue
+    val finalValue: Int = damageValue
     val newHp = (hp.current - finalValue).coerceAtLeast(0)
     return copy(
         hp = hp.copy(current = newHp)
@@ -47,8 +43,8 @@ fun Character.takeDamage(damageType: DamageType, damageValue : Int): Character {
 }
 
 
-fun <T: DamageType> Character.performAttack(ability: Ability.Offensive<T>): Int {
-    return  max(
+fun <T : DamageType> Character.performAttack(ability: Ability.Offensive<T>): Int {
+    return max(
         when (ability.damageType) {
             is DamageType.Physical -> (ability.damageType.damageFactor * this.damage).toInt()
             else -> 0

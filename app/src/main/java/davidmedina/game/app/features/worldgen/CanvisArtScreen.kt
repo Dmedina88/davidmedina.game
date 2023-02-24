@@ -26,7 +26,7 @@ import kotlin.random.Random
 @Preview
 fun CanvisArtScreen() {
 
-    var refresh    by remember { mutableStateOf(1) }
+    var refresh by remember { mutableStateOf(1) }
 
 
     val list = buildList {
@@ -46,13 +46,13 @@ fun CanvisArtScreen() {
         }
         add(ArtGenAsset.Center(ImageBitmap.imageResource(center.random())))
     }
-    ArtCanvas(list){
-       // refresh =+1
+    ArtCanvas(list) {
+        // refresh =+1
     }
 }
 
 @Composable
-fun ArtCanvas(assets: List<ArtGenAsset> = emptyList(), onClick : () -> Unit) {
+fun ArtCanvas(assets: List<ArtGenAsset> = emptyList(), onClick: () -> Unit) {
 
 
     val flowerSize = IntSize(
@@ -67,7 +67,7 @@ fun ArtCanvas(assets: List<ArtGenAsset> = emptyList(), onClick : () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .clickable(onClick =onClick)
+            .clickable(onClick = onClick)
     ) {
 
 

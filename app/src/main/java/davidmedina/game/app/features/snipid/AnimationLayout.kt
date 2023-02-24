@@ -1,8 +1,5 @@
 package davidmedina.game.app.features.snipid
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -15,9 +12,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-enum class AnimationSpec(val value:String){
-    SNAP("Snap"),SPRING("Spring"),TWEEN("Tween"), REPEATABLE("Repeat"),
-    INFINITE_REPEATABLE("Infinite") }
+enum class AnimationSpec(val value: String) {
+    SNAP("Snap"), SPRING("Spring"), TWEEN("Tween"), REPEATABLE("Repeat"),
+    INFINITE_REPEATABLE("Infinite")
+}
+
 @Preview
 @Composable
 fun AnimationLayout() {
@@ -36,7 +35,9 @@ fun AnimationLayout() {
     )
 
     Column(
-        modifier = Modifier.fillMaxSize().background(backgroundColor),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor),
         verticalArrangement = Arrangement.Center
     ) {
         AnimationButtons(onValueChanged = { currState, animName ->
@@ -51,7 +52,10 @@ fun AnimationButtons(onValueChanged: (Boolean, String) -> Unit, state: Boolean) 
     for (anim in AnimationSpec.values()) {
         Button(
             onClick = { onValueChanged(!state, anim.value) },
-            modifier = Modifier.height(50.dp).width(100.dp).padding(top = 10.dp),
+            modifier = Modifier
+                .height(50.dp)
+                .width(100.dp)
+                .padding(top = 10.dp),
             content = {
                 Text(text = anim.value, color = Color.White)
             })

@@ -52,17 +52,17 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigationIcon =
                                 {
-                                if (currentDest != Routes.HOME.name && currentDest != Routes.REGISTER.name) {
-                                    IconButton(onClick = { navController.navigateUp() }) {
-                                        Icon(Icons.Filled.ArrowBack, "backIcon")
+                                    if (currentDest != Routes.HOME.name && currentDest != Routes.REGISTER.name) {
+                                        IconButton(onClick = { navController.navigateUp() }) {
+                                            Icon(Icons.Filled.ArrowBack, "backIcon")
+                                        }
+                                    } else {
+                                        Spacer(Modifier)
                                     }
-                                } else {
-                                    Spacer(Modifier)
-                                }
-                            })
+                                })
                         }
                     }
-                    ) { innerPadding ->
+                ) { innerPadding ->
 
 
                     NavGraph(navController = navController, innerPadding = innerPadding)

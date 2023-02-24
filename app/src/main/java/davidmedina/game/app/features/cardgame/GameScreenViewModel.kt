@@ -3,9 +3,9 @@ package davidmedina.game.app.features.cardgame
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import davidmedina.game.app.data.models.CardAction
+import davidmedina.game.app.features.cardgame.ActionComposerState.PlayCard
 import davidmedina.game.app.ui.composables.CardState
 import davidmedina.game.app.ui.composables.mockCardState
-import davidmedina.game.app.features.cardgame.ActionComposerState.PlayCard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

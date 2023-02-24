@@ -1,16 +1,15 @@
 package davidmedina.game.app.data.repository
 
 import davidmedina.game.app.data.network.DMGameApi
-import kotlinx.coroutines.delay
 
 interface LoginRepository {
 
-   suspend fun login(userName:String, password : String )
+    suspend fun login(userName: String, password: String)
 }
 
-class LoginRepositoryImpl (val dmgApi : DMGameApi) : LoginRepository{
+class LoginRepositoryImpl(val dmgApi: DMGameApi) : LoginRepository {
     override suspend fun login(userName: String, password: String) {
-        dmgApi.login(userName,password)
+        dmgApi.login(userName, password)
     }
 
 }

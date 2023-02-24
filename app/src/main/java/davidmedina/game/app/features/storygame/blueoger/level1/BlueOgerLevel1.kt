@@ -31,9 +31,12 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
-
-
-data class ScreenInfo(val screenWidth: Dp,val screenHeight: Dp,val xScale: Float, val yScale: Float)
+data class ScreenInfo(
+    val screenWidth: Dp,
+    val screenHeight: Dp,
+    val xScale: Float,
+    val yScale: Float
+)
 
 @Composable
 @Preview
@@ -82,7 +85,7 @@ fun BlueOgerOpening() {
         mutableStateOf(1)
     }
 
-    TDMTextBox(text, painterResource(id = portite), { step += 1})
+    TDMTextBox(text, painterResource(id = portite), { step += 1 })
 
     LaunchedEffect(key1 = step, block = {
         scope.launch {
@@ -253,12 +256,12 @@ private fun Homes(
 
 @Composable
 private fun Ogers(
- screenInfo: ScreenInfo
+    screenInfo: ScreenInfo
 ) {
     val width = 100.dp * screenInfo.yScale
     val height = 150.dp * screenInfo.yScale
 
-    val x =  screenInfo.screenWidth - screenInfo.screenWidth.div(3)
+    val x = screenInfo.screenWidth - screenInfo.screenWidth.div(3)
     val y = screenInfo.screenHeight - height
     var danceState by remember { mutableStateOf(true) }
 
@@ -277,7 +280,7 @@ private fun Ogers(
         )
     )
     LaunchedEffect("key") {
-       // delay(100)
+        // delay(100)
         danceState = danceState.not()
     }
 

@@ -33,7 +33,7 @@ data class CardData(
 
 data class CardState(val faceUp: Boolean = false, val cardData: CardData)
 
- var mockCardState = CardState(
+var mockCardState = CardState(
     true,
     CardData("Cavid", 3, 3, R.mipmap.cavis, listOf(CardAction.Attack(2), CardAction.Heal(1)))
 )
