@@ -9,9 +9,6 @@ import davidmedina.game.app.features.mainmenu.MainMenuViewModel
 import davidmedina.game.app.features.register.RegisterViewModel
 import davidmedina.game.app.features.rpg.battle.BattleStateMachine
 
-import davidmedina.game.app.features.worldgen.BoxArtViewModal
-
-
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 
 import org.koin.core.module.dsl.singleOf
@@ -31,6 +28,5 @@ val viewModuleModule = module {
     viewModelOf(::MainMenuViewModel)
     viewModelOf(::RegisterViewModel)
 
-    viewModelOf(::BoxArtViewModal)
     viewModelOf(::GameScreenViewModel)
 }

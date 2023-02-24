@@ -2,7 +2,11 @@ package davidmedina.game.app.features.rpg
 
 
 
-data class DiminishableStates(val current: Int, val max: Int)
+data class DiminishableStates(
+    var max: Int,
+    var current: Int = max
+)
+
 
 fun DiminishableStates.increaseMax(increment: Int): DiminishableStates {
     val newMax = max + increment

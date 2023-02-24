@@ -27,7 +27,6 @@ fun BattleMenu(
     playerCharacters: List<BattleCharacter>,
     modifier: Modifier = Modifier,
     onCharacterSelected: (Battler) -> Unit,
-
     onAbility: (Ability) -> Unit,
 ) {
     Row(

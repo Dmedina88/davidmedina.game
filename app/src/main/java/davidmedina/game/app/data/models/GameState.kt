@@ -2,6 +2,7 @@ package davidmedina.game.app.data.models
 
 import davidmedina.game.app.Routes
 import davidmedina.game.app.features.rpg.Character
+import davidmedina.game.app.features.rpg.Items
 import java.util.*
 
 data class MetaGameState(
@@ -12,7 +13,4 @@ data class MetaGameState(
     val rpgItems :  List<Items>
 )
 
-sealed class Items(val expPoints :Int) {
-    object Potion : Items(10)
-}
 

@@ -3,7 +3,6 @@ package davidmedina.game.app.features.rpg.battle
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import davidmedina.game.app.data.models.Items
 import davidmedina.game.app.data.repository.MetaGameRepository
 import davidmedina.game.app.features.rpg.*
 import davidmedina.game.app.util.TickHandler
@@ -205,6 +204,11 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
                     action.ability!! as Ability.Offensive<*>
                 )
             null -> {}
+            is Ability.Buff -> TODO()
+            is Ability.Debuff -> TODO()
+            is Ability.Heal -> TODO()
+            is Ability.Stealth -> TODO()
+            is Ability.Taunt -> TODO()
         }
     }
 

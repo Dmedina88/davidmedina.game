@@ -19,12 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import davidmedina.game.app.data.models.Items
-import davidmedina.game.app.features.mainmenu.MainMenuViewModel
-import davidmedina.game.app.features.rpg.CharacterId
-import davidmedina.game.app.features.rpg.DiminishableStates
-import davidmedina.game.app.features.rpg.battleImage
-import davidmedina.game.app.features.rpg.createCharacter
+import davidmedina.game.app.features.rpg.*
 import davidmedina.game.app.ui.composables.Onlifecycal
 import davidmedina.game.app.ui.composables.gameBoxBackground
 import davidmedina.game.app.ui.composables.noRippleClickable
@@ -42,17 +37,15 @@ fun RPGBattle() {
     })
 
     battleStateMachine.init(
-        listOf(
+        listOf(CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
             CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
-            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
-            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)),
-            )
-        , listOf(Items.Potion)
+            CharacterId.OTHER_OGER.createCharacter().copy(hp = DiminishableStates(1, 20)))
+        , listOf(Items.Potion(50))
     )
 
     Box(
@@ -62,10 +55,7 @@ fun RPGBattle() {
     ) {
         BattleScreen(battleStateMachine)
     }
-
-
 }
-
 
 @Composable
 private fun BattleScreen(battleStateMachine: BattleStateMachine) {
@@ -108,7 +98,6 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
                     }
                 }
             }
-
 
 
             BattleMenu(

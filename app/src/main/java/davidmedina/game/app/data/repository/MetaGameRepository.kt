@@ -1,10 +1,10 @@
 package davidmedina.game.app.data.repository
 
 import davidmedina.game.app.Routes
-import davidmedina.game.app.data.models.Items
 import davidmedina.game.app.data.models.MetaGameState
 import davidmedina.game.app.features.rpg.Character
 import davidmedina.game.app.features.rpg.CharacterId
+import davidmedina.game.app.features.rpg.Items
 import davidmedina.game.app.features.rpg.createCharacter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +33,7 @@ class MetaGameRepositoryInMemory : MetaGameRepository {
                 CharacterId.BLUE_OGER.createCharacter(),
                 CharacterId.BLUE_OGER.createCharacter("number 2")
             ),
-            rpgItems = listOf(Items.Potion)
+            rpgItems = listOf(Items.Potion(30))
         )
     )
 

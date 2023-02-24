@@ -18,76 +18,8 @@ import davidmedina.game.app.features.rpg.*
 import davidmedina.game.app.ui.GradientColors
 import davidmedina.game.app.ui.composables.GradientProgressBar
 
-private val mockCharacters = listOf(
-    Character(
-        "John Doe",
-        CharacterId.Berserker,
-        DiminishableStates(50, 100),
-        DiminishableStates(60, 100),
-        10,
-        20,
-        3.5f,
-        5,
-        exp = 10
-    ),
-    Character(
-        "Jane Smith",
-        CharacterId.Wizard,
-        DiminishableStates(80, 80),
-        DiminishableStates(70, 70),
-        5,
-        15,
-        2.5f,
-        10
-    ),
-    Character(
-        "Bob Johnson",
-        CharacterId.Paladin,
-        DiminishableStates(100, 100),
-        DiminishableStates(50, 50),
-        15,
-        25,
-        4.0f,
-        8
-    ),
-    Character(
-        name = "Warrior",
-        characterID = CharacterId.BLUE_OGER,
-        hp = DiminishableStates(100, 100),
-        will = DiminishableStates(50, 50),
-        strength = 20,
-        defense = 10,
-        speed = 1.5f,
-        mind = 5,
-        exp = 0,
-        level = 1,
-    ),
-    Character(
-        name = "Mage",
-        characterID = CharacterId.BLUE_OGER,
-        hp = DiminishableStates(50, 50),
-        will = DiminishableStates(30, 100),
-        strength = 5,
-        defense = 5,
-        speed = 1.0f,
-        mind = 20,
-        exp = 0,
-        level = 1,
-    ),
-    Character(
-        name = "Rogue",
-        characterID = CharacterId.BLUE_OGER,
-        hp = DiminishableStates(75, 75),
-        will = DiminishableStates(75, 75),
-        strength = 10,
-        defense = 7,
-        speed = 2.0f,
-        mind = 10,
-        exp = 0,
-        level = 1,
-    ),
-    // Add more characters as needed
-)
+private val mockCharacters = createMockCharacters(6)
+
 @Preview
 @Composable
 fun CharacterScreen(characters: List<Character> = mockCharacters) {
@@ -151,7 +83,6 @@ fun CharacterCard(character: Character) {
                     modifier = Modifier
                         .width(250.dp)
                         .height(20.dp)
-
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -174,11 +105,11 @@ fun CharacterCard(character: Character) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Experience: ${character.exp}/${character.level * 10}",
+                    text = "Experience: ${character.exp}/${character.nextLevel}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 GradientProgressBar(
-                    progress = character.exp.toFloat() / (character.level * 10),
+                    progress = character.exp.toFloat() / (character.level * character.nextLevel),
                     gradientColors = GradientColors.GreenGradient.colors,
                     modifier = Modifier
                         .width(250.dp)
