@@ -75,13 +75,6 @@ data class Shape(
     val size: Int
 )
 
-fun Random.nextColor(): Color {
-    return Color(
-        red = nextFloat(),
-        green = nextFloat(),
-        blue = nextFloat()
-    )
-}
 
 fun DrawScope.drawShape(
     color: Color,
