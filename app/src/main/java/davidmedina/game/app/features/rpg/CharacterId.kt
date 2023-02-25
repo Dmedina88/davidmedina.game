@@ -71,16 +71,6 @@ fun CharacterId.createCharacter(name: String? = null) = when (this) {
         10
     )
 
-    CharacterId.Alien -> Character(
-        name ?: "Alien",
-        CharacterId.Alien,
-        DiminishableStates(45, 45),
-        DiminishableStates(55, 55),
-        8,
-        8,
-        .12f,
-        25
-    )
 
     CharacterId.Android -> Character(
         name ?: "Android",
@@ -91,6 +81,17 @@ fun CharacterId.createCharacter(name: String? = null) = when (this) {
         12,
         .07f,
         15
+    )
+
+    CharacterId.Alien -> Character(
+        name ?: "Alien",
+        CharacterId.Alien,
+        DiminishableStates(45, 45),
+        DiminishableStates(55, 55),
+        8,
+        8,
+        .12f,
+        25
     )
 
     CharacterId.Psion -> Character(

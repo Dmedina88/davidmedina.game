@@ -1,7 +1,10 @@
 package davidmedina.game.app.features.ai
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +38,12 @@ fun ArtBox_AI() {
         add(ArtGenAsset.Center(ImageBitmap.imageResource(center.random())))
     }
 
+
+    DisplayScene(assetList)
+}
+
+@Composable
+private fun DisplayScene(assetList: List<ArtGenAsset>) {
     val screenDimensions = LocalConfiguration.current
     val screenWidth = screenDimensions.screenWidthDp
     val screenHeight = screenDimensions.screenHeightDp
@@ -46,16 +55,14 @@ fun ArtBox_AI() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = Modifier
-                .height(imageHeight.times(3).dp)
-                .fillMaxWidth()
+            modifier = Modifier.height(imageHeight.times(3).dp)
         ) {
             assetList.filterIsInstance<ArtGenAsset.BackGround>().forEach {
                 Image(
                     bitmap = it.bitmap,
                     contentDescription = "background",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             assetList.filterIsInstance<ArtGenAsset.Sky>().forEach {
@@ -63,7 +70,7 @@ fun ArtBox_AI() {
                     bitmap = it.bitmap,
                     contentDescription = "sky",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             assetList.filterIsInstance<ArtGenAsset.Clouds>().forEach {
@@ -71,7 +78,7 @@ fun ArtBox_AI() {
                     bitmap = it.bitmap,
                     contentDescription = "clouds",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             assetList.filterIsInstance<ArtGenAsset.Structures>().forEach {
@@ -79,7 +86,7 @@ fun ArtBox_AI() {
                     bitmap = it.bitmap,
                     contentDescription = "structures",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             assetList.filterIsInstance<ArtGenAsset.Center>().forEach {
@@ -87,7 +94,7 @@ fun ArtBox_AI() {
                     bitmap = it.bitmap,
                     contentDescription = "center",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             assetList.filterIsInstance<ArtGenAsset.Flying>().forEach {
@@ -95,21 +102,19 @@ fun ArtBox_AI() {
                     bitmap = it.bitmap,
                     contentDescription = "flying",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
         Box(
-            modifier = Modifier
-                .height(imageHeight.times(2).dp)
-                .fillMaxWidth()
+            modifier = Modifier.height(imageHeight.times(2).dp)
         ) {
             assetList.filterIsInstance<ArtGenAsset.Ground>().forEach {
                 Image(
                     bitmap = it.bitmap,
                     contentDescription = "ground",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             assetList.filterIsInstance<ArtGenAsset.GroundCreature>().forEach {
@@ -117,7 +122,7 @@ fun ArtBox_AI() {
                     bitmap = it.bitmap,
                     contentDescription = "ground creature",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             assetList.filterIsInstance<ArtGenAsset.LandTrait>().forEach {
@@ -125,7 +130,7 @@ fun ArtBox_AI() {
                     bitmap = it.bitmap,
                     contentDescription = "land trait",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             assetList.filterIsInstance<ArtGenAsset.Scatter>().forEach {
@@ -133,7 +138,7 @@ fun ArtBox_AI() {
                     bitmap = it.bitmap,
                     contentDescription = "scatter",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             assetList.filterIsInstance<ArtGenAsset.Flower>().forEach {
@@ -141,10 +146,9 @@ fun ArtBox_AI() {
                     bitmap = it.bitmap,
                     contentDescription = "flower",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
     }
 }
-
