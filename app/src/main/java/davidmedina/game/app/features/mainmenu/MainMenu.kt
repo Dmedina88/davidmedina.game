@@ -5,85 +5,86 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import davidmedina.game.app.Routes
+import davidmedina.game.app.features.ai.RandomShapeScreen2
 import davidmedina.game.app.ui.composables.TDMButton
 import davidmedina.game.app.ui.composables.noRippleClickable
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+
 @Composable
-fun MainMenuScreen(
-    onNewGameClicked: () -> Unit = {},
-    onLinksClicked: () -> Unit = {},
-    onFeedBackClicked: () -> Unit = {},
-    onProtoGenClicked: () -> Unit = {},
-    onArtGenClicked: () -> Unit = {},
-    onStoryModeClicked: () -> Unit = {},
-    onStoryTestClicked: () -> Unit = {},
-    onRpgClicked: () -> Unit = {},
-    onRpgCharacterClicked: () -> Unit = {},
-    AiArtClicked: () -> Unit = {},
-) {
+fun MainMenuScreen(navController: NavHostController) {
 
-    val vm = koinViewModel<MainMenuViewModel>()
+    var shapeCount by remember { mutableStateOf(5) }
 
-    val scrollState = rememberScrollState()
-    Column(
-        Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Title(vm::onTitleClicked)
+    RandomShapeScreen2(shapeCount, 10, {
+        shapeCount = it
+    }) {
 
 
-        Button(onClick = { onNewGameClicked() }) {
-            Text(text = "New Game")
+        val vm = koinViewModel<MainMenuViewModel>()
+
+        val scrollState = rememberScrollState()
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Title(vm::onTitleClicked)
+
+            Button(onClick = { navController.navigate(Routes.GAME.name) }) {
+                Text(text = "New Game")
+            }
+
+            SideButton { navController.navigate(Routes.LINKS.name) }
+
+            Button(onClick = { navController.navigate(Routes.FEEDBACK.name) }) {
+                Text(text = "FeedBack")
+            }
+
+            TDMButton(text = "ProtoType") {
+                navController.navigate(Routes.PROTO_GEN.name)
+            }
+
+            Button(onClick = { navController.navigate(Routes.ART_GEN.name) }) {
+                Text(text = "Composed Art")
+            }
+
+            Button(onClick = { navController.navigate(Routes.STORY_MODE.name) }) {
+                Text(text = "Blue_Ogre_Story")
+            }
+
+            TDMButton(text = "Waiting For Godot Test") {
+                navController.navigate(Routes.STORY_TEST.name)
+            }
+
+            Button(onClick = { navController.navigate(Routes.RPG_CHARACTER.name) }) {
+                Text(text = "RPG Charicter View Stats")
+            }
+
+            Button(onClick = { navController.navigate(Routes.AI_ART.name) }) {
+                Text(text = "I asked AI to do this")
+            }
+
+            TDMButton(text = "RPG") {
+                navController.navigate(Routes.RPG.name)
+            }
+
+            if (vm.uiState.debugMode) {
+                Text(text = vm.uiState.gameState.toString())
+            }
         }
 
-        SideButton(onLinksClicked)
 
-
-        Button(onClick = { onFeedBackClicked() }) {
-            Text(text = "FeedBack")
-        }
-        TDMButton(text = "ProtoType") { onProtoGenClicked() }
-
-        Button(onClick = { onArtGenClicked() }) {
-            Text(text = "Composed Art")
-        }
-
-        Button(onClick = { onStoryModeClicked() }) {
-            Text(text = "Blue_Ogre_Story")
-        }
-        TDMButton(text = "Waiting For Godot Test") {
-            onStoryTestClicked()
-        }
-
-        Button(onClick = { onRpgCharacterClicked() }) {
-            Text(text = "RPG Charicter View Stats")
-        }
-
-        Button(onClick = { AiArtClicked() }) {
-            Text(text = "I asked AI to do this")
-        }
-
-        TDMButton(text = "RPG") {
-            onRpgClicked()
-        }
-        if (vm.uiState.debugMode) {
-            Text(text = vm.uiState.gameState.toString())
-        }
     }
 }
 
