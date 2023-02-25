@@ -56,10 +56,10 @@ fun Modifier.resizeWithCenterOffset(width: Dp, height: Dp, x: Dp, y: Dp) =
     resizeWithOffset(width, height, x = x - width.div(2), y = y - height.div(2))
 
 
-fun Modifier.gameBoxBackground() = this.then(this
+fun Modifier.gameBoxBackground(colors: GradientColors = GradientColors.GreenToBlueGradient ) = this.then(this
     .border(
         width = 12.dp,
-        brush = Brush.verticalGradient(colors = GradientColors.GreenToBlueGradient.colors),
+        brush = Brush.verticalGradient(colors = colors.colors),
         shape = RoundedCornerShape(percent = 2)
     )
     .clip(shape = RoundedCornerShape(percent = 2))

@@ -30,7 +30,16 @@ fun BattleMenu(
             .fillMaxWidth()
             .gameBoxBackground()
     ) {
-        AbilitySelectMenu(modifier, onAbility)
+        val abilityList = listOf(
+            Ability.Offensive("Fireball", DamageType.Fire(3f,.5f)),
+            Ability.Heal("Heal", 50),
+            Ability.Buff("Strength Buff", Stat.Strength, 10),
+            Ability.Debuff("Poison", Stat.Health, 5),
+            Ability.Taunt("Taunt"),
+            Ability.Stealth("Stealth")
+        )
+
+        AbilitySelectMenu(modifier,abilityList, onAbility)
 
         Column(modifier.fillMaxWidth(.80f)) {
             playerCharacters.forEachIndexed { index, battleCharacter ->
@@ -44,45 +53,6 @@ fun BattleMenu(
     }
 }
 
-@Composable
-private fun AbilitySelectMenu(modifier: Modifier, onAbility: (Ability) -> Unit) {
-    Column(
-        modifier
-            .fillMaxWidth(.20f)
-            .gameBoxBackground()
-    ) {
-
-        Button(
-            { onAbility(attack) },
-            modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            Text(text = "Attack")
-        }
-        Button(
-            {}, modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            Text(text = "Ability")
-        }
-        Button(
-            {}, modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            Text(text = "Item")
-        }
-        Button(
-            {}, modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            Text(text = "Item")
-        }
-    }
-}
 
 
 @Composable

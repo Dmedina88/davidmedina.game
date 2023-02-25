@@ -34,7 +34,7 @@ sealed class DamageType {
 val attack = Ability.Offensive("Attack", DamageType.Physical(1f))
 val fireball = Ability.Offensive("Fireball", DamageType.Fire(1f, 0.3f))
 val heal = Ability.Heal("Heal", 15)
-val buffAttack = Ability.Buff("Buff Attack", Stat.Attack, 5)
+val buffAttack = Ability.Buff("Buff Attack", Stat.Strength, 5)
 val debuffDefense = Ability.Debuff("Debuff Defense", Stat.Defense, -3)
 val taunt = Ability.Taunt("Taunt")
 val stealth = Ability.Stealth("Stealth")
@@ -52,7 +52,7 @@ sealed class StatusEffect {
 
 sealed class Stat {
     object Health : Stat()
-    object Attack : Stat()
+    object Strength : Stat()
     object Defense : Stat()
     object Speed : Stat()
     object Mind : Stat()

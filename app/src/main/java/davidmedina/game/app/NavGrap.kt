@@ -31,17 +31,7 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
     ) {
 
         composable(Routes.HOME.name) {
-            MainMenuScreen(
-                { navController.navigate(Routes.GAME.name) },
-                { navController.navigate(Routes.LINKS.name) },
-                { navController.navigate(Routes.FEEDBACK.name) },
-                { navController.navigate(Routes.PROTO_GEN.name) },
-                { navController.navigate(Routes.ART_GEN.name) },
-                { navController.navigate(Routes.STORY_MODE.name) },
-                { navController.navigate(Routes.STORY_TEST.name) },
-                { navController.navigate(Routes.RPG.name) },
-                { navController.navigate(Routes.RPG_CHARACTER.name) },
-                { navController.navigate(Routes.AI_ART.name) })
+            MainMenuScreen(navController)
 
         }
 

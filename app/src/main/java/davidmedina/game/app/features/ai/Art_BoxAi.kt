@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import davidmedina.game.app.data.models.*
 
-
 @Preview
 @Composable
 fun ArtBox_AI() {
@@ -27,7 +26,6 @@ fun ArtBox_AI() {
         repeat(2) {
             add(ArtGenAsset.Clouds(ImageBitmap.imageResource(clouds.random())))
             add(ArtGenAsset.Flying(ImageBitmap.imageResource(scatter.random())))
-
         }
         add(ArtGenAsset.Flying(ImageBitmap.imageResource(creature.random())))
         add(ArtGenAsset.Flying(ImageBitmap.imageResource(landTrait.random())))
@@ -37,8 +35,6 @@ fun ArtBox_AI() {
         add(ArtGenAsset.Structures(ImageBitmap.imageResource(structures.random())))
         add(ArtGenAsset.Center(ImageBitmap.imageResource(center.random())))
     }
-
-
     DisplayScene(assetList)
 }
 
