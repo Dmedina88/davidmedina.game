@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import davidmedina.game.app.features.FeedBackScreen
 import davidmedina.game.app.features.LinkScreen
-import davidmedina.game.app.features.ai.ShapeScreen_Ai_Assisted
+import davidmedina.game.app.features.ai.*
 import davidmedina.game.app.features.cardgame.GameScreen
 import davidmedina.game.app.features.login.LogInScreen
 import davidmedina.game.app.features.login.LoginViewModel
@@ -85,7 +85,14 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
             CharacterScreen()
         }
         composable(Routes.AI_ART.name) {
-            ShapeScreen_Ai_Assisted()
+            Carousel(
+                listOf(
+                    { Puzzle() },
+                    { PuzzleGame() },
+                    { RandomShapeScreen() },
+                    { ShapeScreen() }
+                )
+            )
         }
     }
 }

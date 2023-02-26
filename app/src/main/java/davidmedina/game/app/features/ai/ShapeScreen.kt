@@ -21,7 +21,7 @@ import kotlin.random.Random
 //there where regreations shen i tod it to put it all together for me
 @Preview
 @Composable
-fun ShapeScreen_Ai_Assisted() {
+fun ShapeScreen() {
 
     var shapeCount by remember { mutableStateOf(9) }
 
