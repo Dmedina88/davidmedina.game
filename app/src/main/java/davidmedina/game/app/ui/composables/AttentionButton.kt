@@ -16,29 +16,32 @@ import kotlinx.coroutines.delay
 @Preview
 @Composable
 fun ShakingButton(
-    text: String = "TEEEESS AFD ",
-    onClick: () -> Unit = {},
+    text: String = "",
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+    isShakingEnabled: Boolean = true,
 ) {
-    var shake by remember { mutableStateOf(false) }
+    var shakeCount by remember { mutableStateOf(0) }
     val shakeAnim by animateFloatAsState(
-        targetValue = if (shake) 10f else 0f,
+        targetValue = if (isShakingEnabled && shakeCount < 6) (if (shakeCount % 2 == 0) 5f else -5f) else 0f,
         animationSpec = tween(durationMillis = 200)
     )
 
-    LaunchedEffect(shake) {
-        while (true) {
+    LaunchedEffect(shakeCount) {
+        delay(500L)
+        if (shakeCount < 6) {
+            shakeCount += 1
+        } else {
+            shakeCount = 0
             delay(500L)
-            shake = shake.not()
         }
     }
+
     Button(
         onClick = onClick,
         modifier = modifier
             .graphicsLayer(
                 rotationZ = shakeAnim,
-                translationX = if (shake) 10.dp.value else 0f,
-                translationY = if (shake) (-10).dp.value else 0f
             )
             .padding(8.dp) // add padding to prevent text getting cut off
     ) {

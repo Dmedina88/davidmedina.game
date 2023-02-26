@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import davidmedina.game.app.features.rpg.Ability
 import davidmedina.game.app.features.rpg.DamageType
 import davidmedina.game.app.features.rpg.attack
-import davidmedina.game.app.ui.GradientColors
 import davidmedina.game.app.ui.composables.gameBoxBackground
 
 

@@ -13,8 +13,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import davidmedina.game.app.Routes
 import davidmedina.game.app.features.ai.RandomShapeScreen2
+import davidmedina.game.app.ui.composables.ShakingButton
 import davidmedina.game.app.ui.composables.TDMButton
 import davidmedina.game.app.ui.composables.noRippleClickable
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -26,8 +28,6 @@ fun MainMenuScreen(navController: NavHostController) {
     RandomShapeScreen2(shapeCount, 10, {
         shapeCount = it
     }) {
-
-
         val vm = koinViewModel<MainMenuViewModel>()
 
         val scrollState = rememberScrollState()
@@ -71,9 +71,10 @@ fun MainMenuScreen(navController: NavHostController) {
                 Text(text = "RPG Charicter View Stats")
             }
 
-            Button(onClick = { navController.navigate(Routes.AI_ART.name) }) {
-                Text(text = "I asked AI to do this")
-            }
+            ShakingButton(
+                "I asked AI to do this",
+                isShakingEnabled = sevenSecondsBoolean(),
+                onClick = { navController.navigate(Routes.AI_ART.name) })
 
             TDMButton(text = "RPG") {
                 navController.navigate(Routes.RPG.name)
@@ -149,3 +150,15 @@ private fun SideButton(onLinksClicked: () -> Unit) {
     }
 }
 
+
+@Composable
+fun sevenSecondsBoolean(): Boolean {
+    var value by remember { mutableStateOf(false) }
+
+    LaunchedEffect(value) {
+            delay(7000)
+            value = !value
+    }
+
+    return value
+}
