@@ -1,5 +1,8 @@
 package davidmedina.game.app.features.rpg
 
+import davidmedina.game.app.features.rpg.ability.Ability
+import davidmedina.game.app.features.rpg.ability.DamageType
+import davidmedina.game.app.features.rpg.ability.StatusEffect
 import kotlin.math.max
 import kotlin.random.Random
 
@@ -14,7 +17,8 @@ data class Character(
     val mind: Int,
     val exp: Int = 0,
     val level: Int = 1,
-    val mutableList: List<StatusEffect> = emptyList()
+    val mutableList: List<StatusEffect> = emptyList(),
+    val ability: List<Ability>  = emptyList()
 )
 
 val Character.nextLevel get() = level * 12

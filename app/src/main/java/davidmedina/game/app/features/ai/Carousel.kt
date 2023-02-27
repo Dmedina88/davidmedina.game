@@ -1,5 +1,6 @@
 package davidmedina.game.app.features.ai
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -38,7 +39,7 @@ fun Carousel(items: List<@Composable () -> Unit>, modifier: Modifier = Modifier)
             onClick = { currentIndex = (currentIndex - 1).coerceAtLeast(0) },
             enabled = currentIndex > 0
         ) {
-            if (currentIndex !=0){
+            AnimatedVisibility (currentIndex !=0){
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = null,
@@ -54,7 +55,7 @@ fun Carousel(items: List<@Composable () -> Unit>, modifier: Modifier = Modifier)
             onClick = { currentIndex = (currentIndex + 1).coerceAtMost(items.size - 1) },
             enabled = currentIndex < items.size - 1
         ) {
-            if (currentIndex != items.lastIndex) {
+            AnimatedVisibility(currentIndex != items.lastIndex) {
 
                 Icon(
                     imageVector = Icons.Filled.ArrowForward,

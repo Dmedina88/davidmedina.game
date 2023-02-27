@@ -1,5 +1,6 @@
 package davidmedina.game.app.features.rpg.battle
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -11,7 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import davidmedina.game.app.features.rpg.*
+import davidmedina.game.app.features.rpg.ability.Ability
+import davidmedina.game.app.features.rpg.battleImage
+import davidmedina.game.app.features.rpg.battleText
+import davidmedina.game.app.features.rpg.percentage
 import davidmedina.game.app.ui.GradientColors
 import davidmedina.game.app.ui.composables.GradientProgressBar
 import davidmedina.game.app.ui.composables.gameBoxBackground
@@ -23,6 +27,7 @@ fun BattleMenu(
     modifier: Modifier = Modifier,
     onCharacterSelected: (Battler) -> Unit,
     onAbility: (Ability) -> Unit,
+    selectedCharacter: BattleCharacter?
 ) {
     Row(
         modifier = modifier
@@ -30,17 +35,9 @@ fun BattleMenu(
             .fillMaxWidth()
             .gameBoxBackground()
     ) {
-        val abilityList = listOf(
-            Ability.Offensive("Fireball", DamageType.Fire(3f,.5f)),
-            Ability.Heal("Heal", 50),
-            Ability.Buff("Strength Buff", Stat.Strength, 10),
-            Ability.Debuff("Poison", Stat.Health, 5),
-            Ability.Taunt("Taunt"),
-            Ability.Stealth("Stealth")
-        )
-
-        AbilitySelectMenu(modifier,abilityList, onAbility)
-
+        AnimatedVisibility(selectedCharacter != null) {
+            AbilitySelectMenu(modifier, selectedCharacter, onAbility)
+        }
         Column(modifier.fillMaxWidth(.80f)) {
             playerCharacters.forEachIndexed { index, battleCharacter ->
                 CharacterInfo(
@@ -57,7 +54,6 @@ fun BattleMenu(
 
 @Composable
 private fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Unit) {
-
 
     Button(
         onClick = onCharacterSelected

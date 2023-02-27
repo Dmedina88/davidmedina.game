@@ -5,6 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import davidmedina.game.app.data.repository.MetaGameRepository
 import davidmedina.game.app.features.rpg.*
+import davidmedina.game.app.features.rpg.ability.Ability
+import davidmedina.game.app.features.rpg.ability.DamageType
+import davidmedina.game.app.features.rpg.ability.abilityList
+import davidmedina.game.app.features.rpg.ability.attack
 import davidmedina.game.app.util.TickHandler
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -56,6 +60,8 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
     var battleStage by mutableStateOf<BattleStage>(BattleStage.BattleStart)
         private set
 
+    val selectedCharacter get() =  currentPlayerAction?.attacker?.battleInfo
+
     var Battler.battleInfo
         get() =
             when (this) {
@@ -87,7 +93,7 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         viewModelScope.launch {
             val metaGame = metaGameRepository.getGameState().first()
             playerCharacters = metaGame.rpgCharacter.map {
-                BattleCharacter(it, turns = 3)
+                BattleCharacter(it.copy(ability = abilityList, will = it.will.copy(current = 10)) , turns = 3)
             }.toMutableStateList()
             enemyCharacters = enemy.map {
                 BattleCharacter(it)

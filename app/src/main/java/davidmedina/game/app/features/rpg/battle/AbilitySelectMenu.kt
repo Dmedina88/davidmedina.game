@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -15,16 +16,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import davidmedina.game.app.features.rpg.Ability
-import davidmedina.game.app.features.rpg.DamageType
-import davidmedina.game.app.features.rpg.attack
+import davidmedina.game.app.features.rpg.ability.Ability
+import davidmedina.game.app.features.rpg.ability.DamageType
+import davidmedina.game.app.features.rpg.ability.attack
 import davidmedina.game.app.ui.composables.gameBoxBackground
 
 
 @Composable
 fun AbilitySelectMenu(
     modifier: Modifier,
-    abilityList: List<Ability>,
+    selectedCharacter: BattleCharacter?,
     onAbility: (Ability) -> Unit
 ) {
     // Define a state for showing/hiding the popover
@@ -48,10 +49,11 @@ fun AbilitySelectMenu(
 
         // Add a Button for the "Ability" option, which toggles the showPopover state
         Button(
-            {
+            enabled = selectedCharacter != null,
+            onClick = {
                 showPopover.value = !showPopover.value
             },
-            modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
@@ -59,7 +61,8 @@ fun AbilitySelectMenu(
         }
 
         Button(
-            {}, modifier
+            {},
+            modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
@@ -67,7 +70,8 @@ fun AbilitySelectMenu(
         }
 
         Button(
-            {}, modifier
+            {},
+            modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
@@ -76,8 +80,8 @@ fun AbilitySelectMenu(
     }
 
     // If showPopover state is true, show the popover
-    if (showPopover.value) {
-        abilityPopover(showPopover, abilityList, onAbility)
+    if (showPopover.value && selectedCharacter != null) {
+        abilityPopover(showPopover, selectedCharacter, onAbility)
     }
 }
 
@@ -85,9 +89,11 @@ fun AbilitySelectMenu(
 @Composable
 private fun abilityPopover(
     showPopover: MutableState<Boolean>,
-    abilityList: List<Ability>,
+    battleCharacter: BattleCharacter,
     onAbility: (Ability) -> Unit
 ) {
+    val abilityList = battleCharacter.characterStats.ability
+
     Box(
         Modifier
             .clickable { showPopover.value = false }, // Hide the popover when background is clicked
@@ -96,9 +102,10 @@ private fun abilityPopover(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
         ) {
-            items(abilityList.size) { index ->
+            items(abilityList) {
                 abilityButton(
-                    ability = abilityList[index],
+                    canAfford = it.cost < battleCharacter.characterStats.will.current,
+                    ability = it,
                     onAbility = onAbility,
                     showPopover = showPopover
                 )
@@ -106,8 +113,10 @@ private fun abilityPopover(
         }
     }
 }
+
 @Composable
 private fun abilityButton(
+     canAfford : Boolean,
     ability: Ability,
     onAbility: (Ability) -> Unit,
     showPopover: MutableState<Boolean>
@@ -135,6 +144,7 @@ private fun abilityButton(
     }
 
     Button(
+        enabled = canAfford,
         onClick = {
             onAbility(ability) // Call onAbility callback with the selected ability
             showPopover.value = false // Hide the popover

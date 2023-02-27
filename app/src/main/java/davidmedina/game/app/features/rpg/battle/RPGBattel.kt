@@ -108,7 +108,8 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
                     bottom.linkTo(parent.bottom)
                 },
                 onCharacterSelected = battleStateMachine::characterSelected,
-                onAbility = battleStateMachine::onAbilitySelected
+                onAbility = battleStateMachine::onAbilitySelected,
+                selectedCharacter = battleStateMachine.selectedCharacter
             )
             ActionChip(battleStateMachine = battleStateMachine)
         }
