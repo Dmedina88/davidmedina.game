@@ -3,6 +3,7 @@ package davidmedina.game.app.features.rpg.battle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -32,6 +33,8 @@ fun AbilitySelectMenu(
     val showPopover = remember { mutableStateOf(false) }
 
     // Define a state for storing the selected ability
+Row() {
+
 
     Column(
         modifier
@@ -82,6 +85,7 @@ fun AbilitySelectMenu(
     if (showPopover.value && selectedCharacter != null) {
         abilityPopover(showPopover, selectedCharacter, onAbility)
     }
+}
 }
 
 
