@@ -2,10 +2,10 @@ package davidmedina.game.app.data.repository
 
 import davidmedina.game.app.Routes
 import davidmedina.game.app.data.models.MetaGameState
-import davidmedina.game.app.features.rpg.Character
-import davidmedina.game.app.features.rpg.CharacterId
-import davidmedina.game.app.features.rpg.Items
-import davidmedina.game.app.features.rpg.createCharacter
+import davidmedina.game.app.features.rpg.data.Character
+import davidmedina.game.app.features.rpg.data.CharacterId
+import davidmedina.game.app.features.rpg.data.Items
+import davidmedina.game.app.features.rpg.data.createCharacter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update

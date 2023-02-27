@@ -1,8 +1,8 @@
-package davidmedina.game.app.features.rpg
+package davidmedina.game.app.features.rpg.data
 
-import davidmedina.game.app.features.rpg.ability.Ability
-import davidmedina.game.app.features.rpg.ability.DamageType
-import davidmedina.game.app.features.rpg.ability.StatusEffect
+import davidmedina.game.app.features.rpg.data.ability.Ability
+import davidmedina.game.app.features.rpg.data.ability.DamageType
+import davidmedina.game.app.features.rpg.data.ability.StatusEffect
 import kotlin.math.max
 import kotlin.random.Random
 
@@ -47,21 +47,13 @@ fun Character.takeDamage(damageType: DamageType, damageValue: Int): Character {
 }
 
 
-fun <T : DamageType> Character.performAttack(ability: Ability.Offensive<T>): Int {
-    return max(
-        when (ability.damageType) {
-            is DamageType.Physical -> (ability.damageType.damageFactor * this.damage).toInt()
-            else -> 0
-        }, 0
-    )
-
-
+fun Character.performAttack(ability: Ability.Offensive): Int {
+    return max((ability.damageFacter * this.damage).toInt(), 0)
 }
 
 
 fun createMockCharacters(numCharacters: Int): List<Character> {
     val mockCharacters = mutableListOf<Character>()
-
 
     for (i in 1..numCharacters) {
         val characterId = CharacterId.values().random()

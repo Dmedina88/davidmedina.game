@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import davidmedina.game.app.features.rpg.*
+import davidmedina.game.app.features.rpg.data.*
 import davidmedina.game.app.ui.GradientColors
 import davidmedina.game.app.ui.composables.GradientProgressBar
 

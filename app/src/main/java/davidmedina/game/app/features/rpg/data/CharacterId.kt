@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.rpg
+package davidmedina.game.app.features.rpg.data
 
 import davidmedina.game.app.R
 

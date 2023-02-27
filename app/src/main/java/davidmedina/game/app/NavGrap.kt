@@ -14,7 +14,7 @@ import davidmedina.game.app.features.login.LogInScreen
 import davidmedina.game.app.features.login.LoginViewModel
 import davidmedina.game.app.features.mainmenu.MainMenuScreen
 import davidmedina.game.app.features.register.RegisterScreen
-import davidmedina.game.app.features.rpg.battle.RPGBattle
+import davidmedina.game.app.features.rpg.battle.RPGBattleScreen
 import davidmedina.game.app.features.rpg.states.CharacterScreen
 import davidmedina.game.app.features.storygame.GodotTwoFlower
 import davidmedina.game.app.features.storygame.blueoger.level1.BlueOgerOpening
@@ -79,7 +79,7 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
             GodotTwoFlower()
         }
         composable(Routes.RPG.name) {
-            RPGBattle()
+            RPGBattleScreen()
         }
         composable(Routes.RPG_CHARACTER.name) {
             CharacterScreen()

@@ -4,11 +4,11 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import davidmedina.game.app.data.repository.MetaGameRepository
-import davidmedina.game.app.features.rpg.*
-import davidmedina.game.app.features.rpg.ability.Ability
-import davidmedina.game.app.features.rpg.ability.DamageType
-import davidmedina.game.app.features.rpg.ability.abilityList
-import davidmedina.game.app.features.rpg.ability.attack
+import davidmedina.game.app.features.rpg.data.*
+import davidmedina.game.app.features.rpg.data.ability.Ability
+import davidmedina.game.app.features.rpg.data.ability.DamageType
+import davidmedina.game.app.features.rpg.data.ability.abilityList
+import davidmedina.game.app.features.rpg.data.ability.attack
 import davidmedina.game.app.util.TickHandler
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -93,7 +93,7 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         viewModelScope.launch {
             val metaGame = metaGameRepository.getGameState().first()
             playerCharacters = metaGame.rpgCharacter.map {
-                BattleCharacter(it.copy(ability = abilityList, will = it.will.copy(current = 10)) , turns = 3)
+                BattleCharacter(it.copy( ability =  abilityList), turns = 3)
             }.toMutableStateList()
             enemyCharacters = enemy.map {
                 BattleCharacter(it)
@@ -186,12 +186,14 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         }
     }
 
-    private fun <T : DamageType> offensiveAction(
+    private fun offensiveAction(
         attacker: Battler, defender: Battler,
-        action: Ability.Offensive<T>
+        action: Ability.Offensive
     ) {
-        if (attacker.isValid && defender.isValid && attacker.battleInfo.turns > 0) {
+        if (attacker.isValid && defender.isValid && attacker.battleInfo.turns > 0 && attacker.battleInfo.characterStats.will.current >= action.cost) {
 
+            attacker.battleInfo.characterStats.will.current =
+                attacker.battleInfo.characterStats.will.current - action.cost
             defender.battleInfo = defender.battleInfo.copy(
                 characterStats = defender.battleInfo.characterStats.takeDamage(
                     attack.damageType, attacker.battleInfo.characterStats.performAttack(action)
@@ -209,17 +211,16 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
 
     fun onAction(action: Action) {
         when (action.ability) {
-            is Ability.Offensive<*> ->
+            is Ability.Offensive ->
                 offensiveAction(
                     action.attacker!!, action.defender!!,
-                    action.ability!! as Ability.Offensive<*>
+                    action.ability!! as Ability.Offensive
                 )
             null -> {}
-            is Ability.Buff -> TODO()
-            is Ability.Debuff -> TODO()
             is Ability.Heal -> TODO()
             is Ability.Stealth -> TODO()
             is Ability.Taunt -> TODO()
+            is Ability.Buff -> TODO()
         }
     }
 

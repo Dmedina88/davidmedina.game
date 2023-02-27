@@ -1,6 +1,5 @@
-package davidmedina.game.app.features.rpg.battle
+package davidmedina.game.app.features.rpg.battle.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -14,49 +13,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import davidmedina.game.app.features.rpg.ability.Ability
-import davidmedina.game.app.features.rpg.battleImage
-import davidmedina.game.app.features.rpg.battleText
-import davidmedina.game.app.features.rpg.isAlive
-import davidmedina.game.app.features.rpg.percentage
+import davidmedina.game.app.features.rpg.battle.BattleCharacter
+import davidmedina.game.app.features.rpg.data.battleImage
+import davidmedina.game.app.features.rpg.data.battleText
+import davidmedina.game.app.features.rpg.data.isAlive
+import davidmedina.game.app.features.rpg.data.percentage
 import davidmedina.game.app.ui.GradientColors
 import davidmedina.game.app.ui.composables.GradientProgressBar
-import davidmedina.game.app.ui.composables.gameBoxBackground
 
 
 @Composable
-fun BattleMenu(
-    playerCharacters: List<BattleCharacter>,
-    modifier: Modifier = Modifier,
-    onCharacterSelected: (Battler) -> Unit,
-    onAbility: (Ability) -> Unit,
-    selectedCharacter: BattleCharacter?
-) {
-    Row(
-        modifier = modifier
-            .then(Modifier)
-            .fillMaxWidth()
-            .gameBoxBackground()
-    ) {
-        AnimatedVisibility(selectedCharacter != null) {
-            AbilitySelectMenu(modifier, selectedCharacter, onAbility)
-        }
-        Column(modifier.fillMaxWidth(.80f)) {
-            playerCharacters.forEachIndexed { index, battleCharacter ->
-                CharacterInfo(
-                    characterStats = battleCharacter,
-                    onCharacterSelected = { onCharacterSelected(Battler.Player(index = index)) })
-            }
-
-        }
-
-    }
-}
-
-
-
-@Composable
-private fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Unit) {
+fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Unit) {
 
     Button(
         colors = if (characterStats.characterStats.isAlive)
@@ -172,12 +139,4 @@ private fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: 
         }
     }
 }
-
-
-
-
-
-
-
-
 

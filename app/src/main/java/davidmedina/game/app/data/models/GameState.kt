@@ -1,8 +1,8 @@
 package davidmedina.game.app.data.models
 
 import davidmedina.game.app.Routes
-import davidmedina.game.app.features.rpg.Character
-import davidmedina.game.app.features.rpg.Items
+import davidmedina.game.app.features.rpg.data.Character
+import davidmedina.game.app.features.rpg.data.Items
 import java.util.*
 
 data class MetaGameState(
