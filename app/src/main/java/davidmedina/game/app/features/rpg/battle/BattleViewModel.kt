@@ -104,13 +104,11 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
             onTick {
                 if (!paused && battleStage == BattleStage.BattleInProgress) {
                     for (index in playerCharacters.indices) {
-                        playerCharacters[index] = updateSpeed(
-                            playerCharacters[index]
-                        ) { autoAttack() }
-                    }
-                    for (index in enemyCharacters.indices) {
-                        enemyCharacters[index] = updateSpeed(enemyCharacters[index])
-                        enimeyAi()
+                        playerCharacters[index] = updateSpeed(playerCharacters[index]) { autoAttack() } }
+
+                    for (index in enemyCharacters.indices) { enemyCharacters[index] =
+                        updateSpeed(enemyCharacters[index])
+                        enemyAi()
                     }
                     //check if lost
 
@@ -121,14 +119,12 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
                         metaGameRepository.updateParty(playerCharacters.map { it.characterStats })
 
                     }
-
-
                 }
             }
         }
     }
 
-    private fun enimeyAi() {
+    private fun enemyAi() {
         //get attacker
         val attacker =
             Battler.Enemy(

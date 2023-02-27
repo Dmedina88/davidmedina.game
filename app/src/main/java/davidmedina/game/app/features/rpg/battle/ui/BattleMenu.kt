@@ -14,8 +14,8 @@ import davidmedina.game.app.ui.composables.gameBoxBackground
 
 @Composable
 fun BattleMenu(
-    playerCharacters: List<BattleCharacter>,
     modifier: Modifier = Modifier,
+    playerCharacters: List<BattleCharacter>,
     onCharacterSelected: (Battler) -> Unit,
     onAbility: (Ability) -> Unit,
     selectedCharacter: BattleCharacter?
@@ -28,7 +28,7 @@ fun BattleMenu(
         AnimatedVisibility(selectedCharacter != null) {
             AbilitySelectMenu( selectedCharacter, onAbility)
         }
-        Column(modifier.weight(1f)) {
+        Row(Modifier.weight(1f)) {
             playerCharacters.forEachIndexed { index, battleCharacter ->
                 CharacterInfo(
                     characterStats = battleCharacter,

@@ -63,7 +63,7 @@ val attack = Ability.Offensive(
 
 
 val abilityList = listOf(
-    Ability.Offensive("Fireball", DamageType.Magical, 5F, Stat.Strength, 0),
+    Ability.Offensive("Fireball", DamageType.Magical, 5F, Stat.Strength, 5),
     Ability.Heal("Heal", 50F, 5),
     Ability.Taunt(0, "tount", 0),
     Ability.Stealth("Stealth", 0)

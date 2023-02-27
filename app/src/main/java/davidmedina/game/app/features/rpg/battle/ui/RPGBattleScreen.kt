@@ -65,7 +65,7 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
             Background()
             Column {
 
-                LazyRow(Modifier.fillMaxHeight(.60f)) {
+                LazyRow(Modifier.fillMaxHeight(.65f)) {
                     itemsIndexed(battleStateMachine.enemyCharacters) { int, enamy ->
                         AnimatedVisibility(visible = enamy.characterStats.isAlive) {
                             Image(
@@ -80,6 +80,7 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
                     }
                 }
                 BattleMenu(
+                    modifier =  Modifier.fillMaxHeight(),
                     playerCharacters = battleStateMachine.playerCharacters,
                     onCharacterSelected = battleStateMachine::characterSelected,
                     onAbility = battleStateMachine::onAbilitySelected,
@@ -131,12 +132,10 @@ private fun Background() {
             .fillMaxSize()
             .background(Color.Black)
     )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer {
-                //  rotationZ = 40f
                 rotationX = 80f
             }
             .drawBehind {

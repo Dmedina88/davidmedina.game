@@ -26,6 +26,7 @@ import davidmedina.game.app.ui.composables.GradientProgressBar
 fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Unit) {
 
     Button(
+        modifier = Modifier.padding(8.dp),
         colors = if (characterStats.characterStats.isAlive)
             ButtonDefaults.buttonColors()
         else ButtonDefaults.buttonColors(
