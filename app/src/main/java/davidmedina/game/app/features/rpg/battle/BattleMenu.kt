@@ -6,15 +6,18 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import davidmedina.game.app.features.rpg.ability.Ability
 import davidmedina.game.app.features.rpg.battleImage
 import davidmedina.game.app.features.rpg.battleText
+import davidmedina.game.app.features.rpg.isAlive
 import davidmedina.game.app.features.rpg.percentage
 import davidmedina.game.app.ui.GradientColors
 import davidmedina.game.app.ui.composables.GradientProgressBar
@@ -56,6 +59,11 @@ fun BattleMenu(
 private fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Unit) {
 
     Button(
+        colors = if (characterStats.characterStats.isAlive)
+            ButtonDefaults.buttonColors()
+        else ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFE74C3C)
+        ),
         onClick = onCharacterSelected
     ) {
 

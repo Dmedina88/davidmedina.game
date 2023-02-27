@@ -197,6 +197,10 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
                     attack.damageType, attacker.battleInfo.characterStats.performAttack(action)
                 )
             )
+            if (defender.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
+                currentPlayerAction = null
+            }
+
             attacker.battleInfo =
                 attacker.battleInfo.copy(turns = attacker.battleInfo.turns - 1)
 
@@ -221,7 +225,9 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
 
 
     fun characterSelected(battleCharacter: Battler) {
-        currentPlayerAction = Action(attacker = battleCharacter)
+        if (battleCharacter.battleInfo.characterStats.isAlive) {
+            currentPlayerAction = Action(attacker = battleCharacter)
+        }
     }
 
     fun onAbilitySelected(ability: Ability) {

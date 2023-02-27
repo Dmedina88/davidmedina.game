@@ -49,7 +49,6 @@ fun AbilitySelectMenu(
 
         // Add a Button for the "Ability" option, which toggles the showPopover state
         Button(
-            enabled = selectedCharacter != null,
             onClick = {
                 showPopover.value = !showPopover.value
             },
