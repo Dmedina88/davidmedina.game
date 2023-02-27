@@ -38,7 +38,7 @@ fun PuzzleGame() {
     val secretCode = remember { mutableStateListOf(0, 1, 2, 3, 1, 2) }
 
 // Define the current state of the puzzle
-    val puzzleState = remember { mutableStateListOf(0, 1, 2, 3, 3, 4) }
+    val puzzleState = remember { mutableStateListOf(0, 1, 2, 3, 1, 3) }
 
 // Check if the puzzle has been solved
     val puzzleSolved = puzzleState.toList() == secretCode.toList()
