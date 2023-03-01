@@ -269,8 +269,6 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
 
     }
 
-
-
 }
 
 private fun List<BattleCharacter>.pickByAggro(): Int {
