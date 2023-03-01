@@ -145,21 +145,6 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         }
     }
 
-    private fun List<BattleCharacter>.pickByAggro(): Int {
-        val aliveCharacters = filter { it.characterStats.isAlive }
-        if (aliveCharacters.isEmpty()) {
-            return -1
-        }
-        val totalAggro = aliveCharacters.sumOf { it.aggro }
-        var randomNumber = Random.nextInt(totalAggro)
-        for ((index, character) in aliveCharacters.withIndex()) {
-            if (randomNumber < character.aggro) {
-                return indexOf(character)
-            }
-            randomNumber -= character.aggro
-        }
-        return -1
-    }
 
     private fun autoAttack() {
         //get attacker
@@ -284,8 +269,22 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
 
     }
 
-    fun getCharicter(battleCharacter: Battler)=
-        battleCharacter.battleInfo
 
 
+}
+
+private fun List<BattleCharacter>.pickByAggro(): Int {
+    val aliveCharacters = filter { it.characterStats.isAlive }
+    if (aliveCharacters.isEmpty()) {
+        return -1
+    }
+    val totalAggro = aliveCharacters.sumOf { it.aggro }
+    var randomNumber = Random.nextInt(totalAggro)
+    for ((index, character) in aliveCharacters.withIndex()) {
+        if (randomNumber < character.aggro) {
+            return indexOf(character)
+        }
+        randomNumber -= character.aggro
+    }
+    return -1
 }
