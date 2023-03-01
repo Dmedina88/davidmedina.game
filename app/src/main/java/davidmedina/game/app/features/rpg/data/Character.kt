@@ -17,7 +17,7 @@ data class Character(
     val mind: Int,
     val exp: Int = 0,
     val level: Int = 1,
-    val mutableList: List<StatusEffect> = emptyList(),
+    val statusEffect: List<StatusEffect> = emptyList(),
     val ability: List<Ability>  = emptyList()
 )
 

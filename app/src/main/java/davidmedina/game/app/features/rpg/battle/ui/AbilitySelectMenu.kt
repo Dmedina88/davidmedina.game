@@ -28,7 +28,6 @@ fun AbilitySelectMenu(
 
     Row() {
 
-
         Column(
             Modifier
                 .gameBoxBackground()

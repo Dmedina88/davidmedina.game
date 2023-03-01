@@ -23,7 +23,7 @@ fun CharacterId.createCharacter(name: String? = null) = when (this) {
         DiminishableStates(50, 50),
         16,
         10,
-        .03f,
+        .05f,
         10
     )
 
@@ -34,7 +34,7 @@ fun CharacterId.createCharacter(name: String? = null) = when (this) {
         DiminishableStates(50, 50),
         10,
         10,
-        .03f,
+        .05f,
         10
     )
 

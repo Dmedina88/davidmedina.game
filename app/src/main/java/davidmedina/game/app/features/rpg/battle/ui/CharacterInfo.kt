@@ -34,15 +34,15 @@ fun CharacterInfo(
 ) {
 
     val colorShift by animateFloatAsState(
-        targetValue = if (characterStats.lastAblityUsedOn != null) 0f else 2f,
+        targetValue = if (characterStats.lastAbilityUsedOn != null) 0f else 2f,
         animationSpec = repeatable(
             iterations = 15, animation = tween(durationMillis = 100), repeatMode = RepeatMode.Reverse
         )
     )
     val backgroundColor by animateColorAsState(
         targetValue = when {
-            characterStats.lastAblityUsedOn != null -> {
-                getAbilityColor(characterStats.lastAblityUsedOn)
+            characterStats.lastAbilityUsedOn != null -> {
+                getAbilityColor(characterStats.lastAbilityUsedOn)
             }
             characterStats.characterStats.isAlive -> {
                 MaterialTheme.colorScheme.onBackground
@@ -59,7 +59,7 @@ fun CharacterInfo(
 
     Button(
         modifier = Modifier.padding(8.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor.shift(if (characterStats.lastAblityUsedOn != null) colorShift else 0f)),
+        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor.shift(if (characterStats.lastAbilityUsedOn != null) colorShift else 0f)),
         onClick = onCharacterSelected
     ) {
 

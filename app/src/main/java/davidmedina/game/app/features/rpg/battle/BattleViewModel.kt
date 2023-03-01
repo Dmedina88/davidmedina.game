@@ -18,7 +18,9 @@ data class BattleCharacter(
     val characterStats: Character,
     val turns: Int = 0,
     val speedBuilt: Float = 0F,
-    val lastAblityUsedOn: Ability? = null
+    val lastAbilityUsedOn: Ability? = null,
+    val abilityBeingUsed: Ability? = null
+
 )
 
 const val maxTurns = 3
@@ -27,7 +29,6 @@ const val tickInterval = 250L
 sealed class Battler(open val index: Int) {
     data class Player(override val index: Int) : Battler(index)
     data class Enemy(override val index: Int) : Battler(index)
-
     val isValid get() = index > -1
 }
 
@@ -189,28 +190,37 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         attacker: Battler, defender: Battler,
         action: Ability.Offensive
     ) {
+        // Check if the attacker and defender are valid, and that the attacker has turns left and enough willpower to use the ability
         if (attacker.isValid && defender.isValid && attacker.battleInfo.turns > 0 && attacker.battleInfo.characterStats.will.current >= action.cost) {
 
-            attacker.battleInfo.characterStats.will.current =
-                attacker.battleInfo.characterStats.will.current - action.cost
-            defender.battleInfo = defender.battleInfo.copy(
-                characterStats = defender.battleInfo.characterStats.takeDamage(
-                    attack.damageType, attacker.battleInfo.characterStats.performAttack(action)
-                ),
-                lastAblityUsedOn = action
-            )
+            // Deduct the ability cost from the attacker's willpower
+            attacker.battleInfo.characterStats.will.current -= action.cost
+            attacker.battleInfo = attacker.battleInfo.copy(abilityBeingUsed = action)
+
             viewModelScope.launch {
-                delay(1500)
-                defender.battleInfo =  defender.battleInfo.copy(lastAblityUsedOn = null)
+                delay(750)
+                attacker.battleInfo = attacker.battleInfo.copy(abilityBeingUsed = null)
             }
+            // Deal damage to the defender and update their battle info
+            val attackDamage = attacker.battleInfo.characterStats.performAttack(action)
+            val newDefenderStats = defender.battleInfo.characterStats.takeDamage(action.damageType, attackDamage)
+            defender.battleInfo = defender.battleInfo.copy(characterStats = newDefenderStats, lastAbilityUsedOn = action)
+
+            // Delay for a short time before removing the last ability used by the defender
+            viewModelScope.launch {
+                delay(750)
+                defender.battleInfo = defender.battleInfo.copy(lastAbilityUsedOn = null)
+            }
+
+            // If the defender is the selected character and is now dead, reset the current player action
             if (defender.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
                 currentPlayerAction = null
             }
 
-            attacker.battleInfo =
-                attacker.battleInfo.copy(turns = attacker.battleInfo.turns - 1)
-
+            // Deduct one turn from the attacker's turns
+            attacker.battleInfo = attacker.battleInfo.copy(turns = attacker.battleInfo.turns - 1)
         }
+
     }
 
     fun onAction(action: Action) {
@@ -258,5 +268,9 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         paused = false
 
     }
+
+    fun getCharicter(battleCharacter: Battler)=
+        battleCharacter.battleInfo
+
 
 }
