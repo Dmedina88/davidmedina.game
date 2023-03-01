@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.rpg.battle
+package davidmedina.game.app.features.rpg.battle.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -23,8 +23,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import davidmedina.game.app.features.rpg.battle.ui.ActionChip
-import davidmedina.game.app.features.rpg.battle.ui.BattleMenu
+import davidmedina.game.app.features.rpg.battle.BattleCharacter
+import davidmedina.game.app.features.rpg.battle.BattleStage
+import davidmedina.game.app.features.rpg.battle.BattleStateMachine
+import davidmedina.game.app.features.rpg.battle.Battler
 import davidmedina.game.app.features.rpg.data.*
 import davidmedina.game.app.ui.composables.Onlifecycal
 import davidmedina.game.app.ui.composables.gameBoxBackground
