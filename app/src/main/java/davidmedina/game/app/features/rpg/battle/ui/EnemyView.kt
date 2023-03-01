@@ -24,20 +24,20 @@ fun EnemyView(enamys: List<BattleCharacter>, onTargetSelcted: (Int) -> Unit) {
     LazyRow(Modifier.fillMaxHeight(.65f)) {
         itemsIndexed(enamys) { int, enemy ->
             AnimatedVisibility(visible = enemy.characterStats.isAlive) {
-                Enamy(enemy) { onTargetSelcted(int) }
+                Enemy(enemy) { onTargetSelcted(int) }
             }
         }
     }
 }
 
 @Composable
-private fun Enamy(
-    enamy: BattleCharacter,
-    onTargetSelcted: () -> Unit,
+private fun Enemy(
+    enemy: BattleCharacter,
+    onTargetSelected: () -> Unit,
 ) {
     var shakeCount by remember { mutableStateOf(0) }
     val shakeAnim by animateFloatAsState(
-        targetValue = if (enamy.abilityBeingUsed != null || shakeCount < 3) (if (shakeCount % 2 == 0) 5f else -5f) else 0f,
+        targetValue = if (enemy.abilityBeingUsed != null || shakeCount < 3) (if (shakeCount % 2 == 0) 5f else -5f) else 0f,
         animationSpec = tween(durationMillis = 50)
     )
 
@@ -52,12 +52,12 @@ private fun Enamy(
     Image(
         modifier = Modifier
             .noRippleClickable {
-                onTargetSelcted()
+                onTargetSelected()
             }
             .graphicsLayer {
-                rotationZ = if (enamy.abilityBeingUsed != null) shakeAnim else 0F
+                rotationZ = if (enemy.abilityBeingUsed != null) shakeAnim else 0F
             },
-        painter = painterResource(id = enamy.characterStats.characterID.battleImage),
+        painter = painterResource(id = enemy.characterStats.characterID.battleImage),
         contentDescription = "",
         contentScale = ContentScale.Fit
     )
