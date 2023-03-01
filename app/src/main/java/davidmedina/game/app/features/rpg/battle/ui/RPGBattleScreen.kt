@@ -1,38 +1,30 @@
 package davidmedina.game.app.features.rpg.battle.ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import davidmedina.game.app.features.rpg.battle.BattleCharacter
 import davidmedina.game.app.features.rpg.battle.BattleStage
 import davidmedina.game.app.features.rpg.battle.BattleStateMachine
 import davidmedina.game.app.features.rpg.battle.Battler
-import davidmedina.game.app.features.rpg.data.*
+import davidmedina.game.app.features.rpg.data.CharacterId
+import davidmedina.game.app.features.rpg.data.Items
+import davidmedina.game.app.features.rpg.data.createCharacter
 import davidmedina.game.app.ui.composables.Onlifecycal
 import davidmedina.game.app.ui.composables.gameBoxBackground
-import davidmedina.game.app.ui.composables.noRippleClickable
 import davidmedina.game.app.ui.drawGrid
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -70,7 +62,7 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
             Background()
             Column {
 
-                EnamyView(battleStateMachine.enemyCharacters) {
+                EnemyView(battleStateMachine.enemyCharacters) {
                     battleStateMachine.targetSelected(
                         Battler.Enemy(it)
                     )
@@ -89,41 +81,6 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
     BattleResult(battleStateMachine.battleStage)
 }
 
-@Composable
-private fun EnamyView(enamys: List<BattleCharacter>, onTargetSelcted: (Int) -> Unit) {
-    LazyRow(Modifier.fillMaxHeight(.65f)) {
-        itemsIndexed(enamys) { int, enamy ->
-            AnimatedVisibility(visible = enamy.characterStats.isAlive) {
-                var shakeCount by remember { mutableStateOf(0) }
-                val shakeAnim by animateFloatAsState(
-                    targetValue = if (enamy.abilityBeingUsed != null || shakeCount < 3) (if (shakeCount % 2 == 0) 5f else -5f) else 0f,
-                    animationSpec = tween(durationMillis = 50)
-                )
-
-                LaunchedEffect(shakeCount) {
-                    delay(50)
-                    if (shakeCount <= 3) {
-                        shakeCount += 1
-                    }else{
-                        shakeCount=0
-                    }
-                }
-                Image(
-                    modifier = Modifier
-                        .noRippleClickable {
-                            onTargetSelcted(int)
-                        }
-                        .graphicsLayer {
-                            rotationZ = if (enamy.abilityBeingUsed != null) shakeAnim else 0F
-                        },
-                    painter = painterResource(id = enamy.characterStats.characterID.battleImage),
-                    contentDescription = "",
-                    contentScale = ContentScale.Fit
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun BattleResult(battleStage: BattleStage) {
