@@ -84,7 +84,7 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
                     playerCharacters = battleStateMachine.playerCharacters,
                     onCharacterSelected = battleStateMachine::characterSelected,
                     onAbility = battleStateMachine::onAbilitySelected,
-                    selectedCharacter = battleStateMachine.selectedCharacter
+                    selectedCharacter = battleStateMachine.selectedCharacter,
                 )
             }
             ActionChip(battleStateMachine = battleStateMachine)

@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import davidmedina.game.app.ui.GradientColors
+import davidmedina.game.app.ui.theme.GradientColors
 
 
 fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {

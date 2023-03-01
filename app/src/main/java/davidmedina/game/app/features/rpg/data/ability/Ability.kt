@@ -37,8 +37,7 @@ sealed class StatusEffect {
     object Frozen : StatusEffect() // incress will cost of ablity
     data class Stunned(val turnsRemaining: Int) : StatusEffect()
     data class Buffed(val stat: Stat, val buffAmount: Int, val turnsRemaining: Int) : StatusEffect()
-    data class Debuffed(val stat: Stat, val debuffAmount: Int, val turnsRemaining: Int) :
-        StatusEffect()
+    data class Debuffed(val stat: Stat, val debuffAmount: Int, val turnsRemaining: Int) : StatusEffect()
 }
 
 sealed class Stat {

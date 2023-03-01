@@ -6,10 +6,10 @@ import androidx.lifecycle.viewModelScope
 import davidmedina.game.app.data.repository.MetaGameRepository
 import davidmedina.game.app.features.rpg.data.*
 import davidmedina.game.app.features.rpg.data.ability.Ability
-import davidmedina.game.app.features.rpg.data.ability.DamageType
 import davidmedina.game.app.features.rpg.data.ability.abilityList
 import davidmedina.game.app.features.rpg.data.ability.attack
 import davidmedina.game.app.util.TickHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -17,7 +17,8 @@ import kotlin.random.Random
 data class BattleCharacter(
     val characterStats: Character,
     val turns: Int = 0,
-    val speedBuilt: Float = 0F
+    val speedBuilt: Float = 0F,
+    val lastAblityUsedOn: Ability? = null
 )
 
 const val maxTurns = 3
@@ -104,10 +105,12 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
             onTick {
                 if (!paused && battleStage == BattleStage.BattleInProgress) {
                     for (index in playerCharacters.indices) {
-                        playerCharacters[index] = updateSpeed(playerCharacters[index]) { autoAttack() } }
+                        playerCharacters[index] =
+                            updateSpeed(playerCharacters[index]) { autoAttack() }
+                    }
 
-                    for (index in enemyCharacters.indices) { enemyCharacters[index] =
-                        updateSpeed(enemyCharacters[index])
+                    for (index in enemyCharacters.indices) {
+                        enemyCharacters[index] = updateSpeed(enemyCharacters[index])
                         enemyAi()
                     }
                     //check if lost
@@ -193,8 +196,13 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
             defender.battleInfo = defender.battleInfo.copy(
                 characterStats = defender.battleInfo.characterStats.takeDamage(
                     attack.damageType, attacker.battleInfo.characterStats.performAttack(action)
-                )
+                ),
+                lastAblityUsedOn = action
             )
+            viewModelScope.launch {
+                delay(1500)
+                defender.battleInfo =  defender.battleInfo.copy(lastAblityUsedOn = null)
+            }
             if (defender.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
                 currentPlayerAction = null
             }

@@ -85,14 +85,7 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
             CharacterScreen()
         }
         composable(Routes.AI_ART.name) {
-            Carousel(
-                listOf(
-                    { Puzzle() },
-                    { PuzzleGame() },
-                    { RandomShapeScreen() },
-                    { ShapeScreen() }
-                )
-            )
+            AIUIWorkCarousel()
         }
     }
 }

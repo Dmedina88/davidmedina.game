@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import davidmedina.game.app.ui.GradientColors
+import davidmedina.game.app.ui.theme.GradientColors
 
 @Composable
 fun GradientButton(

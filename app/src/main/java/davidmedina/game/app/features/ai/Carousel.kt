@@ -20,13 +20,16 @@ import androidx.compose.ui.unit.dp
 
 @Preview
 @Composable
-fun UIWorkCarousel() {
+fun AIUIWorkCarousel() {
     Carousel(
         listOf(
             { Puzzle() },
             { PuzzleGame() },
             { RandomShapeScreen() },
-            { ShapeScreen() }
+            { ShapeScreen() },
+            { Hallway() },
+            { AIWordMap1() },
+            { ArtBox_AI() }
         )
     )
 }

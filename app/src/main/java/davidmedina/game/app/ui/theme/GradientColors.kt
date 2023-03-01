@@ -1,4 +1,4 @@
-package davidmedina.game.app.ui
+package davidmedina.game.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,12 +1,16 @@
 package davidmedina.game.app.features.rpg.battle.ui
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,35 +18,57 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import davidmedina.game.app.features.rpg.battle.BattleCharacter
+import davidmedina.game.app.features.rpg.data.ability.getAbilityColor
 import davidmedina.game.app.features.rpg.data.battleImage
 import davidmedina.game.app.features.rpg.data.battleText
 import davidmedina.game.app.features.rpg.data.isAlive
 import davidmedina.game.app.features.rpg.data.percentage
-import davidmedina.game.app.ui.GradientColors
 import davidmedina.game.app.ui.composables.GradientProgressBar
+import davidmedina.game.app.ui.theme.GradientColors
+import davidmedina.game.app.ui.theme.shift
 
 
 @Composable
-fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Unit) {
+fun CharacterInfo(
+    characterStats: BattleCharacter, onCharacterSelected: () -> Unit,
+) {
+
+    val colorShift by animateFloatAsState(
+        targetValue = if (characterStats.lastAblityUsedOn != null) 0f else 2f,
+        animationSpec = repeatable(
+            iterations = 15, animation = tween(durationMillis = 100), repeatMode = RepeatMode.Reverse
+        )
+    )
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            characterStats.lastAblityUsedOn != null -> {
+                getAbilityColor(characterStats.lastAblityUsedOn)
+            }
+            characterStats.characterStats.isAlive -> {
+                MaterialTheme.colorScheme.onBackground
+            }
+            characterStats.characterStats.isAlive.not() -> {
+                Color(0xFFE74C3C)
+            }
+            else -> {
+                MaterialTheme.colorScheme.onBackground
+            }
+        }
+    )
+
 
     Button(
         modifier = Modifier.padding(8.dp),
-        colors = if (characterStats.characterStats.isAlive)
-            ButtonDefaults.buttonColors()
-        else ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFE74C3C)
-        ),
+        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor.shift(if (characterStats.lastAblityUsedOn != null) colorShift else 0f)),
         onClick = onCharacterSelected
     ) {
 
-        var startAnimation by remember() {
+        var startAnimation by remember {
             mutableStateOf(false)
         }
         val speedBarAnimation by animateFloatAsState(
-            targetValue =
-            if (!startAnimation) 0f
-            else characterStats.speedBuilt,
-            animationSpec = tween(durationMillis = 300)
+            targetValue = if (!startAnimation) 0f
+            else characterStats.speedBuilt, animationSpec = tween(durationMillis = 300)
         )
         val healthAnimation by animateFloatAsState(
             targetValue =
@@ -139,5 +165,7 @@ fun CharacterInfo(characterStats: BattleCharacter, onCharacterSelected: () -> Un
             )
         }
     }
+
+
 }
 
