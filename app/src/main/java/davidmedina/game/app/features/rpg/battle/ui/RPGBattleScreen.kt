@@ -5,7 +5,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
@@ -65,9 +68,13 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
             Background()
             Column {
 
-                EnamyView(battleStateMachine)
+                EnamyView(battleStateMachine.enemyCharacters) {
+                    battleStateMachine.targetSelected(
+                        Battler.Enemy(it)
+                    )
+                }
                 BattleMenu(
-                    modifier =  Modifier.fillMaxHeight(),
+                    modifier = Modifier.fillMaxHeight(),
                     playerCharacters = battleStateMachine.playerCharacters,
                     onCharacterSelected = battleStateMachine::characterSelected,
                     onAbility = battleStateMachine::onAbilitySelected,
@@ -81,13 +88,13 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
 }
 
 @Composable
-private fun EnamyView(battleStateMachine: BattleStateMachine) {
+private fun EnamyView(enamys: List<BattleCharacter>, onTargetSelcted: (Int) -> Unit) {
     LazyRow(Modifier.fillMaxHeight(.65f)) {
-        itemsIndexed(battleStateMachine.enemyCharacters) { int, enamy ->
+        itemsIndexed(enamys) { int, enamy ->
             AnimatedVisibility(visible = enamy.characterStats.isAlive) {
                 var shakeCount by remember { mutableStateOf(0) }
                 val shakeAnim by animateFloatAsState(
-                    targetValue = if (enamy.abilityBeingUsed !=null || shakeCount < 3) (if (shakeCount % 2 == 0) 5f else -5f) else 0f,
+                    targetValue = if (enamy.abilityBeingUsed != null || shakeCount < 3) (if (shakeCount % 2 == 0) 5f else -5f) else 0f,
                     animationSpec = tween(durationMillis = 50)
                 )
 
@@ -100,11 +107,13 @@ private fun EnamyView(battleStateMachine: BattleStateMachine) {
                     }
                 }
                 Image(
-                    modifier = Modifier.noRippleClickable {
-                        battleStateMachine.targetSelected(Battler.Enemy(int))
-                    }.graphicsLayer {
-                                    rotationZ = if (enamy.abilityBeingUsed !=null) shakeAnim else 0F
-                    },
+                    modifier = Modifier
+                        .noRippleClickable {
+                            onTargetSelcted(int)
+                        }
+                        .graphicsLayer {
+                            rotationZ = if (enamy.abilityBeingUsed != null) shakeAnim else 0F
+                        },
                     painter = painterResource(id = enamy.characterStats.characterID.battleImage),
                     contentDescription = "",
                     contentScale = ContentScale.Fit
