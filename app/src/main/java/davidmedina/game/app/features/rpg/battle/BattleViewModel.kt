@@ -19,8 +19,8 @@ data class BattleCharacter(
     val turns: Int = 0,
     val speedBuilt: Float = 0F,
     val lastAbilityUsedOn: Ability? = null,
-    val abilityBeingUsed: Ability? = null
-
+    val abilityBeingUsed: Ability? = null,
+    val aggro: Int = 1
 )
 
 const val maxTurns = 3
@@ -94,8 +94,8 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
     ) {
         viewModelScope.launch {
             val metaGame = metaGameRepository.getGameState().first()
-            playerCharacters = metaGame.rpgCharacter.map {
-                BattleCharacter(it.copy( ability =  abilityList), turns = 3)
+            playerCharacters = metaGame.rpgCharacter.mapIndexed { index , charicter ->
+                BattleCharacter(charicter.copy( ability =  abilityList), turns = 3)
             }.toMutableStateList()
             enemyCharacters = enemy.map {
                 BattleCharacter(it)
@@ -136,14 +136,29 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         //get target
         if (attacker.isValid && attacker.battleInfo.characterStats.isAlive) {
             val target =
-                Battler.Player(
-                    playerCharacters.indexOfFirst { it.characterStats.isAlive })
+                Battler.Player(playerCharacters.pickByAggro())
 
             //chose action
             val action = attack
             if (Random.nextInt(12) == 3)
                 offensiveAction(attacker, target, action)
         }
+    }
+
+    private fun List<BattleCharacter>.pickByAggro(): Int {
+        val aliveCharacters = filter { it.characterStats.isAlive }
+        if (aliveCharacters.isEmpty()) {
+            return -1
+        }
+        val totalAggro = aliveCharacters.sumOf { it.aggro }
+        var randomNumber = Random.nextInt(totalAggro)
+        for ((index, character) in aliveCharacters.withIndex()) {
+            if (randomNumber < character.aggro) {
+                return indexOf(character)
+            }
+            randomNumber -= character.aggro
+        }
+        return -1
     }
 
     private fun autoAttack() {
@@ -223,7 +238,7 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
 
     }
 
-    fun onAction(action: Action) {
+    private fun onAction(action: Action) {
         when (action.ability) {
             is Ability.Offensive ->
                 offensiveAction(
@@ -231,10 +246,10 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
                     action.ability!! as Ability.Offensive
                 )
             null -> {}
-            is Ability.Heal -> TODO()
-            is Ability.Stealth -> TODO()
-            is Ability.Taunt -> TODO()
-            is Ability.Buff -> TODO()
+            is Ability.Heal ->  Unit//TODO()
+            is Ability.Stealth -> Unit//TODO()
+            is Ability.Taunt -> Unit//TODO()
+            is Ability.Buff -> Unit//TODO()
         }
     }
 
