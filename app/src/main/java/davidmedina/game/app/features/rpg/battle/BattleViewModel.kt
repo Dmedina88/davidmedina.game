@@ -24,7 +24,6 @@ data class BattleCharacter(
 )
 
 const val maxTurns = 3
-const val tickInterval = 250L
 
 sealed class Battler(open val index: Int) {
     data class Player(override val index: Int) : Battler(index)
@@ -77,14 +76,13 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         }
 
     private fun onTick(work: suspend () -> Unit) {
-        val tickHandler = TickHandler(this.viewModelScope, tickInterval)
+        val tickHandler = TickHandler(this.viewModelScope,800)
         viewModelScope.launch {
             tickHandler.tickFlow.collect {
                 work()
             }
         }
     }
-
 
     fun init(
         enemy: List<Character>,

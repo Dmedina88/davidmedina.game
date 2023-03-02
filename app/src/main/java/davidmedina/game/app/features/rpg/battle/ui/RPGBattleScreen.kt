@@ -99,6 +99,7 @@ private fun BattleResult(battleStage: BattleStage) {
         }
     }
 
+    //move to ex ittem screen? i victory vm
     AnimatedVisibility(visible = battleStage == BattleStage.BattleWon) {
         Box(
             modifier = Modifier
@@ -107,7 +108,7 @@ private fun BattleResult(battleStage: BattleStage) {
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = battleStage.toString(),
+                text = "WINNER",
                 color = Color.Yellow
             )
         }

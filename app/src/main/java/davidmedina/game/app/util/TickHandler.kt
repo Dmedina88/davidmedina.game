@@ -1,25 +1,34 @@
 package davidmedina.game.app.util
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.launch
 
 class TickHandler(
-    private val externalScope: CoroutineScope,
-    private val tickIntervalMs: Long = 5000
+    externalScope: CoroutineScope,
+    private val tickIntervalMs: Long = 1000
 ) {
-    // Backing property to avoid flow emissions from other classes
     private val _tickFlow = MutableSharedFlow<Unit>(replay = 0)
     val tickFlow: SharedFlow<Unit> = _tickFlow
 
+    private var job: Job? = null
+
     init {
-        externalScope.launch {
-            while (true) {
+        job = externalScope.launch {
+            while (isActive) {
                 _tickFlow.emit(Unit)
                 delay(tickIntervalMs)
             }
         }
+        job?.invokeOnCompletion { cause ->
+            if (cause != null && !job!!.isCancelled) {
+                throw RuntimeException("TickHandler failed", cause)
+            }
+        }
+    }
+
+    fun stop() {
+        job?.cancel()
+        job = null
     }
 }
