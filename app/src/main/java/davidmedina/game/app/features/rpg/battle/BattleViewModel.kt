@@ -46,7 +46,6 @@ data class Action(
     val target: Battler? = null
 )
 
-
 class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : ViewModel() {
 
     var playerCharacters = mutableStateListOf<BattleCharacter>()
@@ -76,7 +75,6 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
                 is Battler.Player -> playerCharacters[this.index] = value
             }
         }
-
 
     private fun onTick(work: suspend () -> Unit) {
         val tickHandler = TickHandler(this.viewModelScope, tickInterval)
@@ -186,74 +184,66 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         }
     }
 
-    private fun offensiveAction(
+    private fun performAction(
         source: Battler,
-        target: Battler,
-        action: Ability.Offensive
-    ) {
-        // Check if the attacker and defender are valid, and that the attacker has turns left and enough willpower to use the ability
-        if (source.isValid && target.isValid && source.battleInfo.turns > 0 && source.battleInfo.characterStats.will.current >= action.cost) {
-
-            // Deduct the ability cost from the attacker's willpower
-            source.battleInfo.characterStats.will.current -= action.cost
-            source.battleInfo = source.battleInfo.copy(abilityBeingUsed = action)
-
-            viewModelScope.launch {
-                delay(750)
-                source.battleInfo = source.battleInfo.copy(abilityBeingUsed = null)
-            }
-            // Deal damage to the defender and update their battle info
-            val attackDamage = source.battleInfo.characterStats.performAttack(action)
-            val newDefenderStats = target.battleInfo.characterStats.takeDamage(action.damageType, attackDamage)
-            target.battleInfo = target.battleInfo.copy(characterStats = newDefenderStats, lastAbilityUsedOn = action)
-
-            // Delay for a short time before removing the last ability used by the defender
-            viewModelScope.launch {
-                delay(750)
-                target.battleInfo = target.battleInfo.copy(lastAbilityUsedOn = null)
-            }
-
-            // If the defender is the selected character and is now dead, reset the current player action
-            if (target.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
-                currentPlayerAction = null
-            }
-
-            // Deduct one turn from the attacker's turns
-            source.battleInfo = source.battleInfo.copy(turns = source.battleInfo.turns - 1)
-        }
-
-    }
-    private fun healAction(
-        source: Battler,
-        target: Battler,
-        action: Ability.Heal
+        target: Battler?,
+        action: Ability,
+        delay: Long = 1500L,
+        effect: (Character) -> Character
     ) {
         // Check if the source and target are valid, and that the source has turns left and enough willpower to use the ability
-        if (source.isValid && target.isValid && source.battleInfo.turns > 0 && source.battleInfo.characterStats.will.current >= action.cost) {
-
+        if (source.isValid && target?.isValid == true && source.battleInfo.turns > 0 && source.battleInfo.characterStats.will.current >= action.cost) {
             // Deduct the ability cost from the source's willpower
             source.battleInfo.characterStats.will.current -= action.cost
             source.battleInfo = source.battleInfo.copy(abilityBeingUsed = action)
 
             viewModelScope.launch {
-                delay(750)
+                delay(delay)
                 source.battleInfo = source.battleInfo.copy(abilityBeingUsed = null)
             }
 
-            // Heal the target and update their battle info
-           val healValue =target.battleInfo.characterStats.performHeal(action)
-           val nowStates = target.battleInfo.characterStats.heal(healValue)
-            target.battleInfo = target.battleInfo.copy(characterStats = nowStates, lastAbilityUsedOn = action)
+            // Apply the effect to the target and update their battle info
+            val newTargetStats = target.battleInfo.characterStats.let(effect)
+            target.battleInfo =
+                target.battleInfo.copy(characterStats = newTargetStats, lastAbilityUsedOn = action)
 
             // Delay for a short time before removing the last ability used by the target
             viewModelScope.launch {
-                delay(750)
+                delay(delay)
                 target.battleInfo = target.battleInfo.copy(lastAbilityUsedOn = null)
             }
-
+            // If the target is the selected character and is now dead, reset the current player action
+            if (target.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
+                currentPlayerAction = null
+            }
             // Deduct one turn from the source's turns
             source.battleInfo = source.battleInfo.copy(turns = source.battleInfo.turns - 1)
         }
+    }
+
+    private fun offensiveAction(
+        source: Battler,
+        target: Battler,
+        action: Ability.Offensive
+    ) {
+        performAction(source, target, action) {
+            it.takeDamage(
+                action.damageType,
+                source.battleInfo.characterStats.performAttack(action)
+            )
+        }
+    }
+
+    private fun healAction(
+        source: Battler,
+        target: Battler,
+        action: Ability.Heal
+    ) {
+        performAction(
+            source,
+            target,
+            action
+        ) { it.heal(source.battleInfo.characterStats.performHeal(action)) }
     }
 
     private fun stealthAction(
@@ -261,7 +251,7 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         action: Ability.Stealth
     ) {
         // Decrement the source's agro value
-        val newAgro = (source.battleInfo.agro/2).coerceAtLeast(1)
+        val newAgro = (source.battleInfo.agro / 2).coerceAtLeast(1)
         source.battleInfo = source.battleInfo.copy(agro = newAgro)
     }
 
@@ -280,36 +270,7 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         target: Battler,
         buffAbility: Ability.Buff
     ) {
-        // Check if the attacker and defender are valid, and that the attacker has turns left and enough willpower to use the ability
-        if (source.isValid && target.isValid && source.battleInfo.turns > 0 && source.battleInfo.characterStats.will.current >= buffAbility.cost) {
-
-            // Deduct the ability cost from the attacker's willpower
-            source.battleInfo.characterStats.will.current -= buffAbility.cost
-            source.battleInfo = source.battleInfo.copy(abilityBeingUsed = buffAbility)
-
-            viewModelScope.launch {
-                delay(750)
-                source.battleInfo = source.battleInfo.copy(abilityBeingUsed = null)
-            }
-
-            // Apply the buff to the target and update their battle info
-            val newTargetStats =target.battleInfo.characterStats.addStatusEffect(buffAbility.effect)
-            target.battleInfo = target.battleInfo.copy(characterStats = newTargetStats, lastAbilityUsedOn = buffAbility)
-
-            // Delay for a short time before removing the last ability used by the target
-            viewModelScope.launch {
-                delay(750)
-                target.battleInfo = target.battleInfo.copy(lastAbilityUsedOn = null)
-            }
-
-            // If the target is the selected character and is now dead, reset the current player action
-            if (target.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
-                currentPlayerAction = null
-            }
-
-            // Deduct one turn from the attacker's turns
-            source.battleInfo = source.battleInfo.copy(turns = source.battleInfo.turns - 1)
-        }
+        performAction(source, target, buffAbility) { it.addStatusEffect(buffAbility.effect) }
     }
 
 
@@ -317,32 +278,36 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         when (action.ability) {
             is Ability.Offensive ->
                 offensiveAction(
-                    action.source!!, action.target!!,
-                    action.ability!! as Ability.Offensive
+                    action.source!!,
+                    action.target!!,
+                    action.ability as Ability.Offensive
                 )
             is Ability.Heal ->
                 healAction(
-                    action.source!!, action.target!!,
+                    action.source!!,
+                    action.target!!,
                     action.ability as Ability.Heal
                 )
             is Ability.Stealth ->
                 stealthAction(
-                    action.source!!, action.ability as Ability.Stealth
+                    action.source!!,
+                    action.ability as Ability.Stealth
                 )
             is Ability.Taunt ->
                 tauntAction(
-                    action.source!!, action.target!!,
+                    action.source!!,
+                    action.target!!,
                     action.ability as Ability.Taunt
                 )
             is Ability.Buff ->
                 buffAction(
-                    action.source!!, action.target!!,
+                    action.source!!,
+                    action.target!!,
                     action.ability as Ability.Buff
                 )
             null -> {}
         }
     }
-
 
     fun characterSelected(battleCharacter: Battler) {
         if (battleCharacter.battleInfo.characterStats.isAlive) {
@@ -363,20 +328,10 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
         currentPlayerAction = null
     }
 
-
-    fun onPause() {
-        paused = true
+    fun systemPause(newPaused: Boolean) {
+        paused = newPaused
     }
-
-
-    fun onResume() {
-        paused = false
-
-    }
-
 }
-
-
 
 private fun List<BattleCharacter>.pickByAggro(): Int {
     val aliveCharacters = filter { it.characterStats.isAlive }
