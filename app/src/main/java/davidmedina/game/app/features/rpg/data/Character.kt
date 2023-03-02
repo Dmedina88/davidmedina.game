@@ -2,6 +2,7 @@ package davidmedina.game.app.features.rpg.data
 
 import davidmedina.game.app.features.rpg.data.ability.Ability
 import davidmedina.game.app.features.rpg.data.ability.DamageType
+import davidmedina.game.app.features.rpg.data.ability.Stat
 import davidmedina.game.app.features.rpg.data.ability.StatusEffect
 import kotlin.math.max
 import kotlin.random.Random
@@ -18,12 +19,20 @@ data class Character(
     val exp: Int = 0,
     val level: Int = 1,
     val statusEffect: List<StatusEffect> = emptyList(),
-    val ability: List<Ability>  = emptyList()
-)
+    val ability: List<Ability> = emptyList()
+) {
+    val Stat.value
+        get() = when (this) {
+            Stat.Defense -> defense
+            Stat.Health -> hp.current
+            Stat.Mind -> mind
+            Stat.Speed -> speed
+            Stat.Strength -> strength
+        }.toFloat()
+}
 
 val Character.nextLevel get() = level * 12
 val Character.isAlive get() = hp.current > 0
-val Character.damage get() = strength
 
 // Extension function to calculate experience gained from absorbing an item
 fun Character.absorbItem(item: Items): Character {
@@ -46,11 +55,22 @@ fun Character.takeDamage(damageType: DamageType, damageValue: Int): Character {
     )
 }
 
-
-fun Character.performAttack(ability: Ability.Offensive): Int {
-    return max((ability.damageFacter * this.damage).toInt(), 0)
+fun Character.heal(healAmount: Int): Character {
+    val newHp = (hp.current + healAmount).coerceAtMost(hp.max)
+    return copy(
+        hp = hp.copy(current = newHp)
+    )
 }
 
+
+fun Character.performAttack(ability: Ability.Offensive): Int {
+    return max((ability.damageFacter * ability.damageStat.value).toInt(), 0)
+}
+
+
+fun Character.performHeal(ability: Ability.Heal): Int {
+    return max((ability.factor * ability.healStat.value).toInt(), 0)
+}
 
 fun createMockCharacters(numCharacters: Int): List<Character> {
     val mockCharacters = mutableListOf<Character>()
@@ -65,3 +85,7 @@ fun createMockCharacters(numCharacters: Int): List<Character> {
 
     return mockCharacters
 }
+
+ fun Character.addStatusEffect(statusEffect: StatusEffect): Character =
+    this.copy(statusEffect = this.statusEffect.toMutableList().plus(statusEffect))
+

@@ -20,7 +20,7 @@ data class BattleCharacter(
     val speedBuilt: Float = 0F,
     val lastAbilityUsedOn: Ability? = null,
     val abilityBeingUsed: Ability? = null,
-    val aggro: Int = 1
+    val agro: Int = 1
 )
 
 const val maxTurns = 3
@@ -42,8 +42,8 @@ sealed class BattleStage {
 
 data class Action(
     var ability: Ability? = null,
-    var attacker: Battler? = null,
-    val defender: Battler? = null
+    var source: Battler? = null,
+    val target: Battler? = null
 )
 
 
@@ -62,7 +62,7 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
     var battleStage by mutableStateOf<BattleStage>(BattleStage.BattleStart)
         private set
 
-    val selectedCharacter get() =  currentPlayerAction?.attacker?.battleInfo
+    val selectedCharacter get() =  currentPlayerAction?.source?.battleInfo
 
     var Battler.battleInfo
         get() =
@@ -187,61 +187,166 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
     }
 
     private fun offensiveAction(
-        attacker: Battler, defender: Battler,
+        source: Battler,
+        target: Battler,
         action: Ability.Offensive
     ) {
         // Check if the attacker and defender are valid, and that the attacker has turns left and enough willpower to use the ability
-        if (attacker.isValid && defender.isValid && attacker.battleInfo.turns > 0 && attacker.battleInfo.characterStats.will.current >= action.cost) {
+        if (source.isValid && target.isValid && source.battleInfo.turns > 0 && source.battleInfo.characterStats.will.current >= action.cost) {
 
             // Deduct the ability cost from the attacker's willpower
-            attacker.battleInfo.characterStats.will.current -= action.cost
-            attacker.battleInfo = attacker.battleInfo.copy(abilityBeingUsed = action)
+            source.battleInfo.characterStats.will.current -= action.cost
+            source.battleInfo = source.battleInfo.copy(abilityBeingUsed = action)
 
             viewModelScope.launch {
                 delay(750)
-                attacker.battleInfo = attacker.battleInfo.copy(abilityBeingUsed = null)
+                source.battleInfo = source.battleInfo.copy(abilityBeingUsed = null)
             }
             // Deal damage to the defender and update their battle info
-            val attackDamage = attacker.battleInfo.characterStats.performAttack(action)
-            val newDefenderStats = defender.battleInfo.characterStats.takeDamage(action.damageType, attackDamage)
-            defender.battleInfo = defender.battleInfo.copy(characterStats = newDefenderStats, lastAbilityUsedOn = action)
+            val attackDamage = source.battleInfo.characterStats.performAttack(action)
+            val newDefenderStats = target.battleInfo.characterStats.takeDamage(action.damageType, attackDamage)
+            target.battleInfo = target.battleInfo.copy(characterStats = newDefenderStats, lastAbilityUsedOn = action)
 
             // Delay for a short time before removing the last ability used by the defender
             viewModelScope.launch {
                 delay(750)
-                defender.battleInfo = defender.battleInfo.copy(lastAbilityUsedOn = null)
+                target.battleInfo = target.battleInfo.copy(lastAbilityUsedOn = null)
             }
 
             // If the defender is the selected character and is now dead, reset the current player action
-            if (defender.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
+            if (target.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
                 currentPlayerAction = null
             }
 
             // Deduct one turn from the attacker's turns
-            attacker.battleInfo = attacker.battleInfo.copy(turns = attacker.battleInfo.turns - 1)
+            source.battleInfo = source.battleInfo.copy(turns = source.battleInfo.turns - 1)
         }
 
     }
+    private fun healAction(
+        source: Battler,
+        target: Battler,
+        action: Ability.Heal
+    ) {
+        // Check if the source and target are valid, and that the source has turns left and enough willpower to use the ability
+        if (source.isValid && target.isValid && source.battleInfo.turns > 0 && source.battleInfo.characterStats.will.current >= action.cost) {
+
+            // Deduct the ability cost from the source's willpower
+            source.battleInfo.characterStats.will.current -= action.cost
+            source.battleInfo = source.battleInfo.copy(abilityBeingUsed = action)
+
+            viewModelScope.launch {
+                delay(750)
+                source.battleInfo = source.battleInfo.copy(abilityBeingUsed = null)
+            }
+
+            // Heal the target and update their battle info
+           val healValue =target.battleInfo.characterStats.performHeal(action)
+           val nowStates = target.battleInfo.characterStats.heal(healValue)
+            target.battleInfo = target.battleInfo.copy(characterStats = nowStates, lastAbilityUsedOn = action)
+
+            // Delay for a short time before removing the last ability used by the target
+            viewModelScope.launch {
+                delay(750)
+                target.battleInfo = target.battleInfo.copy(lastAbilityUsedOn = null)
+            }
+
+            // Deduct one turn from the source's turns
+            source.battleInfo = source.battleInfo.copy(turns = source.battleInfo.turns - 1)
+        }
+    }
+
+    private fun stealthAction(
+        source: Battler,
+        action: Ability.Stealth
+    ) {
+        // Decrement the source's agro value
+        val newAgro = (source.battleInfo.agro/2).coerceAtLeast(1)
+        source.battleInfo = source.battleInfo.copy(agro = newAgro)
+    }
+
+    private fun tauntAction(
+        source: Battler,
+        target: Battler,
+        action: Ability.Taunt
+    ) {
+        // Increment the target's agro value
+        val newAgro = target.battleInfo.agro + action.agro
+        target.battleInfo = target.battleInfo.copy(agro = newAgro)
+    }
+
+    private fun buffAction(
+        source: Battler,
+        target: Battler,
+        buffAbility: Ability.Buff
+    ) {
+        // Check if the attacker and defender are valid, and that the attacker has turns left and enough willpower to use the ability
+        if (source.isValid && target.isValid && source.battleInfo.turns > 0 && source.battleInfo.characterStats.will.current >= buffAbility.cost) {
+
+            // Deduct the ability cost from the attacker's willpower
+            source.battleInfo.characterStats.will.current -= buffAbility.cost
+            source.battleInfo = source.battleInfo.copy(abilityBeingUsed = buffAbility)
+
+            viewModelScope.launch {
+                delay(750)
+                source.battleInfo = source.battleInfo.copy(abilityBeingUsed = null)
+            }
+
+            // Apply the buff to the target and update their battle info
+            val newTargetStats =target.battleInfo.characterStats.addStatusEffect(buffAbility.effect)
+            target.battleInfo = target.battleInfo.copy(characterStats = newTargetStats, lastAbilityUsedOn = buffAbility)
+
+            // Delay for a short time before removing the last ability used by the target
+            viewModelScope.launch {
+                delay(750)
+                target.battleInfo = target.battleInfo.copy(lastAbilityUsedOn = null)
+            }
+
+            // If the target is the selected character and is now dead, reset the current player action
+            if (target.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
+                currentPlayerAction = null
+            }
+
+            // Deduct one turn from the attacker's turns
+            source.battleInfo = source.battleInfo.copy(turns = source.battleInfo.turns - 1)
+        }
+    }
+
 
     private fun onAction(action: Action) {
         when (action.ability) {
             is Ability.Offensive ->
                 offensiveAction(
-                    action.attacker!!, action.defender!!,
+                    action.source!!, action.target!!,
                     action.ability!! as Ability.Offensive
                 )
+            is Ability.Heal ->
+                healAction(
+                    action.source!!, action.target!!,
+                    action.ability as Ability.Heal
+                )
+            is Ability.Stealth ->
+                stealthAction(
+                    action.source!!, action.ability as Ability.Stealth
+                )
+            is Ability.Taunt ->
+                tauntAction(
+                    action.source!!, action.target!!,
+                    action.ability as Ability.Taunt
+                )
+            is Ability.Buff ->
+                buffAction(
+                    action.source!!, action.target!!,
+                    action.ability as Ability.Buff
+                )
             null -> {}
-            is Ability.Heal ->  Unit//TODO()
-            is Ability.Stealth -> Unit//TODO()
-            is Ability.Taunt -> Unit//TODO()
-            is Ability.Buff -> Unit//TODO()
         }
     }
 
 
     fun characterSelected(battleCharacter: Battler) {
         if (battleCharacter.battleInfo.characterStats.isAlive) {
-            currentPlayerAction = Action(attacker = battleCharacter)
+            currentPlayerAction = Action(source = battleCharacter)
         }
     }
 
@@ -250,7 +355,7 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
     }
 
     fun targetSelected(target: Battler) {
-        currentPlayerAction = currentPlayerAction?.copy(defender = target)
+        currentPlayerAction = currentPlayerAction?.copy(target = target)
         //
         currentPlayerAction?.let {
             onAction(it)
@@ -271,18 +376,20 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
 
 }
 
+
+
 private fun List<BattleCharacter>.pickByAggro(): Int {
     val aliveCharacters = filter { it.characterStats.isAlive }
     if (aliveCharacters.isEmpty()) {
         return -1
     }
-    val totalAggro = aliveCharacters.sumOf { it.aggro }
+    val totalAggro = aliveCharacters.sumOf { it.agro }
     var randomNumber = Random.nextInt(totalAggro)
     for ((index, character) in aliveCharacters.withIndex()) {
-        if (randomNumber < character.aggro) {
+        if (randomNumber < character.agro) {
             return indexOf(character)
         }
-        randomNumber -= character.aggro
+        randomNumber -= character.agro
     }
     return -1
 }

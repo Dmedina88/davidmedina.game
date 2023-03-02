@@ -28,7 +28,7 @@ fun BattleMenu(
         AnimatedVisibility(selectedCharacter != null) {
             AbilitySelectMenu( selectedCharacter, onAbility)
         }
-        Row(Modifier.weight(1f)) {
+        Column(Modifier.weight(1f)) {
             playerCharacters.forEachIndexed { index, battleCharacter ->
                 CharacterInfo(
                     characterStats = battleCharacter,

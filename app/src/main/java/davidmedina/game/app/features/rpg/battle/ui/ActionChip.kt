@@ -19,9 +19,9 @@ import davidmedina.game.app.features.rpg.data.battleImage
 @Composable
 fun ActionChip(battleStateMachine: BattleStateMachine) {
     Row(modifier = Modifier.padding(34.dp)) {
-        AnimatedVisibility(visible = battleStateMachine.currentPlayerAction?.attacker != null) {
+        AnimatedVisibility(visible = battleStateMachine.currentPlayerAction?.source != null) {
             val character =
-                battleStateMachine.playerCharacters[battleStateMachine.currentPlayerAction?.attacker?.index
+                battleStateMachine.playerCharacters[battleStateMachine.currentPlayerAction?.source?.index
                     ?: 0]
             Image(
                 modifier = Modifier.size(16.dp),

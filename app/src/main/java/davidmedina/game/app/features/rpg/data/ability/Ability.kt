@@ -11,19 +11,19 @@ sealed class Ability(open val name: String, open val cost: Int = 0) {
     ) :
         Ability(name, cost)
 
-    data class Heal(override val name: String, val factor: Float, override val cost: Int) :
+    data class Heal(val healStat: Stat,override val name: String, val factor: Float, override val cost: Int) :
         Ability(name, cost)
 
     data class Buff(
         override val name: String,
         val damageType: DamageType,
-        val effect: StatusEffect?,
+        val effect: StatusEffect,
         override val cost: Int
     ) : Ability(name, cost)
 
 
     // self targeting ablity that gives the agro status effect
-    data class Taunt(val Aggro: Int, override val name: String, override val cost: Int) :
+    data class Taunt(val agro: Int, override val name: String, override val cost: Int) :
         Ability(name, cost)
 
     // steath statues effect slower but less agrro
@@ -63,7 +63,7 @@ val attack = Ability.Offensive(
 
 val abilityList = listOf(
     Ability.Offensive("Fireball", DamageType.Magical, 5F, Stat.Strength, 5),
-    Ability.Heal("Heal", 50F, 5),
+    Ability.Heal(Stat.Mind,"Heal", 50F, 5),
     Ability.Taunt(0, "tount", 0),
     Ability.Stealth("Stealth", 0)
 )
