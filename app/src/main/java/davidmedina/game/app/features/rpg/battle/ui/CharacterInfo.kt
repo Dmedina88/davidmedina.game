@@ -36,7 +36,9 @@ fun CharacterInfo(
     val colorShift by animateFloatAsState(
         targetValue = if (characterStats.lastAbilityUsedOn != null) 0f else 2f,
         animationSpec = repeatable(
-            iterations = 15, animation = tween(durationMillis = 100), repeatMode = RepeatMode.Reverse
+            iterations = 15,
+            animation = tween(durationMillis = 100),
+            repeatMode = RepeatMode.Reverse
         )
     )
     val backgroundColor by animateColorAsState(

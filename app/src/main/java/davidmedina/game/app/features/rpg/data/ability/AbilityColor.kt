@@ -12,6 +12,7 @@ fun getAbilityColor(
             is DamageType.Dream -> Color(0xFF450057)
             is DamageType.Magical -> Color(0xFF0077C2)
             is DamageType.Psychic -> Color(0xFFAD1457)
+            DamageType.Energy -> Color(0xFFE65100)
         }
         is Ability.Heal -> Color(0xFF2E7D32)
         is Ability.Taunt -> Color(0xFF880E4F)

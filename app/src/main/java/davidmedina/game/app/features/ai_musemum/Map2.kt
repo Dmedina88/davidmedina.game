@@ -21,7 +21,7 @@ import kotlin.math.sqrt
 
 @Preview
 @Composable
-fun Map() {
+fun Map2() {
     val mapWidth = 1000f
     val mapHeight = 1000f
     val landmarkPositions = listOf(
@@ -44,11 +44,15 @@ fun Map() {
             Image(
                 painter = painterResource(R.drawable.gen_structure_10),
                 contentDescription = "Landmark",
-                modifier = Modifier.size(150 * scaleFactor).offset(position.first, position.second)
+                modifier = Modifier
+                    .size(150 * scaleFactor)
+                    .offset(position.first, position.second)
             )
         }
     }
-    Box(modifier = Modifier.fillMaxSize().drawBehind { drawGrid(color = Color.LightGray, alpha = .5f) })
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .drawBehind { drawGrid(color = Color.LightGray, alpha = .5f) })
 }
 
 

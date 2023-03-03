@@ -13,24 +13,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import davidmedina.game.app.ui.drawText
 
-data class MapData(
+private data class MapData(
     val size: Size,
     val terrain: List<List<TerrainType>>,
     val landmarks: List<Landmark>
 )
 
-data class Landmark(val name: String, val type: LandmarkType, val location: Offset)
-enum class TerrainType { Forest, Mountain, River, Ocean, Road }
-enum class LandmarkType { Castle, Temple, Dungeon, Village }
+private data class Landmark(val name: String, val type: LandmarkType, val location: Offset)
+private enum class TerrainType { Forest, Mountain, River, Ocean, Road }
+private enum class LandmarkType { Castle, Temple, Dungeon, Village }
 
 
 
 @Preview
 @Composable
-fun AIWordMap1(mapData: MapData? = null) {
+fun AIWordMap1() {
     Canvas(modifier = Modifier.fillMaxSize()) {
 
-        val mapData = mapData ?: generateMapData(
+        val mapData = generateMapData(
             Size(10f, 10f),
             10,
             screenSize = Size(size.width, size.height)
@@ -93,7 +93,7 @@ private fun DrawScope.drawLandmark(tileSize: Size, landmark: Landmark) {
 
 }
 
-fun generateMapData(size: Size, numLandmarks: Int, screenSize: Size): MapData {
+private fun generateMapData(size: Size, numLandmarks: Int, screenSize: Size): MapData {
     // Define the list of possible terrain types
     val terrainTypes = TerrainType.values()
 

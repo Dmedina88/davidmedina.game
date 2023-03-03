@@ -53,6 +53,8 @@ sealed class DamageType {
     object Dream : DamageType()
     object Magical : DamageType()
     object Psychic : DamageType()
+     object Energy: DamageType()
+
 }
 
 val attack = Ability.Offensive(
