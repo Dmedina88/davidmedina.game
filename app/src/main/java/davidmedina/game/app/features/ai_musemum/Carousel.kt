@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.ai
+package davidmedina.game.app.features.ai_musemum
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -29,7 +29,8 @@ fun AIUIWorkCarousel() {
             { ShapeScreen() },
             { Hallway() },
             { AIWordMap1() },
-            { ArtBox_AI() }
+            { ArtBox_AI() },
+            { MapWithGeographicalFeatures() }
         )
     )
 }

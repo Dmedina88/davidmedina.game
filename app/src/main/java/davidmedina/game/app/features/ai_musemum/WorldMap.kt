@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.ai
+package davidmedina.game.app.features.ai_musemum
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
+import davidmedina.game.app.ui.drawText
 
 data class MapData(
     val size: Size,
@@ -49,6 +51,7 @@ fun AIWordMap1(mapData: MapData? = null) {
         }
         mapData.landmarks.forEach { landmark ->
             drawLandmark(tileSize = tileSize, landmark = landmark)
+
         }
     }
 }
@@ -77,16 +80,17 @@ private fun DrawScope.drawLandmark(tileSize: Size, landmark: Landmark) {
     drawCircle(color = landmarkColor, center = landmark.location, radius = tileSize.width / 2)
 
 
-    /*
+
     drawText(
-        text = landmark.name, color = Color.White, fontSize = 14.sp, textAlign = TextAlign.Center,
-        topLeft = Offset(
-            x = landmark.location.x - tileSize.width / 2,
-            y = landmark.location.y - tileSize.height / 2
-        )
+        text = landmark.name,
+        x = (landmark.location.x - tileSize.width / 2),
+        y = landmark.location.y - tileSize.height / 2,
+        textColor = Color.White,
+        textSize =  18.sp.value
     )
 
-     */
+
+
 }
 
 fun generateMapData(size: Size, numLandmarks: Int, screenSize: Size): MapData {
@@ -117,11 +121,19 @@ fun generateMapData(size: Size, numLandmarks: Int, screenSize: Size): MapData {
     // Add landmarks to the map
     val landmarks = mutableListOf<Landmark>()
     val landmarkTypes = listOf(LandmarkType.Castle, LandmarkType.Temple, LandmarkType.Village)
+
+    val interestingNames = listOf(
+        "Eiffel Tower", "Statue of Liberty", "Great Wall of China", "Machu Picchu", "Taj Mahal",
+        "Stonehenge", "Chichen Itza", "Petra", "Colosseum", "Acropolis", "Alhambra",
+        "Angkor Wat", "Golden Gate Bridge", "Sydney Opera House", "Burj Khalifa", "Tower Bridge"
+    )
+
     repeat(numLandmarks) {
         val landmarkType = landmarkTypes.random()
         val x = (0 until screenSize.width.toInt()).random().toFloat() + 0.5f
         val y = (0 until screenSize.height.toInt()).random().toFloat() + 0.5f
-        landmarks.add(Landmark("Landmark ${it + 1}", landmarkType, Offset(x, y)))
+        val name = interestingNames.random()
+        landmarks.add(Landmark(name, landmarkType, Offset(x, y)))
     }
 
     // Create the MapData object

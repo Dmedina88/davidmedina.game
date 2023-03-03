@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.ai
+package davidmedina.game.app.features.ai_musemum
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

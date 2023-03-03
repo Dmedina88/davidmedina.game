@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.ai
+package davidmedina.game.app.features.ai_musemum
 
 import androidx.compose.ui.graphics.Color
 import kotlin.random.Random

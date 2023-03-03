@@ -33,9 +33,10 @@ import org.koin.androidx.compose.koinViewModel
 fun RPGBattleScreen() {
 
     val battleStateMachine = koinViewModel<BattleStateMachine>()
-    Onlifecycal(onResume = { battleStateMachine.systemPause(false) }, {
-        battleStateMachine.systemPause(true)
-    })
+    Onlifecycal(
+        onResume = { battleStateMachine.systemPause(false) },
+        onPause = { battleStateMachine.systemPause(true) }
+    )
 
     battleStateMachine.init(
         listOf(

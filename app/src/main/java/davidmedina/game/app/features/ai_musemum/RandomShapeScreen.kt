@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.ai
+package davidmedina.game.app.features.ai_musemum
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -58,7 +58,6 @@ fun RandomShapeScreen() {
 @Composable
 fun RandomShapeScreen2(
      numShapes: Int = 5,
-
     maxShapes: Int = 10,
     onNumShapesChanged: (Int) -> Unit = {},
     content: @Composable () -> Unit,
