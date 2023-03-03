@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,7 +31,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 @Preview
-fun RPGBattleScreen() {
+fun RPGBattleScreen(onBattleWon: () -> Unit ={}) {
 
     val battleStateMachine = koinViewModel<BattleStateMachine>()
     Onlifecycal(
@@ -51,12 +52,14 @@ fun RPGBattleScreen() {
             .background(Color.Black)
             .fillMaxSize()
     ) {
-        BattleScreen(battleStateMachine)
+        BattleScreen(battleStateMachine){
+            onBattleWon()
+        }
     }
 }
 
 @Composable
-private fun BattleScreen(battleStateMachine: BattleStateMachine) {
+private fun BattleScreen(battleStateMachine: BattleStateMachine,onBattleWon: () -> Unit) {
     AnimatedVisibility(visible = battleStateMachine.battleStage == BattleStage.BattleInProgress) {
 
         ConstraintLayout {
@@ -79,12 +82,14 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine) {
             ActionChip(battleStateMachine = battleStateMachine)
         }
     }
-    BattleResult(battleStateMachine.battleStage)
+    BattleResult(battleStateMachine.battleStage){
+        onBattleWon()
+    }
 }
 
 
 @Composable
-private fun BattleResult(battleStage: BattleStage) {
+private fun BattleResult(battleStage: BattleStage, onBattleWon: () -> Unit) {
     AnimatedVisibility(visible = battleStage == BattleStage.BattleLost) {
         Box(
             modifier = Modifier
@@ -107,11 +112,15 @@ private fun BattleResult(battleStage: BattleStage) {
                 .gameBoxBackground()
                 .fillMaxSize()
         ) {
-            Text(
-                modifier = Modifier.align(Alignment.Center),
-                text = "WINNER",
-                color = Color.Yellow
-            )
+           Button(  modifier = Modifier.align(Alignment.Center),
+               onClick = onBattleWon) {
+               Text(
+
+                   text = "WINNER",
+                   color = Color.Yellow
+               )
+           }
+
         }
     }
 }

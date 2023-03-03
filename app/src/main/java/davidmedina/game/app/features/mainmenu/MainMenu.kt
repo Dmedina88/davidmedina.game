@@ -104,10 +104,16 @@ fun MainMenuScreen(navController: NavHostController) {
             }
 
             AnimatedVisibility(hide.not()) {
-                TDMButton(text = "RPG") {
+                TDMButton(text = "RPG_BATTLE") {
                     navController.navigate(Routes.RPG.name)
                 }
             }
+            AnimatedVisibility(hide.not()) {
+                TDMButton(text = "RPG_MAP") {
+                    navController.navigate(Routes.RPG_MAP.name)
+                }
+            }
+
 
             if (vm.uiState.debugMode) {
                 Text(text = vm.uiState.gameState.toString())

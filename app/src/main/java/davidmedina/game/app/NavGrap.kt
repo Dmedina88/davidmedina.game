@@ -13,6 +13,7 @@ import davidmedina.game.app.features.cardgame.GameScreen
 import davidmedina.game.app.features.login.LogInScreen
 import davidmedina.game.app.features.login.LoginViewModel
 import davidmedina.game.app.features.mainmenu.MainMenuScreen
+import davidmedina.game.app.features.rpg.map.MapScreen
 import davidmedina.game.app.features.register.RegisterScreen
 import davidmedina.game.app.features.rpg.battle.ui.RPGBattleScreen
 import davidmedina.game.app.features.rpg.states.CharacterScreen
@@ -86,6 +87,9 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
         }
         composable(Routes.AI_ART.name) {
             AIUIWorkCarousel()
+        }
+        composable(Routes.RPG_MAP.name) {
+            MapScreen()
         }
     }
 }
