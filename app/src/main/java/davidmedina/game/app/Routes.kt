@@ -15,5 +15,6 @@ enum class Routes() {
     RPG(),
     RPG_CHARACTER(),
     AI_ART(),
-    RPG_MAP ()
+    RPG_MAP(),
+    OPNEING_TEXT();
 }

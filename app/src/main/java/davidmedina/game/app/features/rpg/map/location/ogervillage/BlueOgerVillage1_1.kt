@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.map.ogervillage
+package davidmedina.game.app.features.rpg.map.location.ogervillage
 
 import android.content.pm.ActivityInfo
 import androidx.compose.animation.core.*
@@ -40,7 +40,7 @@ data class ScreenInfo(
 
 @Composable
 @Preview
-fun BlueOgerOpening() {
+fun BlueOgerVillage1_1() {
 
     val scope = rememberCoroutineScope()
     //anaiamtion

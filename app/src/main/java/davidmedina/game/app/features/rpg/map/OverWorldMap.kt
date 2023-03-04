@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.map
+package davidmedina.game.app.features.rpg.map
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas

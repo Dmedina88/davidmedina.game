@@ -50,9 +50,22 @@ fun MainMenuScreen(navController: NavHostController) {
             IconButton(onClick = { hide = hide.not() }) {
                 Image(painter = painterResource(id = R.drawable.host_eye), contentDescription ="eye")
             }
+
+            AnimatedVisibility(hide.not()) {
+                Button(onClick = { navController.navigate(Routes.OPNEING_TEXT.name) }) {
+                    Text(text = "Text Scroll Open")
+                }
+            }
             AnimatedVisibility(hide.not()) {
                 Button(onClick = { navController.navigate(Routes.GAME.name) }) {
-                    Text(text = "New Game")
+                    Text(text = "Card Game")
+                }
+            }
+
+
+            AnimatedVisibility(hide.not()) {
+                Button(onClick = { navController.navigate(Routes.GAME.name) }) {
+                    Text(text = "Card Game")
                 }
             }
 

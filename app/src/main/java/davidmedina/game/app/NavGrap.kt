@@ -13,7 +13,7 @@ import davidmedina.game.app.features.cardgame.GameScreen
 import davidmedina.game.app.features.login.LogInScreen
 import davidmedina.game.app.features.login.LoginViewModel
 import davidmedina.game.app.features.mainmenu.MainMenuScreen
-import davidmedina.game.app.features.map.OverWorldMap
+import davidmedina.game.app.features.rpg.map.OverWorldMap
 import davidmedina.game.app.features.register.RegisterScreen
 import davidmedina.game.app.features.rpg.battle.ui.RPGBattleScreen
 import davidmedina.game.app.features.rpg.states.CharacterMenuScreen
@@ -21,6 +21,7 @@ import davidmedina.game.app.features.storygame.GodotTwoFlower
 import davidmedina.game.app.features.storygame.blueoger.level1.BlueOgerOpening
 import davidmedina.game.app.features.worldgen.BoxArtScreen
 import davidmedina.game.app.features.worldgen.CanvisArtScreen
+import davidmedina.game.app.ui.composables.TextScroller
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -90,6 +91,9 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
         }
         composable(Routes.RPG_MAP.name) {
             OverWorldMap()
+        }
+        composable(Routes.OPNEING_TEXT.name) {
+            TextScroller()
         }
     }
 }
