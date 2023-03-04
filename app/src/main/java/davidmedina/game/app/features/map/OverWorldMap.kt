@@ -73,7 +73,7 @@ val sampleMap = Map(
 
 @Preview
 @Composable
-fun MapScreen(map: Map = sampleMap) {
+fun OverWorldMap(map: Map = sampleMap) {
 
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -228,9 +228,6 @@ fun MapScreen(map: Map = sampleMap) {
 
 
 }
-
-
-
 
 fun getClosestLandmarks(landmarks: List<Landmark>, position: Offset): List<Landmark> {
     val closestLandmarks = mutableListOf<Landmark>()

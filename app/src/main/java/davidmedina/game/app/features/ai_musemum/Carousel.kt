@@ -43,7 +43,7 @@ fun Carousel(items: List<@Composable () -> Unit>, modifier: Modifier = Modifier)
             onClick = { currentIndex = (currentIndex - 1).coerceAtLeast(0) },
             enabled = currentIndex > 0
         ) {
-            AnimatedVisibility (currentIndex !=0){
+            AnimatedVisibility(currentIndex != 0) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = null,

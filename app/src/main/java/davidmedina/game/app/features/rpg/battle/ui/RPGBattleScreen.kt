@@ -31,7 +31,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 @Preview
-fun RPGBattleScreen(onBattleWon: () -> Unit ={}) {
+fun RPGBattleScreen(onBattleWon: () -> Unit = {}) {
 
     val battleStateMachine = koinViewModel<BattleStateMachine>()
     Onlifecycal(
@@ -52,20 +52,19 @@ fun RPGBattleScreen(onBattleWon: () -> Unit ={}) {
             .background(Color.Black)
             .fillMaxSize()
     ) {
-        BattleScreen(battleStateMachine){
+        BattleScreen(battleStateMachine) {
             onBattleWon()
         }
     }
 }
 
 @Composable
-private fun BattleScreen(battleStateMachine: BattleStateMachine,onBattleWon: () -> Unit) {
+private fun BattleScreen(battleStateMachine: BattleStateMachine, onBattleWon: () -> Unit) {
     AnimatedVisibility(visible = battleStateMachine.battleStage == BattleStage.BattleInProgress) {
 
         ConstraintLayout {
             Background()
             Column {
-
                 EnemyView(battleStateMachine.enemyCharacters) {
                     battleStateMachine.targetSelected(
                         Battler.Enemy(it)
@@ -82,7 +81,7 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine,onBattleWon: () 
             ActionChip(battleStateMachine = battleStateMachine)
         }
     }
-    BattleResult(battleStateMachine.battleStage){
+    BattleResult(battleStateMachine.battleStage) {
         onBattleWon()
     }
 }
@@ -112,14 +111,16 @@ private fun BattleResult(battleStage: BattleStage, onBattleWon: () -> Unit) {
                 .gameBoxBackground()
                 .fillMaxSize()
         ) {
-           Button(  modifier = Modifier.align(Alignment.Center),
-               onClick = onBattleWon) {
-               Text(
+            Button(
+                modifier = Modifier.align(Alignment.Center),
+                onClick = onBattleWon
+            ) {
+                Text(
 
-                   text = "WINNER",
-                   color = Color.Yellow
-               )
-           }
+                    text = "WINNER",
+                    color = Color.Yellow
+                )
+            }
 
         }
     }

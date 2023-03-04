@@ -8,7 +8,9 @@ import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement.Center
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.*
@@ -26,11 +28,15 @@ import davidmedina.game.app.ui.theme.shift
 import kotlinx.coroutines.delay
 
 @Composable
-fun EnemyView(enemies: List<BattleCharacter>, onTargetSelcted: (Int) -> Unit) {
-    LazyRow(Modifier.fillMaxHeight(.65f)) {
+fun EnemyView(enemies: List<BattleCharacter>, onTargetSelected: (Int) -> Unit) {
+
+    LazyRow(
+        Modifier.fillMaxHeight(.65f).fillMaxWidth(),
+        horizontalArrangement = Center,
+    ) {
         itemsIndexed(enemies) { int, enemy ->
             AnimatedVisibility(visible = enemy.characterStats.isAlive) {
-                Enemy(enemy) { onTargetSelcted(int) }
+                Enemy(enemy) { onTargetSelected(int) }
             }
         }
     }
@@ -59,7 +65,9 @@ private fun Enemy(
     val colorShift by animateFloatAsState(
         targetValue = if (enemy.lastAbilityUsedOn != null) 0f else 2f,
         animationSpec = repeatable(
-            iterations = 15, animation = tween(durationMillis = 100), repeatMode = RepeatMode.Reverse
+            iterations = 15,
+            animation = tween(durationMillis = 100),
+            repeatMode = RepeatMode.Reverse
         )
     )
     Image(
@@ -70,7 +78,11 @@ private fun Enemy(
             .graphicsLayer {
                 rotationZ = if (enemy.abilityBeingUsed != null) shakeAnim else 0F
             }
-            .background(if (enemy.lastAbilityUsedOn != null) getAbilityColor(enemy.lastAbilityUsedOn).shift(colorShift) else Color.Transparent),
+            .background(
+                if (enemy.lastAbilityUsedOn != null) getAbilityColor(enemy.lastAbilityUsedOn).shift(
+                    colorShift
+                ) else Color.Transparent
+            ),
         painter = painterResource(id = enemy.characterStats.characterID.battleImage),
         contentDescription = "",
         contentScale = ContentScale.Fit
