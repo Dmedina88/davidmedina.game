@@ -88,7 +88,6 @@ fun TDMTextBox(
             }
             Column() {
 
-
                 LazyVerticalGrid(
                     // To make the ripple round
                     columns = GridCells.Adaptive(20.dp),
@@ -119,9 +118,3 @@ fun TDMTextBox(
 
     }
 }
-
-
-
-
-
-
