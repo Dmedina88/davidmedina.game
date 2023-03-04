@@ -46,12 +46,16 @@ fun TDMTextBox(
                 nextText.addAll(wordList.map { ' ' })
                 textOver = false
                 wordList.forEachIndexed { index, s ->
-                    delay(100)
+                    delay(if (!textOver) 100 else 0)
                     nextText[index] = s
                 }
 
+                delay(if (!textOver) 100 else 0)
+                onFinished?.invoke()
+                textOver = true
             }
         }
+
         Row(modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 200.dp)
@@ -67,8 +71,7 @@ fun TDMTextBox(
             .padding(20.dp)
             .noRippleClickable {
                 if (!textOver) {
-                    nextText.clear()
-                    nextText.addAll(wordList)
+                    textOver = true
                 } else {
                     onNext()
                 }
@@ -77,8 +80,9 @@ fun TDMTextBox(
 
 
                 Image(
-                    painter = it, contentDescription = "", modifier = Modifier
-                        .size(200.dp),
+                    painter = it,
+                    contentDescription = "",
+                    modifier = Modifier.size(200.dp),
                     contentScale = ContentScale.Fit
                 )
             }
@@ -94,16 +98,11 @@ fun TDMTextBox(
 
                     items(nextText.size) { index ->
 
-                        AnimatedContent(
-                            targetState = nextText[index],
-                            transitionSpec = {
-                                slideInVertically { -it } with slideOutVertically { it }
-                            }
-                        ) { output ->
+                        AnimatedContent(targetState = nextText[index], transitionSpec = {
+                            slideInVertically { -it } with slideOutVertically { it }
+                        }) { output ->
                             Text(
-                                textAlign = TextAlign.Center,
-                                text = "$output",
-                                fontSize = 32.sp
+                                textAlign = TextAlign.Center, text = "$output", fontSize = 32.sp
                             )
                         }
 
@@ -118,20 +117,10 @@ fun TDMTextBox(
             }
         }
 
-        if (nextText.size > 0) {
-            LaunchedEffect(nextText.lastOrNull()) {
-                textOver = if (nextText.lastOrNull() == wordList.last()) {
-                    delay(300)
-                    onFinished?.invoke()
-                    true
-                } else {
-                    false
-                }
-            }
-        }
-    }
 
+    }
 }
+
 
 
 
