@@ -1,12 +1,14 @@
-package davidmedina.game.app.features.rpg.map
+package davidmedina.game.app.features.map
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -18,6 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import davidmedina.game.app.R
 import davidmedina.game.app.features.rpg.battle.ui.RPGBattleScreen
+import davidmedina.game.app.features.rpg.states.CharacterMenuScreen
+import davidmedina.game.app.features.storygame.blueoger.level1.BlueOgerOpening
 import davidmedina.game.app.ui.composables.resizeWithCenterOffset
 import davidmedina.game.app.ui.drawGrid
 import kotlinx.coroutines.delay
@@ -31,7 +35,25 @@ class Map(
 )
 
 //landmark class that has a @param name, @param position, @param image
-class Landmark(val name: String, val position: Offset, val image: Int)
+class Landmark(
+    val name: String,
+    val position: Offset,
+    val image: Int,
+    val locationId: LandMarkId = LandMarkId.Unknown
+)
+
+enum class LandMarkId(val id: Int) {
+    Home(0),
+    Cave(1),
+    Village(2),
+    City(3),
+    GraveYard(4),
+    OlsPlace(5),
+    HeavensHill(6),
+    ThePit(7),
+    GreatForest(8),
+    Unknown(9)
+}
 
 //sample map
 val sampleMap = Map(
@@ -56,11 +78,15 @@ fun MapScreen(map: Map = sampleMap) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val screenHeight = LocalConfiguration.current.screenHeightDp
 
-    var playerTargetOffset by remember { mutableStateOf<Offset?>(null) }
+    var playerTargetLandmark by remember { mutableStateOf<Landmark?>(null) }
 
     var playerPosition by remember { mutableStateOf(map.landmarks.first().position) }
     var isEncounterActive by remember { mutableStateOf(false) }
+    var playerLocation by remember { mutableStateOf(map.landmarks.firstOrNull()) }
+    var showCharacterMenu by remember { mutableStateOf(false) }
 
+    var playerLocationId by remember { mutableStateOf<LandMarkId?>(null) }
+    val inMenu = showCharacterMenu || isEncounterActive
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -82,7 +108,8 @@ fun MapScreen(map: Map = sampleMap) {
                     )
                     .clickable {
                         if (getClosestLandmarks(map.landmarks, playerPosition).contains(landmark)) {
-                            playerTargetOffset = landmark.position
+                            playerTargetLandmark = landmark
+                            playerLocation = null
                         }
 
                     })
@@ -120,44 +147,90 @@ fun MapScreen(map: Map = sampleMap) {
         painter = painterResource(R.drawable.blue_oger_portrite),
         contentDescription = "player",
         modifier = Modifier.resizeWithCenterOffset(
-                50.dp,
-                50.dp,
-                x = (playerPosition.x * screenWidth).dp,
-                y = (playerPosition.y * screenHeight).dp
-            )
+            50.dp,
+            50.dp,
+            x = (playerPosition.x * screenWidth).dp,
+            y = (playerPosition.y * screenHeight).dp
+        )
     )
 
-    LaunchedEffect(playerTargetOffset) {
-        if (playerTargetOffset != null) {
-            var percentage = 0f
-            while (percentage < 1f && isEncounterActive.not()) {
-                percentage += 0.0005f
-                playerPosition = lerp(playerPosition, playerTargetOffset!!, percentage)
-                delay(10)
+    //use coroutine to move player to target landmark
+    LaunchedEffect(playerTargetLandmark, isEncounterActive) {
+        if (playerTargetLandmark != null && isEncounterActive.not()) {
+            val target = playerTargetLandmark!!.position
+            val distance = distance(playerPosition, target)
+            val steps = 200 * distance
 
-                if (!isEncounterActive && Random.nextFloat() < .01) {
+            val stepX = (target.x - playerPosition.x) / steps
+            val stepY = (target.y - playerPosition.y) / steps
+            for (i in 0 until steps.toInt()) {
+                playerPosition = Offset(playerPosition.x + stepX, playerPosition.y + stepY)
+                delay(100)
+                if (Random.nextFloat() < .05f) {
                     isEncounterActive = true
-                    // Pause movement and show encounter UI
                 }
             }
-            playerTargetOffset = null
+            playerLocation = playerTargetLandmark!!
+            playerPosition = playerTargetLandmark!!.position
+            playerTargetLandmark = null
+
         }
     }
+
+
+
+    AnimatedVisibility(visible = inMenu.not()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+
+            Button(onClick = { showCharacterMenu = true }) {
+                Text(
+                    text = "Character Menu",
+                    modifier = Modifier.padding(5.dp),
+                )
+            }
+
+            AnimatedVisibility(visible = playerLocation != null) {
+                Button(onClick = { 
+                playerLocationId = playerLocation?.locationId
+                    
+                }) {
+                    Text(
+                        text = "enter: ${playerLocation?.name}",
+                        modifier = Modifier.padding(5.dp),
+                    )
+                }
+            }
+        }
+    }
+    AnimatedVisibility(visible = showCharacterMenu) {
+        CharacterMenuScreen {
+            showCharacterMenu = false
+        }
+    }
+
     AnimatedVisibility(visible = isEncounterActive) {
-        RPGBattleScreen {
-            isEncounterActive = false
+        if (isEncounterActive) {
+            RPGBattleScreen {
+                isEncounterActive = false
+            }
         }
+    }
+
+    AnimatedVisibility(visible = playerLocationId != null) {
+         BlueOgerOpening()
+
     }
 
 
 }
 
 
-fun lerp(a: Offset, b: Offset, percentage: Float): Offset {
-    return Offset(
-        a.x + (b.x - a.x) * percentage, a.y + (b.y - a.y) * percentage
-    )
-}
+
 
 fun getClosestLandmarks(landmarks: List<Landmark>, position: Offset): List<Landmark> {
     val closestLandmarks = mutableListOf<Landmark>()

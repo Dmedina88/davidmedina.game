@@ -45,7 +45,8 @@ class MainActivity : ComponentActivity() {
             DavidmedinagameTheme {
                 Scaffold(
                     topBar = {
-                        AnimatedVisibility(visible = currentDest != Routes.RPG_CHARACTER.name) {
+                        AnimatedVisibility(visible = currentDest != Routes.RPG_CHARACTER.name
+                                && currentDest != Routes.RPG_MAP.name) {
                             TopAppBar(
                                 title = {
                                     Text(text = currentDest)

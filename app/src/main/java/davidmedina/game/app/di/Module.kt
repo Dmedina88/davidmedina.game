@@ -1,5 +1,6 @@
 package davidmedina.game.app.di
 
+
 import davidmedina.game.app.data.network.DMGameApi
 import davidmedina.game.app.data.network.DMGameApiImpl
 import davidmedina.game.app.data.repository.MetaGameRepository
@@ -13,6 +14,8 @@ import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import davidmedina.game.app.features.rpg.states.CharacterViewModel
+
 
 
 val appModule = module {
@@ -28,4 +31,5 @@ val viewModuleModule = module {
     viewModelOf(::RegisterViewModel)
 
     viewModelOf(::GameScreenViewModel)
+    viewModelOf(::CharacterViewModel)
 }

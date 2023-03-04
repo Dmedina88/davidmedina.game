@@ -1,6 +1,7 @@
 package davidmedina.game.app.features.rpg.states
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -14,16 +15,59 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import davidmedina.game.app.R
 import davidmedina.game.app.features.rpg.data.*
 import davidmedina.game.app.ui.theme.GradientColors
 import davidmedina.game.app.ui.composables.GradientProgressBar
+import davidmedina.game.app.ui.composables.gameBoxBackground
+import org.koin.androidx.compose.koinViewModel
 
 private val mockCharacters = createMockCharacters(6)
 
+
 @Preview
 @Composable
-fun CharacterScreen(characters: List<Character> = mockCharacters) {
-    LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+fun CharacterMenuScreen(onMenuClosed: () -> Unit = {}) {
+    val vm = koinViewModel<CharacterViewModel>()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .gameBoxBackground()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.mipmap.heart),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(72.dp)
+                    .clickable { onMenuClosed() }
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = "Character Menu",
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        CharacterGrid(vm.playerCharacters)
+    }
+
+
+}
+
+@Composable
+fun CharacterGrid(characters: List<Character> = mockCharacters) {
+    LazyVerticalGrid(
+        modifier = Modifier
+            .fillMaxHeight(),
+        columns = GridCells.Fixed(2)
+    ) {
         items(characters) { character ->
             CharacterCard(character)
         }
