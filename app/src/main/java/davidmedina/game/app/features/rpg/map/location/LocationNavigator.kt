@@ -55,65 +55,68 @@ fun LocationNavigatorScreen(locationMap: List<List<@Composable () -> Unit>>) {
     var column by remember { mutableStateOf(0) }
 
 
-    Column {
-        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-            IconButton(
-                onClick = {
-                    if (column > 0) column--
-                },
-                enabled = column > 0
+    locationMap[row][column]()
+
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Column(
+            Modifier.align(Alignment.BottomEnd),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Previous")
+                IconButton(
+                    onClick = { if (row > 0) row-- },
+                    enabled = row > 0
+                ) {
+                    Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "up")
+                }
             }
 
-            IconButton(
-                onClick = {
-                    if (column < locationMap[row].size - 1) column++
-                },
-                enabled = column < locationMap[row].size - 1
-            ) {
-                Icon(Icons.Filled.ArrowForward, contentDescription = "Next")
-            }
-        }
+            Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                IconButton(
+                    onClick = { if (column > 0) column-- },
+                    enabled = column > 0
+                ) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "left")
+                }
 
-
-        Box(Modifier.weight(1f)) {
-            locationMap[row][column]()
-            Column() {
                 MiniMap(
                     locationMap.size,
                     locationMap[0].size,
                     row, column
                 )
+
+                IconButton(
+                    onClick = { if (column < locationMap[row].size - 1) column++ },
+                    enabled = column < locationMap[row].size - 1
+                ) {
+                    Icon(Icons.Filled.ArrowForward, contentDescription = "right")
+                }
             }
 
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                IconButton(
+                    onClick = { if (row < locationMap.size - 1) row++ },
+                    enabled = row < locationMap.size - 1
+                ) {
+                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "down")
+                }
+            }
         }
 
 
-        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-            IconButton(
-                onClick = {
-                    if (row > 0) row--
-                },
-                enabled = row > 0
-            ) {
-                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Previous")
-            }
-
-            IconButton(
-                onClick = {
-                    if (row < locationMap.size - 1) row++
-                },
-                enabled = row < locationMap.size - 1
-            ) {
-                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Next")
-            }
-        }
     }
 }
 
 @Composable
-fun MiniMap(xSize: Int, ySize: Int, currentRow: Int, currentColumn: Int) {
+private fun MiniMap(xSize: Int, ySize: Int, currentRow: Int, currentColumn: Int) {
     Grid(
         rows = xSize,
         columns = ySize,
@@ -132,22 +135,21 @@ fun MiniMap(xSize: Int, ySize: Int, currentRow: Int, currentColumn: Int) {
 
 
 @Composable
-fun Grid(
+private fun Grid(
     rows: Int,
     columns: Int,
     content: @Composable (row: Int, column: Int) -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.align(Alignment.BottomEnd)) {
-            for (rowIndex in 0 until rows) {
-                Row() {
-                    for (columnIndex in 0 until columns) {
-                        content(rowIndex, columnIndex)
 
-                    }
+    Column() {
+        for (rowIndex in 0 until rows) {
+            Row() {
+                for (columnIndex in 0 until columns) {
+                    content(rowIndex, columnIndex)
+
                 }
             }
         }
     }
-
 }
+

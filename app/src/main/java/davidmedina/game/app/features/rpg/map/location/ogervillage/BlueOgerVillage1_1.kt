@@ -43,7 +43,7 @@ data class ScreenInfo(
 fun BlueOgerVillage1_1() {
 
     val scope = rememberCoroutineScope()
-    //anaiamtion
+
     LockScreenOrientation(orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
     BoxWithConstraints(
         Modifier

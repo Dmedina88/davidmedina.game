@@ -64,12 +64,6 @@ fun MainMenuScreen(navController: NavHostController) {
 
 
             AnimatedVisibility(hide.not()) {
-                Button(onClick = { navController.navigate(Routes.GAME.name) }) {
-                    Text(text = "Card Game")
-                }
-            }
-
-            AnimatedVisibility(hide.not()) {
                 SideButton { navController.navigate(Routes.LINKS.name) }
             }
 

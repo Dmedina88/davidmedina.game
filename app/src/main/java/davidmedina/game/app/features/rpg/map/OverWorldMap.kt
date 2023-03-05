@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import davidmedina.game.app.R
 import davidmedina.game.app.features.rpg.battle.ui.RPGBattleScreen
+import davidmedina.game.app.features.rpg.map.location.ogervillage.BlueOgerScreen
 import davidmedina.game.app.features.rpg.states.CharacterMenuScreen
 import davidmedina.game.app.features.storygame.blueoger.level1.BlueOgerOpening
 import davidmedina.game.app.ui.composables.resizeWithCenterOffset
@@ -79,7 +80,6 @@ fun OverWorldMap(map: Map = sampleMap) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
 
     var playerTargetLandmark by remember { mutableStateOf<Landmark?>(null) }
-
     var playerPosition by remember { mutableStateOf(map.landmarks.first().position) }
     var isEncounterActive by remember { mutableStateOf(false) }
     var playerLocation by remember { mutableStateOf(map.landmarks.firstOrNull()) }
@@ -155,8 +155,8 @@ fun OverWorldMap(map: Map = sampleMap) {
     )
 
     //use coroutine to move player to target landmark
-    LaunchedEffect(playerTargetLandmark, isEncounterActive) {
-        if (playerTargetLandmark != null && isEncounterActive.not()) {
+    LaunchedEffect(playerTargetLandmark, isEncounterActive, inMenu, playerLocationId == null) {
+        if (playerTargetLandmark != null && isEncounterActive.not() && inMenu.not() && playerLocationId == null) {
             val target = playerTargetLandmark!!.position
             val distance = distance(playerPosition, target)
             val steps = 200 * distance
@@ -195,9 +195,9 @@ fun OverWorldMap(map: Map = sampleMap) {
             }
 
             AnimatedVisibility(visible = playerLocation != null) {
-                Button(onClick = { 
-                playerLocationId = playerLocation?.locationId
-                    
+                Button(onClick = {
+                    playerLocationId = playerLocation?.locationId
+
                 }) {
                     Text(
                         text = "enter: ${playerLocation?.name}",
@@ -222,7 +222,7 @@ fun OverWorldMap(map: Map = sampleMap) {
     }
 
     AnimatedVisibility(visible = playerLocationId != null) {
-         BlueOgerOpening()
+        BlueOgerScreen()
 
     }
 

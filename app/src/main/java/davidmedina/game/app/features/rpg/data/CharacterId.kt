@@ -17,7 +17,7 @@ enum class CharacterId {
 
 fun CharacterId.createCharacter(name: String? = null) = when (this) {
     CharacterId.BLUE_OGER -> Character(
-        name ?: "BlueOger",
+        name ?: "Grom",
         CharacterId.BLUE_OGER,
         DiminishableStates(50, 50),
         DiminishableStates(50, 50),
