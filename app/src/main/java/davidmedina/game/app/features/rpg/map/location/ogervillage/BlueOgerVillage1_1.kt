@@ -108,6 +108,8 @@ fun BlueOgerVillage1_1() {
 
 }
 
+
+
 @Composable
 fun Clouds(screenInfo: ScreenInfo) {
     val clouds = remember {

@@ -54,9 +54,7 @@ fun LocationNavigatorScreen(locationMap: List<List<@Composable () -> Unit>>) {
     var row by remember { mutableStateOf(0) }
     var column by remember { mutableStateOf(0) }
 
-
     locationMap[row][column]()
-
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -111,7 +109,6 @@ fun LocationNavigatorScreen(locationMap: List<List<@Composable () -> Unit>>) {
             }
         }
 
-
     }
 }
 
@@ -146,10 +143,8 @@ private fun Grid(
             Row() {
                 for (columnIndex in 0 until columns) {
                     content(rowIndex, columnIndex)
-
                 }
             }
         }
     }
 }
-

@@ -24,6 +24,7 @@ import davidmedina.game.app.features.worldgen.CanvisArtScreen
 import davidmedina.game.app.ui.composables.TextScroller
 import org.koin.androidx.compose.koinViewModel
 
+
 @Composable
 fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
     NavHost(
@@ -46,6 +47,7 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
                 }
             })
         }
+
         composable(Routes.LOGIN.name) {
             val loginViewModel = koinViewModel<LoginViewModel>()
             LogInScreen({
@@ -57,7 +59,6 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
                 }
             }, loginViewModel)
         }
-        //consider movi here for   wase of wierint
 
         composable(Routes.FEEDBACK.name) {
             FeedBackScreen()

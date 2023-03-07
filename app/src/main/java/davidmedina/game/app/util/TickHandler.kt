@@ -26,7 +26,6 @@ class TickHandler(
             }
         }
     }
-
     fun stop() {
         job?.cancel()
         job = null

@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 
 @Preview
 @Composable
-fun TextScroller(text: String = opening) {
+fun  TextScroller(text: String = opening) {
     val infiniteTransition = rememberInfiniteTransition()
     val scrollState = rememberScrollState()
     val scrollAnim by infiniteTransition.animateFloat(
