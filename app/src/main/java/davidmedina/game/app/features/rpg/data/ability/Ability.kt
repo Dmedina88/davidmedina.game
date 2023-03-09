@@ -4,8 +4,8 @@ sealed class Ability(open val name: String, open val cost: Int = 0) {
     data class Offensive(
         override val name: String,
         val damageType: DamageType,
-        val damageFacter: Float, // multipy damge of this facter
-        val damageStat: Stat, // state used for damge
+        val damageFacter: Float,
+        val damageStat: Stat,
         override val cost: Int,
         val effect: StatusEffect? = null
     ) :
@@ -42,8 +42,7 @@ sealed class StatusEffect {
     object Frozen : StatusEffect() // incress will cost of ablity
     data class Stunned(val turnsRemaining: Int) : StatusEffect()
     data class Buffed(val stat: Stat, val buffAmount: Int, val turnsRemaining: Int) : StatusEffect()
-    data class Debuffed(val stat: Stat, val debuffAmount: Int, val turnsRemaining: Int) :
-        StatusEffect()
+    data class Debuffed(val stat: Stat, val debuffAmount: Int, val turnsRemaining: Int) : StatusEffect()
 }
 
 sealed class Stat {
