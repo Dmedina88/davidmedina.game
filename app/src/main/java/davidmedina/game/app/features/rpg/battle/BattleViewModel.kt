@@ -210,12 +210,11 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
                 delay(delay)
                 target.battleInfo = target.battleInfo.copy(lastAbilityUsedOn = null)
             }
-            // If the target is the selected character and is now dead, reset the current player action
-            if (target.battleInfo == selectedCharacter && selectedCharacter?.characterStats?.isAlive == false) {
-                currentPlayerAction = null
-            }
+
             // Deduct one turn from the source's turns
             source.battleInfo = source.battleInfo.copy(turns = source.battleInfo.turns - 1)
+            currentPlayerAction = null
+
         }
     }
 
@@ -260,7 +259,13 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
     ) {
         // Increment the target's agro value
         val newAgro = target.battleInfo.agro + action.agro
-        target.battleInfo = target.battleInfo.copy(agro = newAgro)
+        target.battleInfo = target.battleInfo.copy(agro = newAgro, lastAbilityUsedOn = action)
+        currentPlayerAction = null
+        // Delay for a short time before removing the last ability used by the target
+        viewModelScope.launch {
+            delay(1500L)
+            target.battleInfo = target.battleInfo.copy(lastAbilityUsedOn = null)
+        }
     }
 
     private fun buffAction(
@@ -309,21 +314,33 @@ class BattleStateMachine(private val metaGameRepository: MetaGameRepository) : V
 
     fun characterSelected(battleCharacter: Battler) {
         if (battleCharacter.battleInfo.characterStats.isAlive) {
-            currentPlayerAction = Action(source = battleCharacter)
+            if (currentPlayerAction?.ability is Ability.Heal){
+                currentPlayerAction = currentPlayerAction?.copy(target = battleCharacter)
+                currentPlayerAction?.let {
+                    onAction(it)
+                }
+            }else{
+                currentPlayerAction = Action(source = battleCharacter)
+            }
         }
     }
 
     fun onAbilitySelected(ability: Ability) {
         currentPlayerAction = currentPlayerAction?.copy(ability = ability)
+        if (ability is Ability.Taunt){
+            currentPlayerAction = currentPlayerAction?.copy(target = currentPlayerAction?.source)
+            currentPlayerAction?.let {
+                onAction(it)
+            }
+        }
     }
 
-    fun targetSelected(target: Battler) {
+    fun enemySelected(target: Battler) {
         currentPlayerAction = currentPlayerAction?.copy(target = target)
         //
         currentPlayerAction?.let {
             onAction(it)
         }
-        currentPlayerAction = null
     }
 
     fun systemPause(newPaused: Boolean) {

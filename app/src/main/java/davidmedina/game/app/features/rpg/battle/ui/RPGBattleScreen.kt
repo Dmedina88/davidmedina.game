@@ -66,7 +66,7 @@ private fun BattleScreen(battleStateMachine: BattleStateMachine, onBattleWon: ()
             Background()
             Column {
                 EnemyView(battleStateMachine.enemyCharacters) {
-                    battleStateMachine.targetSelected(
+                    battleStateMachine.enemySelected(
                         Battler.Enemy(it)
                     )
                 }

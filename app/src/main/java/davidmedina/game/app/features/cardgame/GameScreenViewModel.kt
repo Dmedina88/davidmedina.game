@@ -112,7 +112,6 @@ class GameScreenViewModel : ViewModel() {
             _uiState.update { currentState ->
                 val valid = currentState.player.field.map { it == null }
                 val oponente = currentState.opponent.field.map { false }
-
                 currentState.copy(actionState = PlayCard(cardToPlay, null, valid, oponente))
             }
     }
