@@ -20,7 +20,7 @@ import davidmedina.game.app.ui.theme.Pink80
 
 @Composable
 fun SideInfoBar(
-    state: CardGameState,
+    state: CardGame,
     turnClicked: () -> Unit = {}
 ) {
     Column(

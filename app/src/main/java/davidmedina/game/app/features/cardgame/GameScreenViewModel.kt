@@ -2,10 +2,10 @@ package davidmedina.game.app.features.cardgame
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import davidmedina.game.app.data.models.CardAction
 import davidmedina.game.app.features.cardgame.ActionComposerState.PlayCard
-import davidmedina.game.app.ui.composables.CardState
-import davidmedina.game.app.ui.composables.mockCardState
+import davidmedina.game.app.features.cardgame.data.CardAction
+import davidmedina.game.app.features.cardgame.data.CardState
+import davidmedina.game.app.features.cardgame.data.mockCardState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,13 +23,28 @@ data class PlayerState(
 )
 
 
-data class CardGameState(
+data class CardGame(
     val initalized: Boolean = false,
     val turn: Int,
     val player: PlayerState,
     val opponent: PlayerState,
     val actionState: ActionComposerState?
 )
+
+sealed class ActionComposerState {
+
+    data class PlayCard(
+        val targetCardIndex: Int,
+        val field: Int?,
+        val validFields: List<Boolean>,
+        val validOponenteFields: List<Boolean>
+    ) : ActionComposerState()
+
+    //PLAYER_INDEX for player card positon for card
+    data class AttackAction(val Action: CardAction.Attack, val target: Int?) : ActionComposerState()
+
+}
+
 
 fun mockGetDeck(): List<CardState> =
     buildList {
@@ -40,7 +55,7 @@ fun mockGetDeck(): List<CardState> =
 
 
 val startingState =
-    CardGameState(
+    CardGame(
         false,
         turn = 0,
         player = PlayerState(20, 0, mockGetDeck()),
@@ -51,7 +66,7 @@ val startingState =
 class GameScreenViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(startingState)
-    val uiState: StateFlow<CardGameState> = _uiState
+    val uiState: StateFlow<CardGame> = _uiState
 
     fun gameStart() {
 
@@ -110,7 +125,7 @@ class GameScreenViewModel : ViewModel() {
         }
     }
 
-    private fun playCard(state: CardGameState, actionState: PlayCard, index: Int) {
+    private fun playCard(state: CardGame, actionState: PlayCard, index: Int) {
         _uiState.update {
             state.copy(
                 actionState = null,
@@ -162,19 +177,6 @@ fun PlayerState.flipHand(): PlayerState {
 
 }
 
-sealed class ActionComposerState {
-
-    data class PlayCard(
-        val targetCardIndex: Int,
-        val field: Int?,
-        val validFields: List<Boolean>,
-        val validOponenteFields: List<Boolean>
-    ) : ActionComposerState()
-
-    //PLAYER_INDEX for player card positon for card
-    data class AttackAction(val Action: CardAction.Attack, val target: Int?) : ActionComposerState()
-
-}
 
 
 

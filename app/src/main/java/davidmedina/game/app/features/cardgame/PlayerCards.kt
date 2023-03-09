@@ -13,7 +13,7 @@ import davidmedina.game.app.ui.theme.playingCardSize
 
 @Composable
 fun PlayerCards(
-    state: CardGameState,
+    state: CardGame,
     gameScreenViewModel: GameScreenViewModel
 ) {
     Row {

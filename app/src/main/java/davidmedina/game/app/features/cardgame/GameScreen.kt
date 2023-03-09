@@ -40,7 +40,7 @@ fun GameScreen(gameScreenViewModel: GameScreenViewModel = koinViewModel()) {
 //todo move vm out and add created fn for user event
 @Composable
 private fun MainField(
-    state: CardGameState,
+    state: CardGame,
     gameScreenViewModel: GameScreenViewModel
 ) {
 

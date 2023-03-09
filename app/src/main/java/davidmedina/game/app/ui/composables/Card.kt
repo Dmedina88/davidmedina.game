@@ -17,26 +17,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import davidmedina.game.app.R
-import davidmedina.game.app.data.models.CardAction
+import davidmedina.game.app.features.cardgame.data.CardAction
+import davidmedina.game.app.features.cardgame.data.CardState
+import davidmedina.game.app.features.cardgame.data.mockCardState
 import davidmedina.game.app.ui.theme.OldPaper
 import davidmedina.game.app.ui.theme.playingCardSize
 
 
-data class CardData(
-    val name: String,
-    val cost: Int,
-    val life: Int,
-    val imageId: Int,
-    val actions: List<CardAction>
-)
-
-
-data class CardState(val faceUp: Boolean = false, val cardData: CardData)
-
-var mockCardState = CardState(
-    true,
-    CardData("Cavid", 3, 3, R.mipmap.cavis, listOf(CardAction.Attack(2), CardAction.Heal(1)))
-)
 
 @Preview
 @Composable
