@@ -8,7 +8,6 @@ import kotlinx.serialization.json.Json
 
 import kotlinx.coroutines.delay
 
-//ktor2 client with ContentNegotiation and Json
 val client = HttpClient(Android) {
     install(ContentNegotiation) {
         json(Json {
