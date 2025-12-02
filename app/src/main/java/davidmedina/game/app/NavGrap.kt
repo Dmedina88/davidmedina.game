@@ -96,5 +96,8 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
         composable(Routes.OPNEING_TEXT.name) {
             TextScroller()
         }
+        composable(Routes.ANTIGRAVITY.name) {
+            davidmedina.game.app.features.antigravity.AntiGravityScreen()
+        }
     }
 }
