@@ -21,10 +21,13 @@ data class GravityObject(
     val mass: Float get() = radius * radius // Mass proportional to area
 }
 
-class AntiGravityViewModel : ViewModel() {
+class GravityPlaygroundViewModel : ViewModel() {
 
     private val _gravityObjects = MutableStateFlow<List<GravityObject>>(emptyList())
     val gravityObjects = _gravityObjects.asStateFlow()
+
+    private val _isGravityReversed = MutableStateFlow(false)
+    val isGravityReversed = _isGravityReversed.asStateFlow()
 
     private var screenWidth = 0f
     private var screenHeight = 0f
@@ -40,6 +43,10 @@ class AntiGravityViewModel : ViewModel() {
         if (_gravityObjects.value.isEmpty()) {
             spawnInitialObjects()
         }
+    }
+
+    fun toggleGravity() {
+        _isGravityReversed.value = !_isGravityReversed.value
     }
 
     private fun spawnInitialObjects() {
@@ -77,6 +84,7 @@ class AntiGravityViewModel : ViewModel() {
     private fun updatePhysics() {
         val currentObjects = _gravityObjects.value
         val nextObjects = currentObjects.map { it.copy() }.toMutableList()
+        val reverseMultiplier = if (_isGravityReversed.value) -1f else 1f
         
         // Calculate gravitational forces
         for (i in nextObjects.indices) {
@@ -92,7 +100,7 @@ class AntiGravityViewModel : ViewModel() {
                     val forceMagnitude = (G * obj1.mass * obj2.mass) / (distance * distance)
                     val forceDirection = delta / distance
                     
-                    val force = forceDirection * forceMagnitude
+                    val force = forceDirection * forceMagnitude * reverseMultiplier
                     
                     // F = ma -> a = F/m
                     // We update velocities on the mutable copies

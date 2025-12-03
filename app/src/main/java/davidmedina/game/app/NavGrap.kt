@@ -97,7 +97,13 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
             TextScroller()
         }
         composable(Routes.ANTIGRAVITY.name) {
-            davidmedina.game.app.features.antigravity.AntiGravityScreen()
+            davidmedina.game.app.features.antigravity.AntiGravityMenuScreen(navController)
+        }
+        composable(Routes.GRAVITY_PLAYGROUND.name) {
+            davidmedina.game.app.features.antigravity.GravityPlaygroundScreen()
+        }
+        composable(Routes.COLOR_MOSAIC.name) {
+            davidmedina.game.app.features.antigravity.ColorMosaicScreen()
         }
     }
 }

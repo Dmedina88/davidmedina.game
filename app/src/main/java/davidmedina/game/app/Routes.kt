@@ -17,5 +17,7 @@ enum class Routes() {
     AI_ART(),
     RPG_MAP(),
     OPNEING_TEXT(),
-    ANTIGRAVITY();
+    ANTIGRAVITY(),
+    GRAVITY_PLAYGROUND(),
+    COLOR_MOSAIC();
 }
