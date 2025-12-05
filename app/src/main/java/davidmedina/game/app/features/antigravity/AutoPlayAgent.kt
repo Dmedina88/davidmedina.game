@@ -82,7 +82,7 @@ class AutoPlayAgent {
         // Smart combat decisions
         return when {
             // CRITICAL HP - flee unless boss
-            hpPercent < 0.2f && !enemy.isBoss && Random.nextFloat() < 0.9f -> CombatAction.FLEE
+
             
             // Low HP - defend more
             hpPercent < 0.35f && Random.nextFloat() < 0.5f -> CombatAction.DEFEND

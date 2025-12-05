@@ -98,7 +98,7 @@ fun TDMTextBox(
                     items(nextText.size) { index ->
 
                         AnimatedContent(targetState = nextText[index], transitionSpec = {
-                            slideInVertically { -it } with slideOutVertically { it }
+                            slideInVertically { -it } togetherWith slideOutVertically { it }
                         }) { output ->
                             Text(
                                 textAlign = TextAlign.Center, text = "$output", fontSize = 32.sp
