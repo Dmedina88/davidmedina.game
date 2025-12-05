@@ -52,6 +52,14 @@ fun AntiGravityMenuScreen(navController: NavController) {
             TDMButton(text = "Hand of God 🖐️") {
                 navController.navigate(Routes.HAND_OF_GOD.name)
             }
+            
+            TDMButton(text = "Hand Quest ⚔️🎮") {
+                navController.navigate(Routes.HAND_QUEST.name)
+            }
+            
+            TDMButton(text = "Classic Dungeon 🗡️") {
+                navController.navigate(Routes.CLASSIC_DUNGEON.name)
+            }
         }
     }
 }

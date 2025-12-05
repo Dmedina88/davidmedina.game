@@ -20,5 +20,7 @@ enum class Routes() {
     ANTIGRAVITY(),
     GRAVITY_PLAYGROUND(),
     COLOR_MOSAIC(),
-    HAND_OF_GOD();
+    HAND_OF_GOD(),
+    HAND_QUEST(),
+    CLASSIC_DUNGEON();
 }

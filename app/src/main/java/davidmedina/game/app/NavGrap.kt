@@ -108,5 +108,11 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
         composable(Routes.HAND_OF_GOD.name) {
             davidmedina.game.app.features.antigravity.HandOfGodScreen()
         }
+        composable(Routes.HAND_QUEST.name) {
+            davidmedina.game.app.features.antigravity.HandQuestScreen(navController)
+        }
+        composable(Routes.CLASSIC_DUNGEON.name) {
+            davidmedina.game.app.features.antigravity.ClassicDungeonScreen()
+        }
     }
 }
