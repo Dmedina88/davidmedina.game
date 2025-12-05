@@ -49,12 +49,9 @@ fun AntiGravityMenuScreen(navController: NavController) {
                 navController.navigate(Routes.COLOR_MOSAIC.name)
             }
             
-            // Placeholder for future features
-            Text(
-                text = "More coming soon...",
-                color = Color.Gray,
-                fontSize = 14.sp
-            )
+            TDMButton(text = "Hand of God 🖐️") {
+                navController.navigate(Routes.HAND_OF_GOD.name)
+            }
         }
     }
 }

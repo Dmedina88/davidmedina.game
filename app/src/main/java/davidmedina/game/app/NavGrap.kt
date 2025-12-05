@@ -105,5 +105,8 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
         composable(Routes.COLOR_MOSAIC.name) {
             davidmedina.game.app.features.antigravity.ColorMosaicScreen()
         }
+        composable(Routes.HAND_OF_GOD.name) {
+            davidmedina.game.app.features.antigravity.HandOfGodScreen()
+        }
     }
 }

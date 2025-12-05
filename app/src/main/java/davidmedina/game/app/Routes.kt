@@ -19,5 +19,6 @@ enum class Routes() {
     OPNEING_TEXT(),
     ANTIGRAVITY(),
     GRAVITY_PLAYGROUND(),
-    COLOR_MOSAIC();
+    COLOR_MOSAIC(),
+    HAND_OF_GOD();
 }

@@ -17,6 +17,7 @@ import org.koin.dsl.module
 import davidmedina.game.app.features.rpg.states.CharacterViewModel
 import davidmedina.game.app.features.antigravity.GravityPlaygroundViewModel
 import davidmedina.game.app.features.antigravity.ColorMosaicViewModel
+import davidmedina.game.app.features.antigravity.HandGravityViewModel
 
 val appModule = module {
 
@@ -34,4 +35,5 @@ val viewModuleModule = module {
     viewModelOf(::CharacterViewModel)
     viewModelOf(::GravityPlaygroundViewModel)
     viewModelOf(::ColorMosaicViewModel)
+    viewModelOf(::HandGravityViewModel)
 }
