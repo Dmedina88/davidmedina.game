@@ -120,6 +120,11 @@ fun MainMenuScreen(navController: NavHostController) {
                     navController.navigate(Routes.RPG_MAP.name)
                 }
             }
+            AnimatedVisibility(hide.not()) {
+                TDMButton(text = "AntiGravity") {
+                    navController.navigate(Routes.ANTIGRAVITY.name)
+                }
+            }
 
 
             if (vm.uiState.debugMode) {

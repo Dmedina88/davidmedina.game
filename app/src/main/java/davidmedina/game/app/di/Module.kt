@@ -15,8 +15,11 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import davidmedina.game.app.features.rpg.states.CharacterViewModel
-
-
+import davidmedina.game.app.features.antigravity.GravityPlaygroundViewModel
+import davidmedina.game.app.features.antigravity.ColorMosaicViewModel
+import davidmedina.game.app.features.antigravity.HandGravityViewModel
+import davidmedina.game.app.features.antigravity.HandQuestViewModel
+import davidmedina.game.app.features.antigravity.ClassicDungeonViewModel
 
 val appModule = module {
 
@@ -32,4 +35,9 @@ val viewModuleModule = module {
 
     viewModelOf(::GameScreenViewModel)
     viewModelOf(::CharacterViewModel)
+    viewModelOf(::GravityPlaygroundViewModel)
+    viewModelOf(::ColorMosaicViewModel)
+    viewModelOf(::HandGravityViewModel)
+    viewModelOf(::HandQuestViewModel)
+    viewModelOf(::ClassicDungeonViewModel)
 }
