@@ -158,18 +158,31 @@ class DungeonGenerator {
             }
         }
         
-        // Entity Roll for Shop/Inn
-        // Just checking random rooms for shop/inn
-         rooms.drop(1).dropLast(1).forEach { room ->
-             if (Random.nextFloat() < 0.05f) { // 5% chance per room
-                 val type = if (Random.nextBoolean()) TileType.SHOP else TileType.INN
-                 val pos = GridPosition(room.x + 1, room.y + 1)
-                 val index = pos.y * width + pos.x
-                 if (index < tiles.size) {
-                    tiles[index] = tiles[index].copy(type = type, isVisible = false)
-                 }
+        // Place Shop and Inn (Guaranteed 1 per level)
+        val validRoomsForServices = rooms.drop(1) // Skip spawn room
+        if (validRoomsForServices.size >= 2) {
+            val shuffledRooms = validRoomsForServices.shuffled()
+            val shopRoom = shuffledRooms[0]
+            val innRoom = shuffledRooms[1]
+            
+            // Place Shop in center of room
+            val shopPos = GridPosition(shopRoom.x + shopRoom.width/2, shopRoom.y + shopRoom.height/2)
+            val shopIndex = shopPos.y * width + shopPos.x
+            if (shopIndex < tiles.size) tiles[shopIndex] = tiles[shopIndex].copy(type = TileType.SHOP)
+            
+            // Place Inn in center of room
+            val innPos = GridPosition(innRoom.x + innRoom.width/2, innRoom.y + innRoom.height/2)
+            val innIndex = innPos.y * width + innPos.x
+            if (innIndex < tiles.size) tiles[innIndex] = tiles[innIndex].copy(type = TileType.INN)
+        } else {
+             // Fallback for tiny dungeons: Just try to place them linearly
+             validRoomsForServices.forEachIndexed { index, room ->
+                 val type = if (index % 2 == 0) TileType.SHOP else TileType.INN
+                 val pos = GridPosition(room.x + room.width/2, room.y + room.height/2)
+                 val idx = pos.y * width + pos.x
+                 if (idx < tiles.size) tiles[idx] = tiles[idx].copy(type = type)
              }
-         }
+        }
         
         val firstRoom = rooms.first()
         val playerSpawn = GridPosition(

@@ -22,6 +22,8 @@ class AutoPlayAgent {
     
     enum class ExplorationStrategy {
         SEEK_HEALING,      // Low HP - find fountain
+        SEEK_INN,          // Low HP/Mana + Gold - find inn
+        SEEK_SHOP,         // High Gold - find shop
         FIND_STAIRS,       // Clear level - descend
         HUNT_ENEMIES,      // Active combat
         COLLECT_LOOT,      // Grab nearby items
@@ -61,6 +63,8 @@ class AutoPlayAgent {
         
         return when (strategy) {
             ExplorationStrategy.SEEK_HEALING -> moveTowardsHealingFountain(state)
+            ExplorationStrategy.SEEK_INN -> moveTowardsInn(state)
+            ExplorationStrategy.SEEK_SHOP -> moveTowardsShop(state)
             ExplorationStrategy.FIND_STAIRS -> moveTowardsStairs(state)
             ExplorationStrategy.HUNT_ENEMIES -> moveTowardsNearestEnemy(state)
             ExplorationStrategy.COLLECT_LOOT -> moveTowardsNearestLoot(state)
@@ -107,30 +111,63 @@ class AutoPlayAgent {
     private fun chooseStrategy(state: ClassicDungeonState): ExplorationStrategy {
         val player = state.player
         val hpPercent = player.hp.toFloat() / player.maxHp
+        val manaPercent = player.mana.toFloat() / player.maxMana
         val aliveEnemies = state.enemies.count { it.isAlive }
         val visibleLoot = state.items.count { item ->
             item.position?.let { pos ->
                 state.tiles.find { it.position == pos }?.isVisible == true
             } ?: false
         }
-        val fountainVisible = state.tiles.any { it.type == TileType.HEALING_FOUNTAIN && it.isVisible }
+        val fountainVisible = state.tiles.any { it.type == TileType.HEALING_FOUNTAIN && it.isRevealed }
+        val innVisible = state.tiles.any { it.type == TileType.INN && it.isRevealed }
+        val shopVisible = state.tiles.any { it.type == TileType.SHOP && it.isRevealed }
         
         return when {
             // PRIORITY 1: Heal if critical HP and fountain visible
-            hpPercent < 0.4f && fountainVisible -> ExplorationStrategy.SEEK_HEALING
+            hpPercent < 0.6f && fountainVisible -> ExplorationStrategy.SEEK_HEALING
             
-            // PRIORITY 2: Find stairs if level is cleared
+            // PRIORITY 2: Use Inn if really hurt or low mana and have cash
+            (hpPercent < 0.5f || manaPercent < 0.3f) && innVisible && player.gold >= 10 -> ExplorationStrategy.SEEK_INN
+            
+            // PRIORITY 3: Shopping (if rich)
+            player.gold > 200 && shopVisible -> ExplorationStrategy.SEEK_SHOP
+            
+            // PRIORITY 4: Find stairs if level is cleared
             aliveEnemies == 0 -> ExplorationStrategy.FIND_STAIRS
             
-            // PRIORITY 3: Collect visible loot opportunistically
+            // PRIORITY 5: Collect visible loot opportunistically
             visibleLoot > 0 && hpPercent > 0.5f && Random.nextFloat() < 0.3f -> ExplorationStrategy.COLLECT_LOOT
             
-            // PRIORITY 4: Hunt enemies if healthy
+            // PRIORITY 6: Hunt enemies if healthy
             hpPercent > 0.6f && aliveEnemies > 0 -> ExplorationStrategy.HUNT_ENEMIES
             
-            // PRIORITY 5: Explore to find more
+            // PRIORITY 7: Explore to find more
             else -> ExplorationStrategy.EXPLORE_UNKNOWN
         }
+    }
+    
+    private fun moveTowardsInn(state: ClassicDungeonState): GridPosition? {
+        val playerPos = state.player.position
+        val inns = state.tiles.filter { 
+            it.type == TileType.INN && it.isRevealed 
+        }
+        
+        if (inns.isEmpty()) return moveTowardsUnexplored(state)
+        
+        val nearest = inns.minByOrNull { it.position.distanceTo(playerPos) }
+        return nearest?.let { moveTowards(state, playerPos, it.position) }
+    }
+
+    private fun moveTowardsShop(state: ClassicDungeonState): GridPosition? {
+        val playerPos = state.player.position
+        val shops = state.tiles.filter { 
+            it.type == TileType.SHOP && it.isRevealed 
+        }
+        
+        if (shops.isEmpty()) return moveTowardsUnexplored(state)
+        
+        val nearest = shops.minByOrNull { it.position.distanceTo(playerPos) }
+        return nearest?.let { moveTowards(state, playerPos, it.position) }
     }
     
     /**
@@ -139,7 +176,7 @@ class AutoPlayAgent {
     private fun moveTowardsHealingFountain(state: ClassicDungeonState): GridPosition? {
         val playerPos = state.player.position
         val fountains = state.tiles.filter { 
-            it.type == TileType.HEALING_FOUNTAIN && it.isVisible 
+            it.type == TileType.HEALING_FOUNTAIN && it.isRevealed 
         }
         
         if (fountains.isEmpty()) {

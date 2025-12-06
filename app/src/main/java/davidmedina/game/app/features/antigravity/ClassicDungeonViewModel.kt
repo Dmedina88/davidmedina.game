@@ -751,7 +751,9 @@ class ClassicDungeonViewModel : ViewModel() {
                 items = dungeon.items,
                 shopItems = emptyList(), // Clear shop items
                 messages = it.messages + "⬇️ Descended to Level $nextLevel",
-                currentEnemy = null // Ensure combat ends
+                currentEnemy = null, // Ensure combat ends
+                gridWidth = 20 + nextLevel,
+                gridHeight = 20 + nextLevel
             ) 
         }
         
@@ -940,6 +942,10 @@ class ClassicDungeonViewModel : ViewModel() {
         enterShop()
     }
     
+    fun debugForceInn() {
+        enterInn()
+    }
+    
     fun debugGiveGold(amount: Int) {
         _state.update { s -> 
             s.copy(
@@ -1000,9 +1006,11 @@ class ClassicDungeonViewModel : ViewModel() {
         
         if (newState) {
             addMessage("🤖 Auto-play enabled!")
+            _state.update { it.copy(isControlsExpanded = false) } // Collapse UI to show more game
             startAutoPlay()
         } else {
             addMessage("👤 Manual control restored")
+            _state.update { it.copy(isControlsExpanded = true) } // Expand UI for manual control
             stopAutoPlay()
         }
     }
@@ -1025,7 +1033,7 @@ class ClassicDungeonViewModel : ViewModel() {
             
             when (currentState.gameState) {
                 DungeonGameState.EXPLORING -> {
-                    // AI decides next move
+                    // AI decides next move (Returns a DIRECTION, not a position)
                     val direction = autoPlayAgent.decideExplorationMove(currentState)
                     if (direction != null) {
                         movePlayer(direction)
@@ -1045,6 +1053,38 @@ class ClassicDungeonViewModel : ViewModel() {
                     }
                     val delayTime = (500 / currentState.gameSpeed).toLong().coerceAtLeast(10)
                     delay(delayTime)
+                }
+                
+                DungeonGameState.SHOPPING -> {
+                    // AI Logic for Shopping: Buy affordable items, then leave
+                    val affordableItems = currentState.shopItems.filter { it.value <= currentState.player.gold }
+                    if (affordableItems.isNotEmpty()) {
+                        val itemToBuy = affordableItems.random()
+                        buyItem(itemToBuy)
+                        val delayTime = (500 / currentState.gameSpeed).toLong().coerceAtLeast(100)
+                        delay(delayTime)
+                    } else {
+                        leaveBuilding()
+                        val delayTime = (500 / currentState.gameSpeed).toLong().coerceAtLeast(100)
+                        delay(delayTime)
+                    }
+                }
+                
+                DungeonGameState.RESTING -> {
+                    // AI Logic for Inn: Rest if hurt/low mana, else leave
+                    if (currentState.player.gold >= 10 && 
+                       (currentState.player.hp < currentState.player.maxHp * 0.8 || currentState.player.mana < currentState.player.maxMana * 0.5)) {
+                        restAtInn("Basic")
+                        var delayTime = (800 / currentState.gameSpeed).toLong().coerceAtLeast(200)
+                        delay(delayTime)
+                        leaveBuilding()
+                        delayTime = (200 / currentState.gameSpeed).toLong().coerceAtLeast(50)
+                        delay(delayTime)
+                    } else {
+                        leaveBuilding()
+                        val delayTime = (500 / currentState.gameSpeed).toLong().coerceAtLeast(100)
+                        delay(delayTime)
+                    }
                 }
                 
                 DungeonGameState.LEVEL_UP -> {

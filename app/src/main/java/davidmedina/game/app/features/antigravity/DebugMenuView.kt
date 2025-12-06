@@ -28,8 +28,7 @@ fun DebugMenuView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel
         
         DebugButton("💰 Give 1000 Gold") { viewModel.debugGiveGold(1000) }
         DebugButton("🏬 Force Shop") { viewModel.debugForceShop() }
-       //todo debugForceInn
-        // DebugButton("🏨 Force Inn") { viewModel.debugForceInn() }
+        DebugButton("🏨 Force Inn") { viewModel.debugForceInn() }
         DebugButton("🆙 Force Level Up") { viewModel.debugLevelUp() }
         DebugButton("👾 Spawn Enemy") { viewModel.debugSpawnEnemy() }
         
