@@ -291,12 +291,7 @@ class AutoPlayAgent {
     }
 }
 
-enum class CombatAction {
-    ATTACK,
-    DEFEND,
-    MAGIC,
-    FLEE
-}
+// CombatAction moved to DungeonModels.kt
 
 data class AgentMetrics(
     val turnsPlayed: Int,

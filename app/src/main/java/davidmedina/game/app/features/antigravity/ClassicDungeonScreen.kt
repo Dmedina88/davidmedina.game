@@ -1,15 +1,21 @@
 package davidmedina.game.app.features.antigravity
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,12 +43,16 @@ fun ClassicDungeonScreen(viewModel: ClassicDungeonViewModel = viewModel()) {
             .gameBoxBackground()
     ) {
         when (state.gameState) {
+            DungeonGameState.CLASS_SELECTION -> ClassSelectionScreen(viewModel)
             DungeonGameState.EXPLORING -> ExploringView(state, viewModel)
             DungeonGameState.IN_COMBAT -> CombatView(state, viewModel)
             DungeonGameState.INVENTORY -> InventoryView(state, viewModel)
             DungeonGameState.GAME_OVER -> GameOverView(state, viewModel)
             DungeonGameState.LEVEL_UP -> LevelUpView(state, viewModel)
             DungeonGameState.VICTORY -> VictoryView(state, viewModel)
+            DungeonGameState.SHOPPING -> ShopView(state, viewModel)
+            DungeonGameState.RESTING -> InnView(state, viewModel)
+            DungeonGameState.DEBUG_MENU -> DebugMenuView(state, viewModel)
         }
     }
     
@@ -54,24 +66,169 @@ fun ClassicDungeonScreen(viewModel: ClassicDungeonViewModel = viewModel()) {
 
 @Composable
 fun ExploringView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
+    var showExitDialog by remember { mutableStateOf(false) }
+
+    BackHandler {
+        showExitDialog = true
+    }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = { Text("Abort Simulation?") },
+            text = { Text("Do you wish to exit the current run? Progress will be lost.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.exitToMenu()
+                        showExitDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Exit Run")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitDialog = false }) {
+                    Text("Cancel", color = Color.White)
+                }
+            },
+            containerColor = Color(0xFF222222),
+            titleContentColor = Color.White,
+            textContentColor = Color.LightGray
+        )
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
-        // Top HUD
-        StatsBar(state.player)
-        
-        // Dungeon view
+        // Improved Header with Speed Controls
+        DungeonHeader(state, viewModel)
+
+        // Dungeon Viewport (Centered)
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                .background(Color.Black), // Dark background for the void
+            contentAlignment = Alignment.Center
         ) {
-            DungeonCanvas(state)
+            // Frame for the Dungeon
+            Box(
+                modifier = Modifier
+                    .size(340.dp) // Covers 11x30dp = 330dp + border margin
+                    .border(2.dp, Color(0xFF333333), RoundedCornerShape(4.dp))
+                    .padding(4.dp)
+            ) {
+                 DungeonCanvas(state)
+            }
+            
+            // Floating message log for better visibility
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            ) {
+                 MessageLog(state.messages.takeLast(3))
+            }
         }
-        
-        // Message log
-        MessageLog(state.messages)
-        
+
         // Controls
         ControlPanel(viewModel, state)
+    }
+}
+
+@Composable
+fun DungeonHeader(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
+        border = BorderStroke(1.dp, Color(0xFF333333))
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Row 1: Title, Level, Speed
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(state.player.playerClass.emoji, fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Level ${state.dungeonLevel}", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+
+                // Speed Controls
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.background(Color(0xFF111111), RoundedCornerShape(16.dp))
+                ) {
+                    listOf(1f, 2f, 5f).forEach { speed ->
+                        val isSelected = state.gameSpeed == speed
+                        Box(
+                            modifier = Modifier
+                                .clickable { viewModel.setGameSpeed(speed) }
+                                .background(
+                                    if (isSelected) Color(0xFF2196F3) else Color.Transparent,
+                                    RoundedCornerShape(16.dp)
+                                )
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                "${speed.toInt()}x",
+                                color = if (isSelected) Color.White else Color.Gray,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Row 2: HP / MP Bars
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                 // HP
+                 Column(modifier = Modifier.weight(1f)) {
+                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                         Text("HP", color = Color(0xFFFF5252), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                         Text("${state.player.hp}/${state.player.maxHp}", color = Color.White, fontSize = 10.sp)
+                     }
+                     LinearProgressIndicator(
+                         progress = state.player.hp.toFloat() / state.player.maxHp,
+                         modifier = Modifier.fillMaxWidth().height(8.dp).padding(top=4.dp),
+                         color = Color(0xFFFF5252),
+                         trackColor = Color(0xFF442222)
+                     )
+                 }
+
+                 // MP
+                 Column(modifier = Modifier.weight(1f)) {
+                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                         Text("MP", color = Color(0xFF448AFF), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                         Text("${state.player.mana}/${state.player.maxMana}", color = Color.White, fontSize = 10.sp)
+                     }
+                     LinearProgressIndicator(
+                         progress = state.player.mana.toFloat() / state.player.maxMana,
+                         modifier = Modifier.fillMaxWidth().height(8.dp).padding(top=4.dp),
+                         color = Color(0xFF448AFF),
+                         trackColor = Color(0xFF222244)
+                     )
+                 }
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Row 3: Stats Summary
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("⚔️ ${state.player.getTotalAttack()}", color = Color.Yellow, fontSize = 12.sp)
+                Text("🛡️ ${state.player.getTotalDefense()}", color = Color.Green, fontSize = 12.sp)
+                Text("✨ ${state.player.getTotalMagic()}", color = Color.Magenta, fontSize = 12.sp)
+                Text("💰 ${state.player.gold}g", color = Color.Yellow, fontSize = 12.sp)
+            }
+        }
     }
 }
 
@@ -175,6 +332,8 @@ fun DungeonCanvas(state: ClassicDungeonState) {
                             TileType.WALL -> Color.Gray.copy(alpha = 0.5f)
                             TileType.STAIRS_DOWN -> Color.Yellow.copy(alpha = 0.5f)
                             TileType.HEALING_FOUNTAIN -> Color.Cyan.copy(alpha = 0.5f)
+                            TileType.SHOP -> Color(0xFFFFD700).copy(alpha = 0.5f)
+                            TileType.INN -> Color(0xFFFF69B4).copy(alpha = 0.5f)
                             else -> Color.Gray.copy(alpha = 0.5f)
                         }
                         else -> when (tile.type) {
@@ -184,6 +343,9 @@ fun DungeonCanvas(state: ClassicDungeonState) {
                             TileType.DOOR -> Color(0xFF8B4513)
                             TileType.STAIRS_UP -> Color.Cyan
                             TileType.HEALING_FOUNTAIN -> Color(0xFF00FFFF) // Bright cyan
+                            TileType.SHOP -> Color(0xFFFFD700) // Gold for Shop
+                            TileType.INN -> Color(0xFFFF69B4) // Hot Pink for Inn
+                            TileType.EMPTY -> Color(0xFF000000)
                         }
                     }
                     
@@ -331,58 +493,129 @@ fun ControlPanel(viewModel: ClassicDungeonViewModel, state: ClassicDungeonState)
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // D-Pad
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Up
-                DirectionalButton("▲", enabled = !state.isAutoPlaying) { 
-                    viewModel.movePlayer(GridPosition(0, -1)) 
-                }
-                
-                Row {
-                    // Left
-                    DirectionalButton("◀", enabled = !state.isAutoPlaying) { 
-                        viewModel.movePlayer(GridPosition(-1, 0)) 
+            // Toggle Handle
+            Icon(
+                imageVector = if (state.isControlsExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
+                contentDescription = "Toggle Controls",
+                tint = Color.Gray,
+                modifier = Modifier
+                    .size(32.dp)
+                    .clickable { viewModel.toggleAutoPlay() }
+                    .padding(4.dp)
+            )
+
+            AnimatedVisibility(visible = state.isControlsExpanded) {
+                Column(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // D-Pad
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        // Up
+                        DirectionalButton("▲", enabled = !state.isAutoPlaying) { 
+                            viewModel.movePlayer(GridPosition(0, -1)) 
+                        }
+                        
+                        Row {
+                            // Left
+                            DirectionalButton("◀", enabled = !state.isAutoPlaying) { 
+                                viewModel.movePlayer(GridPosition(-1, 0)) 
+                            }
+                            
+                            Spacer(modifier = Modifier.width(64.dp))
+                            
+                            // Right
+                            DirectionalButton("▶", enabled = !state.isAutoPlaying) { 
+                                viewModel.movePlayer(GridPosition(1, 0)) 
+                            }
+                        }
+                        
+                        // Down
+                        DirectionalButton("▼", enabled = !state.isAutoPlaying) { 
+                            viewModel.movePlayer(GridPosition(0, 1)) 
+                        }
                     }
                     
-                    Spacer(modifier = Modifier.width(64.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     
-                    // Right
-                    DirectionalButton("▶", enabled = !state.isAutoPlaying) { 
-                        viewModel.movePlayer(GridPosition(1, 0)) 
+                    // Action buttons
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = { viewModel.toggleInventory() },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                        ) {
+                            Text("🎒 Bag")
+                        }
+                        
+                        Button(
+                            onClick = { viewModel.toggleAutoPlay() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (state.isAutoPlaying) Color(0xFFFF6B6B) else Color(0xFF2196F3)
+                            )
+                        ) {
+                            Text(if (state.isAutoPlaying) "🤖 Stop AI" else "🤖 Auto-Play")
+                        }
                     }
-                }
-                
-                // Down
-                DirectionalButton("▼", enabled = !state.isAutoPlaying) { 
-                    viewModel.movePlayer(GridPosition(0, 1)) 
                 }
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Action buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = { viewModel.toggleInventory() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
-                ) {
-                    Text("🎒 Bag")
-                }
-                
-                Button(
-                    onClick = { viewModel.toggleAutoPlay() },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (state.isAutoPlaying) Color(0xFFFF6B6B) else Color(0xFF2196F3)
+        }
+    }
+}
+
+@Composable
+fun TopBar(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                "Lvl ${state.dungeonLevel} - Turn ${state.turnCount}",
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+            // Speed Controls
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Speed: ", color = Color.Gray, fontSize = 12.sp)
+                listOf(1f, 2f, 5f).forEach { speed ->
+                    Text(
+                        "${speed.toInt()}x",
+                        color = if (state.gameSpeed == speed) Color.Yellow else Color.Gray,
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .clickable { viewModel.setGameSpeed(speed) },
+                        fontWeight = if (state.gameSpeed == speed) FontWeight.Bold else FontWeight.Normal
                     )
-                ) {
-                    Text(if (state.isAutoPlaying) "🤖 Stop AI" else "🤖 Auto-Play")
                 }
+            }
+        }
+        
+        Row {
+            Button(
+                onClick = { viewModel.toggleInventory() },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+            ) {
+                Text("🎒 Inv")
+            }
+            
+            Spacer(modifier = Modifier.width(8.dp))
+            
+            Button(
+                onClick = { viewModel.toggleAutoPlay() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (state.isAutoPlaying) Color.Red else Color.Green
+                )
+            ) {
+                Text(if (state.isAutoPlaying) "🛑 Stop" else "🤖 Auto")
             }
         }
     }
@@ -467,28 +700,41 @@ fun CombatView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Row 1
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { viewModel.attack() }, modifier = Modifier.weight(1f)) {
+                    Button(
+                        onClick = { viewModel.attack() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                        modifier = Modifier.weight(1f)
+                    ) {
                         Text("⚔️ Attack")
                     }
-                    Button(onClick = { viewModel.defend() }, modifier = Modifier.weight(1f)) {
+                    Button(
+                        onClick = { viewModel.defend() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
+                        modifier = Modifier.weight(1f)
+                    ) {
                         Text("🛡️ Defend")
                     }
                 }
+                
+                // Row 2
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val (abilityName, cost) = state.player.playerClass.getAbilityInfo()
                     Button(
-                        onClick = { viewModel.useMagic() },
-                        modifier = Modifier.weight(1f),
-                        enabled = state.player.mana >= 15
+                        onClick = { viewModel.useAbility() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta),
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Text("✨ Magic (15)")
+                        Text("⚡ $abilityName ($cost)")
                     }
+                    
                     Button(
-                        onClick = { viewModel.flee() },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C27B0))
+                        onClick = { viewModel.toggleInventory() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow),
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Text("🏃 Flee")
+                        Text("🎒 Item", color = Color.Black)
                     }
                 }
             }
@@ -502,86 +748,282 @@ fun InventoryView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .background(Color.Black.copy(alpha = 0.9f))
     ) {
+        // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("🎒 INVENTORY", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Yellow)
+            Text("👤 CHARACTER SHEET", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Yellow)
             IconButton(onClick = { viewModel.toggleInventory() }) {
                 Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
-        // Equipment
-        Card(colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.7f))) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("⚔️ EQUIPMENT", fontWeight = FontWeight.Bold, color = Color.Cyan)
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    "Weapon: ${state.player.equippedWeapon?.let { "${it.emoji} ${it.name} (+${it.attack})" } ?: "None"}",
-                    color = Color.White
-                )
-                Text(
-                    "Armor: ${state.player.equippedArmor?.let { "${it.emoji} ${it.name} (+${it.defense})" } ?: "None"}",
-                    color = Color.White
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Inventory items
-        Card(colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.7f))) {
-            LazyColumn(modifier = Modifier.padding(16.dp)) {
-                item {
-                    Text("📦 ITEMS", fontWeight = FontWeight.Bold, color = Color.Cyan)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                
-                if (state.player.inventory.isEmpty()) {
-                    item {
-                        Text("Empty inventory", color = Color.Gray, modifier = Modifier.padding(8.dp))
+
+        Row(modifier = Modifier.fillMaxSize()) {
+            // Left Side: Character Paper Doll
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(300.dp)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Draw Character Silhouette
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val centerX = size.width / 2
+                        val centerY = size.height / 2
+                        val scale = size.minDimension / 400f // Scaling factor
+
+                        // Head
+                        drawCircle(
+                            color = Color.Gray,
+                            radius = 40f * scale,
+                            center = Offset(centerX, centerY - 120f * scale),
+                            style = Stroke(width = 4f)
+                        )
+                        // Body
+                        drawLine(
+                            color = Color.Gray,
+                            start = Offset(centerX, centerY - 80f * scale),
+                            end = Offset(centerX, centerY + 80f * scale),
+                            strokeWidth = 4f
+                        )
+                        // Arms
+                        drawLine(
+                            color = Color.Gray,
+                            start = Offset(centerX - 80f * scale, centerY - 40f * scale),
+                            end = Offset(centerX + 80f * scale, centerY - 40f * scale),
+                            strokeWidth = 4f
+                        )
+                        // Legs
+                        drawLine(
+                            color = Color.Gray,
+                            start = Offset(centerX, centerY + 80f * scale),
+                            end = Offset(centerX - 60f * scale, centerY + 200f * scale),
+                            strokeWidth = 4f
+                        )
+                        drawLine(
+                            color = Color.Gray,
+                            start = Offset(centerX, centerY + 80f * scale),
+                            end = Offset(centerX + 60f * scale, centerY + 200f * scale),
+                            strokeWidth = 4f
+                        )
                     }
-                } else {
-                    items(state.player.inventory) { item ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .clickable {
-                                    when (item.type) {
-                                        ItemType.WEAPON, ItemType.ARMOR -> viewModel.equipItem(item)
-                                        else -> {}
-                                    }
-                                },
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF333333))
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(12.dp)
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("${item.emoji} ${item.name}", color = Color.White)
-                                
-                                when (item.type) {
-                                    ItemType.WEAPON -> Text("⚔️ +${item.attack}", color = Color.Yellow)
-                                    ItemType.ARMOR -> Text("🛡️ +${item.defense}", color = Color.Cyan)
-                                    ItemType.POTION -> Text("❤️ +${item.healing}", color = Color.Red)
-                                    else -> Text("")
-                                }
+
+                    // Equipment Slots overlay
+                    // Weapon (Right Hand - Left side of screen)
+                    // Helmet (Head - Top)
+                    EquipmentSlot(
+                        item = state.player.equippedHelmet,
+                        slotName = "Head",
+                        onClick = { viewModel.unequipItem(ItemType.HELMET) },
+                        modifier = Modifier.align(Alignment.TopCenter).padding(top = 16.dp)
+                    )
+
+                    // Weapon (Left)
+                    EquipmentSlot(
+                        item = state.player.equippedWeapon,
+                        slotName = "Main Hand",
+                        onClick = { viewModel.unequipItem(ItemType.WEAPON) },
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    )
+
+                    // Armor (Body - Center)
+                    EquipmentSlot(
+                        item = state.player.equippedArmor,
+                        slotName = "Body",
+                        onClick = { viewModel.unequipItem(ItemType.ARMOR) },
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                    
+                    // Accessory (Right)
+                    EquipmentSlot(
+                        item = state.player.equippedAccessory,
+                        slotName = "Acc.",
+                        onClick = { viewModel.unequipItem(ItemType.ACCESSORY) },
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    )
+
+                    // Boots (Legs - Bottom)
+                    EquipmentSlot(
+                        item = state.player.equippedBoots,
+                        slotName = "Legs",
+                        onClick = { viewModel.unequipItem(ItemType.BOOTS) },
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp)
+                    )
+                }
+
+                // Stats Summary
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF222222)),
+                    modifier = Modifier.fillMaxWidth().padding(8.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("STATS", color = Color.Cyan, fontWeight = FontWeight.Bold)
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column {
+                                Text("ATK: ${state.player.getTotalAttack()}", color = Color.White)
+                                Text("DEF: ${state.player.getTotalDefense()}", color = Color.White)
+                                Text("MAG: ${state.player.getTotalMagic()}", color = Color.Magenta)
+                            }
+                            Column {
+                                Text("HP: ${state.player.hp}/${state.player.maxHp}", color = Color.Green)
+                                Text("MP: ${state.player.mana}/${state.player.maxMana}", color = Color.Blue)
+                                Text("CRIT: ${(state.player.getTotalCrit() * 100).toInt()}%", color = Color.Yellow)
+                                Text("DODGE: ${(state.player.getTotalDodge() * 100).toInt()}%", color = Color.Gray)
                             }
                         }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Right Side: Inventory List
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(Color(0xFF111111), RoundedCornerShape(8.dp))
+                    .padding(8.dp)
+            ) {
+                Text("📦 BACKPACK", color = Color.Yellow, fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
+                
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(state.player.inventory) { item ->
+                        InventoryItemCard(item = item) {
+                            when (item.type) {
+                                ItemType.WEAPON, ItemType.ARMOR, ItemType.HELMET, ItemType.BOOTS, ItemType.ACCESSORY -> viewModel.equipItem(item)
+                                ItemType.POTION -> viewModel.useItem(item)
+                                else -> {}
+                            }
+                        }
+                    }
+                    if (state.player.inventory.isEmpty()) {
+                        item {
+                            Text("Empty...", color = Color.Gray, modifier = Modifier.padding(16.dp))
+                        }
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun EquipmentSlot(
+    item: Item?,
+    slotName: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .clickable { onClick() }
+            .padding(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(64.dp)
+                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                .border(2.dp, if (item != null) Color.Yellow else Color.Gray, RoundedCornerShape(8.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (item != null) {
+                Text(item.emoji, fontSize = 32.sp)
+            } else {
+                Text(slotName.take(1), color = Color.Gray, fontSize = 24.sp)
+            }
+        }
+        Text(
+            text = item?.name ?: slotName,
+            color = if (item != null) Color.White else Color.Gray,
+            fontSize = 10.sp,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(64.dp)
+        )
+    }
+}
+
+@Composable
+fun InventoryItemCard(item: Item, onClick: () -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF333333)),
+        modifier = Modifier.fillMaxWidth().clickable { onClick() }
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.Black, RoundedCornerShape(4.dp))
+                    .border(1.dp, getRarityColor(item.rarity), RoundedCornerShape(4.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(item.emoji, fontSize = 24.sp)
+            }
+            
+            Spacer(modifier = Modifier.width(12.dp))
+            
+            Column(modifier = Modifier.weight(1f)) {
+                Text(item.name, color = getRarityColor(item.rarity), fontWeight = FontWeight.Bold)
+                val stats = when(item.type) {
+                    ItemType.WEAPON -> "ATK +${item.attack}"
+                    ItemType.ARMOR, ItemType.HELMET, ItemType.BOOTS -> "DEF +${item.defense}"
+                    ItemType.ACCESSORY -> "MAG +${item.magic}"
+                    ItemType.POTION -> "Heals ${item.healing} HP"
+                    else -> "Val: ${item.value}g"
+                }
+                
+                // Add extra info for crit/dodge
+                val extras = mutableListOf<String>()
+                if (item.critChance > 0) extras.add("Crit +${(item.critChance*100).toInt()}%")
+                if (item.dodgeChance > 0) extras.add("Dodge +${(item.dodgeChance*100).toInt()}%")
+                if (extras.isNotEmpty()) {
+                    Text(extras.joinToString(" "), color = Color.Yellow, fontSize = 10.sp)
+                }
+                
+                Text(stats, color = Color.Gray, fontSize = 12.sp)
+            }
+            
+            Button(
+                onClick = onClick,
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                modifier = Modifier.height(32.dp)
+            ) {
+                Text(
+                    text = when(item.type) {
+                        ItemType.WEAPON, ItemType.ARMOR, ItemType.HELMET, ItemType.BOOTS, ItemType.ACCESSORY -> "Equip"
+                        ItemType.POTION -> "Use"
+                        else -> "Info"
+                    },
+                    fontSize = 10.sp
+                )
+            }
+        }
+    }
+}
+
+fun getRarityColor(rarity: String): Color {
+    return when (rarity) {
+        "Legendary" -> Color(0xFFFFD700)
+        "Epic" -> Color(0xFFAA00FF)
+        "Rare" -> Color(0xFF0088FF)
+        else -> Color.White
     }
 }
 
@@ -699,3 +1141,87 @@ fun VictoryView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) 
         }
     }
 }
+@Composable
+fun ClassSelectionScreen(viewModel: ClassicDungeonViewModel) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            "INITIATE SEQUENCE",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Green,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        
+        Text(
+            "Select Avatar for Simulation",
+            fontSize = 16.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
+            items(PlayerClass.values()) { playerClass ->
+                val (abilityName, cost) = playerClass.getAbilityInfo()
+                
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { viewModel.chooseClass(playerClass) },
+                    colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.8f)),
+                    border = BorderStroke(1.dp, Color.DarkGray)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(24.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = playerClass.emoji,
+                            fontSize = 40.sp,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                        Column {
+                            Text(
+                                text = playerClass.title,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = playerClass.description,
+                                fontSize = 14.sp,
+                                color = Color.LightGray
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "⚡ Ability: $abilityName ($cost MP)",
+                                fontSize = 12.sp,
+                                color = Color.Magenta,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Button(
+            onClick = { viewModel.openDebugMenu() },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+        ) {
+            Text("🔧 Debug Mode")
+        }
+    }
+

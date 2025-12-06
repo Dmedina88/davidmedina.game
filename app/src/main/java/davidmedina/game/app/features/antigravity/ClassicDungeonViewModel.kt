@@ -11,109 +11,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 // Grid-based dungeon system
-data class GridPosition(val x: Int, val y: Int) {
-    fun distanceTo(other: GridPosition): Int {
-        return kotlin.math.abs(x - other.x) + kotlin.math.abs(y - other.y)
-    }
-}
-
-enum class TileType {
-    FLOOR,
-    WALL,
-    DOOR,
-    STAIRS_DOWN,
-    STAIRS_UP,
-    HEALING_FOUNTAIN  // Restores HP when stepped on
-}
-
-data class DungeonTile(
-    val position: GridPosition,
-    val type: TileType,
-    val isRevealed: Boolean = false,
-    val isVisible: Boolean = false
-)
-
-enum class ItemType {
-    WEAPON,
-    ARMOR,
-    POTION,
-    SCROLL,
-    KEY,
-    GOLD
-}
-
-data class Item(
-    val id: Int,
-    val name: String,
-    val type: ItemType,
-    val emoji: String,
-    val position: GridPosition? = null, // Where item is on the map
-    val rarity: String = "Common", // Common, Rare, Epic, Legendary
-    val value: Int = 0,
-    val attack: Int = 0,
-    val defense: Int = 0,
-    val healing: Int = 0
-)
-
-data class DungeonEnemy(
-    val id: Int,
-    val name: String,
-    val emoji: String,
-    val position: GridPosition,
-    val hp: Int,
-    val maxHp: Int,
-    val attack: Int,
-    val defense: Int,
-    val xpReward: Int,
-    val isAlive: Boolean = true,
-    val isAggressive: Boolean = false,
-    val isBoss: Boolean = false
-)
-
-data class Player(
-    val position: GridPosition = GridPosition(5, 5),
-    val hp: Int = 100,
-    val maxHp: Int = 100,
-    val mana: Int = 50,
-    val maxMana: Int = 50,
-    val level: Int = 1,
-    val xp: Int = 0,
-    val xpToNextLevel: Int = 100,
-    val attack: Int = 10,
-    val defense: Int = 5,
-    val gold: Int = 0,
-    val inventory: List<Item> = emptyList(),
-    val equippedWeapon: Item? = null,
-    val equippedArmor: Item? = null
-) {
-    fun getTotalAttack(): Int = attack + (equippedWeapon?.attack ?: 0)
-    fun getTotalDefense(): Int = defense + (equippedArmor?.defense ?: 0)
-}
-
-enum class DungeonGameState {
-    EXPLORING,
-    IN_COMBAT,
-    INVENTORY,
-    GAME_OVER,
-    VICTORY,
-    LEVEL_UP
-}
-
-data class ClassicDungeonState(
-    val gameState: DungeonGameState = DungeonGameState.EXPLORING,
-    val player: Player = Player(),
-    val dungeonLevel: Int = 1,
-    val tiles: List<DungeonTile> = emptyList(),
-    val enemies: List<DungeonEnemy> = emptyList(),
-    val items: List<Item> = emptyList(),
-    val currentEnemy: DungeonEnemy? = null,
-    val messages: List<String> = listOf("Welcome to Classic Dungeon!"),
-    val turnCount: Int = 0,
-    val gridWidth: Int = 20,
-    val gridHeight: Int = 20,
-    val viewportSize: Int = 11, // 11x11 viewport centered on player
-    val isAutoPlaying: Boolean = false // AI auto-play mode
-)
+// Classes moved to DungeonModels.kt
 
 class ClassicDungeonViewModel : ViewModel() {
     
@@ -124,22 +22,94 @@ class ClassicDungeonViewModel : ViewModel() {
     private var nextEnemyId = 0
     private val autoPlayAgent = AutoPlayAgent()
     private var autoPlayJob: kotlinx.coroutines.Job? = null
+    private val dungeonGenerator = DungeonGenerator()
     
     fun startNewGame() {
         nextItemId = 0
         nextEnemyId = 0
         
-        val initialDungeon = generateDungeon(20, 20, 1)
-        _state.update {
+        val dungeon = dungeonGenerator.generateDungeon(20, 20, 1, nextItemId, nextEnemyId)
+        nextItemId = dungeon.nextItemId
+        nextEnemyId = dungeon.nextEnemyId
+
+        _state.update { 
             ClassicDungeonState(
-                gameState = DungeonGameState.EXPLORING,
-                player = Player(position = initialDungeon.playerSpawn),
+                gameState = DungeonGameState.CLASS_SELECTION,
                 dungeonLevel = 1,
-                tiles = initialDungeon.tiles,
-                enemies = initialDungeon.enemies,
-                items = initialDungeon.items,
-                messages = listOf("🗡️ Welcome to Classic Dungeon!", "Explore and survive!"),
-                turnCount = 0
+                tiles = dungeon.tiles,
+                player = Player(position = dungeon.playerSpawn),
+                enemies = dungeon.enemies,
+                items = dungeon.items,
+                messages = listOf("Initializing simulation...", "Select your avatar."),
+                turnCount = 0,
+                gameSpeed = 1.0f // Default 1x speed
+            )
+        }
+    }
+    
+    fun setGameSpeed(speed: Float) {
+        _state.update { it.copy(gameSpeed = speed) }
+    }
+    
+    fun exitToMenu() {
+        stopAutoPlay()
+        _state.update { it.copy(gameState = DungeonGameState.CLASS_SELECTION) }
+    }
+    
+    fun chooseClass(selectedClass: PlayerClass) {
+        _state.update { state ->
+            val basePlayer = state.player
+            
+            // Apply Class Stats
+            val classedPlayer = when (selectedClass) {
+                PlayerClass.NEON_LICH -> basePlayer.copy(
+                    maxHp = 60, hp = 60,
+                    attack = 4, defense = 2,
+                    maxMana = 150, mana = 150,
+                    playerClass = selectedClass,
+                    inventory = listOf(Item(nextItemId++, "Data Phylactery", ItemType.POTION, "💾", healing = 50))
+                )
+                PlayerClass.FLESH_WEAVER -> basePlayer.copy(
+                    maxHp = 120, hp = 120,
+                    attack = 8, defense = 4,
+                    maxMana = 60, mana = 60,
+                    playerClass = selectedClass,
+                    inventory = listOf(Item(nextItemId++, "Bio-Wand", ItemType.WEAPON, "🦴", attack = 7))
+                )
+                PlayerClass.QUANTUM_GAMBLER -> basePlayer.copy(
+                    maxHp = 90, hp = 90,
+                    attack = 10, defense = 3,
+                    maxMana = 40, mana = 40,
+                    playerClass = selectedClass,
+                    inventory = listOf(Item(nextItemId++, "Loaded Dice", ItemType.WEAPON, "🎲", attack = 8, critChance=0.10f))
+                )
+                PlayerClass.CHRONO_KNIGHT -> basePlayer.copy(
+                    maxHp = 130, hp = 130,
+                    attack = 9, defense = 6,
+                    maxMana = 50, mana = 50,
+                    playerClass = selectedClass,
+                    inventory = listOf(Item(nextItemId++, "Time Blade", ItemType.WEAPON, "🗡️", attack = 6))
+                )
+                PlayerClass.VOID_STALKER -> basePlayer.copy(
+                    maxHp = 70, hp = 70,
+                    attack = 14, defense = 2,
+                    maxMana = 30, mana = 30,
+                    playerClass = selectedClass,
+                    inventory = listOf(Item(nextItemId++, "Void Dagger", ItemType.WEAPON, "🗡️", attack = 10, critChance=0.15f))
+                )
+                PlayerClass.PLASMA_PALADIN -> basePlayer.copy(
+                    maxHp = 150, hp = 150,
+                    attack = 7, defense = 8,
+                    maxMana = 40, mana = 40,
+                    playerClass = selectedClass,
+                    inventory = listOf(Item(nextItemId++, "Energy Shield", ItemType.WEAPON, "🛡️", attack = 4, defense=5))
+                )
+            }
+            
+            state.copy(
+                gameState = DungeonGameState.EXPLORING,
+                player = classedPlayer,
+                messages = listOf("Avatar ${selectedClass.title} uploaded. Good luck.")
             )
         }
     }
@@ -167,81 +137,70 @@ class ClassicDungeonViewModel : ViewModel() {
             return
         }
         
-        // Check for item pickup at new position
-        val itemAtPosition = currentState.items.find { it.position == newPos }
-        
         // Move player
         _state.update { state ->
-            var updatedState = state.copy(
+            val updatedState = state.copy(
                 player = state.player.copy(position = newPos),
-                turnCount = state.turnCount + 1
-            )
-            
-            // Auto-pickup item if present
-            if (itemAtPosition != null) {
-                updatedState = when (itemAtPosition.type) {
-                    ItemType.GOLD -> {
-                        addMessage("💰 Found ${itemAtPosition.value} gold!")
-                        updatedState.copy(
-                            player = updatedState.player.copy(gold = updatedState.player.gold + itemAtPosition.value),
-                            items = updatedState.items.filter { it.id != itemAtPosition.id }
-                        )
-                    }
-                    ItemType.POTION -> {
-                        val healAmount = itemAtPosition.healing.coerceAtMost(updatedState.player.maxHp - updatedState.player.hp)
-                        addMessage("❤️ Used ${itemAtPosition.name}! Healed for $healAmount HP!")
-                        updatedState.copy(
-                            player = updatedState.player.copy(hp = (updatedState.player.hp + healAmount).coerceAtMost(updatedState.player.maxHp)),
-                            items = updatedState.items.filter { it.id != itemAtPosition.id }
-                        )
-                    }
-                    else -> {
-                        addMessage("📦 Picked up ${itemAtPosition.emoji} ${itemAtPosition.name} [${itemAtPosition.rarity}]")
-                        updatedState.copy(
-                            player = updatedState.player.copy(inventory = updatedState.player.inventory + itemAtPosition),
-                            items = updatedState.items.filter { it.id != itemAtPosition.id }
-                        )
-                    }
-                }
-            }
-            
-            // Reveal and update visibility
-            updatedState = updatedState.copy(
-                tiles = updateVisibility(updatedState.tiles, newPos)
+                // Reveal and update visibility
+                // Update fog of war
+                tiles = dungeonGenerator.updateVisibility(state.tiles, newPos)
             )
             
             updatedState
         }
         
-        // Check for healing fountain
-        if (tile.type == TileType.HEALING_FOUNTAIN) {
-            val healAmount = 30
-            _state.update { state ->
-                val newHp = (state.player.hp + healAmount).coerceAtMost(state.player.maxHp)
-                val actualHealed = newHp - state.player.hp
-                
-                if (actualHealed > 0) {
-                    addMessage("⛲ The fountain heals you for $actualHealed HP!")
-                } else {
-                    addMessage("⛲ You're already at full health")
+        // Check for interactions based on tile type
+        val currentTile = currentState.tiles.find { it.position == newPos }
+        if (currentTile != null) {
+            when (currentTile.type) {
+                TileType.STAIRS_DOWN -> {
+                    descendStairs()
+                    return
                 }
-                
-                state.copy(
-                    player = state.player.copy(hp = newHp)
-                )
+                TileType.STAIRS_UP -> {
+                    addMessage("Stairs up are blocked by rubble.")
+                }
+                TileType.SHOP -> {
+                     enterShop()
+                }
+                TileType.INN -> {
+                     enterInn()
+                }
+                TileType.HEALING_FOUNTAIN -> {
+                    // Existing fountain logic could remain or merge into INN, keep for now as free mini-heal
+                    val healAmount = (currentState.player.maxHp * 0.3).toInt()
+                    addMessage("💧 You drink from the fountain. +$healAmount HP.")
+                    _state.update { s -> 
+                        // Remove fountain effect (turn to floor)
+                        s.copy(
+                            player = s.player.copy(hp = (s.player.hp + healAmount).coerceAtMost(s.player.maxHp)),
+                            tiles = s.tiles.map { if (it.position == newPos) it.copy(type = TileType.FLOOR) else it }
+                        )
+                    }
+                }
+                else -> {}
             }
         }
         
-        // Check for stairs
-        if (tile.type == TileType.STAIRS_DOWN) {
-            descendStairs()
+        // Items pickup
+        val itemOnTile = currentState.items.find { it.position == newPos }
+        if (itemOnTile != null) {
+            pickupItem(itemOnTile.id)
         }
         
-        // Enemy turn
-        viewModelScope.launch {
-            delay(100)
-            processEnemyTurns()
+        // Decrement Buffs
+        _state.update { s ->
+            val updatedBuffs = s.player.activeBuffs.map { it.copy(duration = it.duration - 1) }.filter { it.duration > 0 }
+            if (updatedBuffs.size < s.player.activeBuffs.size) {
+                 // Some buffs expired
+            }
+            s.copy(
+                turnCount = s.turnCount + 1,
+                player = s.player.copy(activeBuffs = updatedBuffs)
+            )
         }
+        
+        processEnemyTurns()
     }
     
     fun pickupItem(itemId: Int) {
@@ -256,14 +215,43 @@ class ClassicDungeonViewModel : ViewModel() {
                     addMessage("💰 Found ${item.value} gold!")
                     state.player.copy(gold = state.player.gold + item.value)
                 }
-                ItemType.POTION -> {
-                    val healAmount = item.healing.coerceAtMost(state.player.maxHp - state.player.hp)
-                    addMessage("❤️ Healed for $healAmount HP!")
-                    state.player.copy(hp = (state.player.hp + healAmount).coerceAtMost(state.player.maxHp))
-                }
                 else -> {
-                    addMessage("📦 Picked up ${item.emoji} ${item.name}")
-                    state.player.copy(inventory = state.player.inventory + item)
+                    // Auto-equip logic if default items are bad
+                    // For now, just pick it up
+                    addMessage("📦 Picked up ${item.emoji} ${item.name} [${item.rarity}]")
+                    var newState = state.player.copy(inventory = state.player.inventory + item)
+                    
+                    // Simple Auto-Equip Logic for Idle Mode
+                    if (state.isAutoPlaying) {
+                        val player = newState
+                        // Check if item is better than equipped
+                        val shouldEquip = when (item.type) {
+                            ItemType.WEAPON -> (item.attack + item.magic) > (player.equippedWeapon?.let { it.attack + it.magic } ?: 0)
+                            ItemType.ARMOR -> item.defense > (player.equippedArmor?.defense ?: 0)
+                            ItemType.HELMET -> (item.defense + item.magic) > (player.equippedHelmet?.let { it.defense + it.magic } ?: 0)
+                            ItemType.BOOTS -> (item.defense + (item.dodgeChance*100).toInt()) > (player.equippedBoots?.let { it.defense + (it.dodgeChance*100).toInt() } ?: 0)
+                            ItemType.ACCESSORY -> (item.magic + item.attack) > (player.equippedAccessory?.let { it.magic + it.attack } ?: 0)
+                            else -> false
+                        }
+                        
+                        if (shouldEquip) {
+                            // Find the item again in the new inventory to equip it properly with the viewmodel function logic
+                            // But here we are inside update block, so let's just do it directly
+                            // Remove from inventory, set as equipped, put old back
+                            val inventoryWithoutItem = newState.inventory.filter { it.id != item.id }
+                            
+                            newState = when (item.type) {
+                                ItemType.WEAPON -> newState.copy(equippedWeapon = item, inventory = inventoryWithoutItem + listOfNotNull(player.equippedWeapon))
+                                ItemType.ARMOR -> newState.copy(equippedArmor = item, inventory = inventoryWithoutItem + listOfNotNull(player.equippedArmor))
+                                ItemType.HELMET -> newState.copy(equippedHelmet = item, inventory = inventoryWithoutItem + listOfNotNull(player.equippedHelmet))
+                                ItemType.BOOTS -> newState.copy(equippedBoots = item, inventory = inventoryWithoutItem + listOfNotNull(player.equippedBoots))
+                                ItemType.ACCESSORY -> newState.copy(equippedAccessory = item, inventory = inventoryWithoutItem + listOfNotNull(player.equippedAccessory))
+                                else -> newState
+                            }
+                            addMessage("⚡ Auto-equipped ${item.emoji} ${item.name}")
+                        }
+                    }
+                    newState
                 }
             }
             
@@ -273,6 +261,23 @@ class ClassicDungeonViewModel : ViewModel() {
             )
         }
     }
+
+    fun useItem(item: Item) {
+        _state.update { state ->
+            if (item.type == ItemType.POTION) {
+                val healAmount = item.healing.coerceAtMost(state.player.maxHp - state.player.hp)
+                addMessage("❤️ Used ${item.name} for $healAmount HP")
+                state.copy(
+                    player = state.player.copy(
+                        hp = (state.player.hp + healAmount).coerceAtMost(state.player.maxHp),
+                        inventory = state.player.inventory.filter { it.id != item.id }
+                    )
+                )
+            } else {
+                state
+            }
+        }
+    }
     
     fun attack() {
         val currentState = _state.value
@@ -280,8 +285,24 @@ class ClassicDungeonViewModel : ViewModel() {
         
         if (currentState.gameState != DungeonGameState.IN_COMBAT) return
         
-        // Player attacks
-        val damage = calculateDamage(currentState.player.getTotalAttack(), enemy.defense)
+        // 1. Check for Enemy Dodge (Small base chance + randomness)
+        if (Random.nextFloat() < 0.05f) {
+            addMessage("💨 ${enemy.name} dodged your attack!")
+            // Enemy counter-attack immediately
+            viewModelScope.launch {
+                delay(300)
+                enemyAttack(enemy)
+            }
+            return
+        }
+
+        // 2. Check for Player Critical Hit
+        val isCrit = Random.nextFloat() < currentState.player.getTotalCrit()
+        var damage = calculateDamage(currentState.player.getTotalAttack(), enemy.defense)
+        if (isCrit) {
+            damage = (damage * 1.5).toInt()
+        }
+        
         val newEnemyHp = (enemy.hp - damage).coerceAtLeast(0)
         
         _state.update { state ->
@@ -293,7 +314,27 @@ class ClassicDungeonViewModel : ViewModel() {
             )
         }
         
-        addMessage("⚔️ You hit ${enemy.name} for $damage damage!")
+        if (isCrit) {
+            val critMsg = when(currentState.player.playerClass) {
+                PlayerClass.NEON_LICH -> "👾 SYSTEM CRASH! Neural shock burns ${enemy.name}!"
+                PlayerClass.FLESH_WEAVER -> "🥩 BUTCHERED! Minions feast on ${enemy.name}!"
+                PlayerClass.QUANTUM_GAMBLER -> "🎲 JACKPOT! Reality collapses on ${enemy.name}!"
+                PlayerClass.CHRONO_KNIGHT -> "⏳ TIME BREAK! You hit ${enemy.name} twice!"
+                PlayerClass.VOID_STALKER -> "🥷 ASSASSINATED! ${enemy.name} never saw it coming!"
+                PlayerClass.PLASMA_PALADIN -> "🛡️ SMITE! Holy plasma disintegrates ${enemy.name}!"
+            }
+            addMessage("💥 $critMsg ($damage dmg)")
+        } else {
+            val atkMsg = when(currentState.player.playerClass) {
+                PlayerClass.NEON_LICH -> "You drain code from"
+                PlayerClass.FLESH_WEAVER -> "Your flesh-hulk smashes"
+                PlayerClass.QUANTUM_GAMBLER -> "You phase-strike"
+                PlayerClass.CHRONO_KNIGHT -> "You slash"
+                PlayerClass.VOID_STALKER -> "You stab"
+                PlayerClass.PLASMA_PALADIN -> "You hammer"
+            }
+            addMessage("⚔️ $atkMsg ${enemy.name} for $damage damage!")
+        }
         
         if (newEnemyHp <= 0) {
             onEnemyDefeated(enemy)
@@ -310,7 +351,15 @@ class ClassicDungeonViewModel : ViewModel() {
         val currentState = _state.value
         val enemy = currentState.currentEnemy ?: return
         
-        addMessage("🛡️ You brace for impact! (Defense +5 this turn)")
+        val defMsg = when(currentState.player.playerClass) {
+            PlayerClass.NEON_LICH -> "🛡️ You raise a firewall!"
+            PlayerClass.FLESH_WEAVER -> "🛡️ A wall of meat absorbs the blow!"
+            PlayerClass.QUANTUM_GAMBLER -> "🛡️ You flicker out of reality!"
+            PlayerClass.CHRONO_KNIGHT -> "🛡️ You rewind the impact!"
+            PlayerClass.VOID_STALKER -> "🛡️ You vanish into shadows!"
+            PlayerClass.PLASMA_PALADIN -> "🛡️ Energy shields holding!"
+        }
+        addMessage(defMsg)
         
         // Temporary defense boost
         _state.update { state ->
@@ -332,38 +381,124 @@ class ClassicDungeonViewModel : ViewModel() {
         }
     }
     
-    fun useMagic() {
+    fun useAbility() {
         val currentState = _state.value
         val enemy = currentState.currentEnemy ?: return
-        val manaCost = 15
+        
+        val (abilityName, manaCost) = currentState.player.playerClass.getAbilityInfo()
         
         if (currentState.player.mana < manaCost) {
-            addMessage("❌ Not enough mana!")
+            addMessage("❌ Not enough mana for $abilityName!")
             return
         }
         
-        val damage = (currentState.player.getTotalAttack() * 1.5).toInt()
+        // Consume Mana
+        _state.update { it.copy(player = it.player.copy(mana = it.player.mana - manaCost)) }
+        
+        // Execute Unique Ability Logic
+        when (currentState.player.playerClass) {
+            PlayerClass.NEON_LICH -> {
+                // High Damage + Lifesteal
+                val damage = (currentState.player.getTotalMagic() * 2.5).toInt()
+                val heal = damage / 2
+                applyDamage(enemy, damage, "Data Rot")
+                healPlayer(heal)
+                addMessage("💚 Drained $heal HP from code!")
+            }
+            PlayerClass.FLESH_WEAVER -> {
+                // Massive Area Damage (Single target simulates blasting minions at it)
+                val damage = (currentState.player.getTotalAttack() * 3.0).toInt()
+                applyDamage(enemy, damage, "Corpse Explosion")
+                // Recoil damage
+                applyPlayerDamage(5)
+                addMessage("🩸 Sacrificed a minion for damage!")
+            }
+            PlayerClass.QUANTUM_GAMBLER -> {
+                 // Random Effect
+                 val roll = Random.nextFloat()
+                 if (roll < 0.3f) {
+                     addMessage("🎲 BAD LUCK! You tripped.")
+                     applyPlayerDamage(5)
+                 } else if (roll < 0.9f) {
+                     val damage = (currentState.player.getTotalAttack() * 2).toInt()
+                     applyDamage(enemy, damage, "Lucky Shot")
+                 } else {
+                     // Nerfed from Instant Kill to 5x Damage
+                     val damage = (currentState.player.getTotalAttack() * 5).toInt()
+                     applyDamage(enemy, damage, "JACKPOT")
+                     addMessage("🎰 JACKPOT! MASSIVE HIT!")
+                 }
+            }
+            PlayerClass.CHRONO_KNIGHT -> {
+                // Heal back to full or undo last turn (Simple: Massive Heal + Small Damage)
+                val dmg = currentState.player.getTotalAttack()
+                healPlayer(30)
+                applyDamage(enemy, dmg, "Rewind Strike")
+                addMessage("⏳ Rewound time to heal wounds!")
+            }
+            PlayerClass.VOID_STALKER -> {
+                // Execute low HP or massive crit
+                val hpPercent = enemy.hp.toFloat() / enemy.maxHp
+                if (hpPercent < 0.3f) {
+                    // Nerfed from Instant Kill to 4x Damage Execute
+                    val damage = (currentState.player.getTotalAttack() * 4).toInt()
+                    applyDamage(enemy, damage, "EXECUTE")
+                    addMessage("☠️ EXECUTED STRIKE!")
+                } else {
+                    val damage = (currentState.player.getTotalAttack() * 2.5).toInt()
+                    applyDamage(enemy, damage, "Backstab")
+                }
+            }
+            PlayerClass.PLASMA_PALADIN -> {
+                // Damage + Shield (Defense Up)
+                val damage = (currentState.player.getTotalMagic() * 1.5).toInt()
+                applyDamage(enemy, damage, "Holy Nova")
+                // Perm boost for fight? Or just heal. Let's do heal for now strictly.
+                // Or defense buff logic isn't fully robust yet, so just heal.
+                healPlayer(15)
+                addMessage("🛡️ Shields restored!")
+            }
+        }
+        
+        // Enemy Turn Check (if still alive)
+        val afterState = _state.value
+        val afterEnemy = afterState.currentEnemy
+        if (afterEnemy != null && afterEnemy.isAlive) {
+             viewModelScope.launch {
+                delay(500)
+                enemyAttack(afterEnemy)
+            }
+        }
+    }
+
+    private fun applyDamage(enemy: DungeonEnemy, damage: Int, source: String) {
         val newEnemyHp = (enemy.hp - damage).coerceAtLeast(0)
         
         _state.update { state ->
             val updatedEnemy = enemy.copy(hp = newEnemyHp, isAlive = newEnemyHp > 0)
-            
             state.copy(
-                player = state.player.copy(mana = state.player.mana - manaCost),
                 currentEnemy = updatedEnemy,
                 enemies = state.enemies.map { if (it.id == enemy.id) updatedEnemy else it }
             )
         }
         
-        addMessage("✨ Magic attack hits ${enemy.name} for $damage damage!")
+        addMessage("✨ $source hits ${enemy.name} for $damage!")
         
         if (newEnemyHp <= 0) {
             onEnemyDefeated(enemy)
-        } else {
-            viewModelScope.launch {
-                delay(500)
-                enemyAttack(enemy)
-            }
+        }
+    }
+
+    private fun healPlayer(amount: Int) {
+        _state.update { s ->
+            s.copy(player = s.player.copy(hp = (s.player.hp + amount).coerceAtMost(s.player.maxHp)))
+        }
+    }
+    
+    // Used for self-inflicted damage or traps
+    private fun applyPlayerDamage(amount: Int) {
+         _state.update { s ->
+            s.copy(player = s.player.copy(hp = (s.player.hp - amount).coerceAtLeast(0)))
         }
     }
     
@@ -413,8 +548,45 @@ class ClassicDungeonViewModel : ViewModel() {
                         )
                     )
                 }
+                ItemType.HELMET -> {
+                    val old = state.player.equippedHelmet
+                    var inventory = state.player.inventory.filter { it.id != item.id }
+                    if (old != null) inventory = inventory + old
+                    addMessage("🛡️ Equipped ${item.name}")
+                    state.copy(player = state.player.copy(equippedHelmet = item, inventory = inventory))
+                }
+                ItemType.BOOTS -> {
+                    val old = state.player.equippedBoots
+                    var inventory = state.player.inventory.filter { it.id != item.id }
+                    if (old != null) inventory = inventory + old
+                    addMessage("👢 Equipped ${item.name}")
+                    state.copy(player = state.player.copy(equippedBoots = item, inventory = inventory))
+                }
+                ItemType.ACCESSORY -> {
+                    val old = state.player.equippedAccessory
+                    var inventory = state.player.inventory.filter { it.id != item.id }
+                    if (old != null) inventory = inventory + old
+                    addMessage("💍 Equipped ${item.name}")
+                    state.copy(player = state.player.copy(equippedAccessory = item, inventory = inventory))
+                }
                 else -> state
             }
+        }
+    }
+
+    fun unequipItem(type: ItemType) {
+        _state.update { state ->
+            val player = state.player
+            val newPlayer = when (type) {
+                ItemType.WEAPON -> player.equippedWeapon?.let { player.copy(equippedWeapon = null, inventory = player.inventory + it) }
+                ItemType.ARMOR -> player.equippedArmor?.let { player.copy(equippedArmor = null, inventory = player.inventory + it) }
+                ItemType.HELMET -> player.equippedHelmet?.let { player.copy(equippedHelmet = null, inventory = player.inventory + it) }
+                ItemType.BOOTS -> player.equippedBoots?.let { player.copy(equippedBoots = null, inventory = player.inventory + it) }
+                ItemType.ACCESSORY -> player.equippedAccessory?.let { player.copy(equippedAccessory = null, inventory = player.inventory + it) }
+                else -> null
+            }
+            
+            if (newPlayer != null) state.copy(player = newPlayer) else state
         }
     }
     
@@ -445,14 +617,31 @@ class ClassicDungeonViewModel : ViewModel() {
         val currentState = _state.value
         if (!enemy.isAlive) return
         
-        val damage = calculateDamage(enemy.attack, currentState.player.getTotalDefense())
+        // 1. Check for Player Dodge
+        val dodgeChance = currentState.player.getTotalDodge()
+        if (Random.nextFloat() < dodgeChance) {
+            addMessage("💨 You dodged ${enemy.name}'s attack!")
+            return
+        }
+        
+        // 2. Enemy Critical Hit (5% chance)
+        val isCrit = Random.nextFloat() < 0.05f
+        var damage = calculateDamage(enemy.attack, currentState.player.getTotalDefense())
+        if (isCrit) {
+            damage = (damage * 1.5).toInt()
+        }
+        
         val newHp = (currentState.player.hp - damage).coerceAtLeast(0)
         
         _state.update { state ->
             state.copy(player = state.player.copy(hp = newHp))
         }
         
-        addMessage("💥 ${enemy.name} hits you for $damage damage!")
+        if (isCrit) {
+            addMessage("😫 OUCH! ${enemy.name} landed a CRITICAL HIT for $damage damage!")
+        } else {
+            addMessage("💥 ${enemy.name} hits you for $damage damage!")
+        }
         
         if (newHp <= 0) {
             gameOver()
@@ -462,12 +651,6 @@ class ClassicDungeonViewModel : ViewModel() {
     private fun onEnemyDefeated(enemy: DungeonEnemy) {
         val xpGained = enemy.xpReward
         val goldDrop = Random.nextInt(5, 20)
-        
-        // Generate loot drop (60% chance, 100% for bosses)
-        val dropChance = if (enemy.isBoss) 1.0f else 0.6f
-        val droppedItem = if (Random.nextFloat() < dropChance) {
-            generateLootDrop(enemy)
-        } else null
         
         _state.update { state ->
             val newXp = state.player.xp + xpGained
@@ -482,29 +665,37 @@ class ClassicDungeonViewModel : ViewModel() {
                 newGameState = DungeonGameState.LEVEL_UP
             }
             
-            // Add dropped item to world
-            val updatedItems = if (droppedItem != null) {
-                state.items + droppedItem
-            } else state.items
-            
             // Check if boss was defeated (victory!)
             val finalGameState = if (enemy.isBoss) {
                 DungeonGameState.VICTORY
             } else newGameState
+
+            // Generate loot (50% chance for loot, 100% for bosses)
+            val lootItem = if (enemy.isBoss || Random.nextFloat() < 0.5f) {
+                dungeonGenerator.generateLootItem(state.dungeonLevel, enemy.isBoss)
+            } else null
             
+            val updatedInventory = if (lootItem != null) {
+                updatedPlayer.inventory + lootItem
+            } else updatedPlayer.inventory
+
             state.copy(
-                player = updatedPlayer,
+                player = updatedPlayer.copy(inventory = updatedInventory),
                 gameState = finalGameState,
                 currentEnemy = null,
                 enemies = state.enemies.map { if (it.id == enemy.id) it.copy(isAlive = false) else it },
-                items = updatedItems
+                items = state.items // Items on ground are not affected by enemy defeat
             )
         }
         
         addMessage("🎉 Defeated ${enemy.name}! +$xpGained XP, +$goldDrop gold")
         
-        if (droppedItem != null) {
-            addMessage("💎 ${droppedItem.emoji} ${droppedItem.name} dropped!")
+        // The loot message is now handled inside the update block for consistency
+        // with the inventory update.
+        val currentState = _state.value
+        val lastMessage = currentState.messages.lastOrNull()
+        if (lastMessage != null && lastMessage.startsWith("🎁 Loot!")) {
+            addMessage(lastMessage) // Re-add if it was a loot message
         }
         
         if (enemy.isBoss) {
@@ -545,20 +736,28 @@ class ClassicDungeonViewModel : ViewModel() {
     }
     
     private fun descendStairs() {
-        val newLevel = _state.value.dungeonLevel + 1
-        val dungeon = generateDungeon(20, 20, newLevel)
+        val nextLevel = _state.value.dungeonLevel + 1
         
-        _state.update {
+        val dungeon = dungeonGenerator.generateDungeon(20 + nextLevel, 20 + nextLevel, nextLevel, nextItemId, nextEnemyId)
+        nextItemId = dungeon.nextItemId
+        nextEnemyId = dungeon.nextEnemyId
+        
+        _state.update { 
             it.copy(
-                dungeonLevel = newLevel,
+                dungeonLevel = nextLevel,
                 tiles = dungeon.tiles,
+                player = it.player.copy(position = dungeon.playerSpawn),
                 enemies = dungeon.enemies,
                 items = dungeon.items,
-                player = it.player.copy(position = dungeon.playerSpawn)
-            )
+                shopItems = emptyList(), // Clear shop items
+                messages = it.messages + "⬇️ Descended to Level $nextLevel",
+                currentEnemy = null // Ensure combat ends
+            ) 
         }
         
-        addMessage("📥 Descended to dungeon level $newLevel")
+        addMessage("New depth reached. The air gets colder...")
+        
+        // Auto-save?
     }
     
     private fun processEnemyTurns() {
@@ -609,125 +808,7 @@ class ClassicDungeonViewModel : ViewModel() {
         }
     }
     
-    // Loot generation (template-based with variety)
-    private fun generateLootDrop(enemy: DungeonEnemy): Item {
-        val dungeonLevel = _state.value.dungeonLevel
-        
-        // Determine rarity (bosses drop better loot)
-        val rarity = if (enemy.isBoss) {
-            when (Random.nextFloat()) {
-                in 0f..0.5f -> "Legendary"
-                else -> "Epic"
-            }
-        } else {
-            when (Random.nextFloat()) {
-                in 0f..0.02f -> "Legendary"
-                in 0.02f..0.10f -> "Epic"
-                in 0.10f..0.30f -> "Rare"
-                else -> "Common"
-            }
-        }
-        
-        // Item type (70% equipment, 30% consumable)
-        val isEquipment = Random.nextFloat() < 0.7f
-        
-        return if (isEquipment) {
-            generateEquipmentDrop(enemy, dungeonLevel, rarity)
-        } else {
-            generateConsumableDrop(enemy, dungeonLevel, rarity)
-        }
-    }
-    
-    private fun generateEquipmentDrop(enemy: DungeonEnemy, level: Int, rarity: String): Item {
-        val isWeapon = Random.nextBoolean()
-        
-        // Item name templates
-        val prefixes = listOf("Flame", "Frost", "Shadow", "Holy", "Cursed",
-            "Ancient", "Blessed", "Demonic", "Dragon", "Phantom", "Storm", "Void")
-        val suffixes = listOf("Slayer", "Bane", "Guard", "Strike", "Wrath",
-            "Fury", "Doom", "Grace", "Might", "Edge", "Soul", "Fang")
-        
-        val weapons = listOf("Sword", "Axe", "Dagger", "Spear", "Mace", "Blade")
-        val armors = listOf("Helm", "Plate", "Shield", "Gauntlets", "Boots", "Cloak")
-        
-        val prefix = prefixes.random()
-        val suffix = suffixes.random()        
-        val baseItem = if (isWeapon) weapons.random() else armors.random()
-        
-        val name = "$prefix $baseItem of $suffix"
-        
-        // Stats based on rarity and level
-        val statMultiplier = when (rarity) {
-            "Legendary" -> 2.0f
-            "Epic" -> 1.5f
-            "Rare" -> 1.2f
-            else -> 1.0f
-        }
-        
-        val attack = if (isWeapon) {
-            ((5 + level * 2) * statMultiplier + Random.nextInt(-2, 3)).toInt()
-        } else 0
-        
-        val defense = if (!isWeapon) {
-            ((3 + level) * statMultiplier + Random.nextInt(-1, 2)).toInt()
-        } else 0
-        
-        return Item(
-            id = nextItemId++,
-            name = name,
-            type = if (isWeapon) ItemType.WEAPON else ItemType.ARMOR,
-            emoji = if (isWeapon) "⚔️" else "🛡️",
-            position = enemy.position,
-            rarity = rarity,
-            attack = attack,
-            defense = defense
-        )
-    }
-    
-    private fun generateConsumableDrop(enemy: DungeonEnemy, level: Int, rarity: String): Item {
-        val potionTypes = listOf(
-            Triple("Health Potion", "❤️", ItemType.POTION) to 30,
-            Triple("Greater Health Potion", "💖", ItemType.POTION) to 50,
-            Triple("Mana Potion", "💙", ItemType.POTION) to 25,
-            Triple("Elixir of Life", "✨", ItemType.POTION) to 100
-        )
-        
-        val (itemData, healing) = if (rarity == "Legendary" || rarity == "Epic") {
-            potionTypes[Random.nextInt(2, potionTypes.size)] // Better potions
-        } else {
-            potionTypes[Random.nextInt(0, 2)] // Basic potions
-        }
-        
-        val (name, emoji, type) = itemData
-        
-        return Item(
-            id = nextItemId++,
-            name = name,
-            type = type,
-            emoji = emoji,
-            position = enemy.position,
-            rarity = rarity,
-            healing = healing
-        )
-    }
-    
-    private fun updateVisibility(tiles: List<DungeonTile>, playerPos: GridPosition): List<DungeonTile> {
-        val viewDistance = 5
-        
-        return tiles.map { tile ->
-            val distance = kotlin.math.sqrt(
-                ((tile.position.x - playerPos.x) * (tile.position.x - playerPos.x) +
-                (tile.position.y - playerPos.y) * (tile.position.y - playerPos.y)).toDouble()
-            )
-            
-            val isVisible = distance <= viewDistance
-            
-            tile.copy(
-                isVisible = isVisible,
-                isRevealed = tile.isRevealed || isVisible
-            )
-        }
-    }
+    // Loot generation and Visibility logic moved to DungeonGenerator.kt
     
     private fun addMessage(message: String) {
         _state.update {
@@ -735,255 +816,189 @@ class ClassicDungeonViewModel : ViewModel() {
         }
     }
     
-    // Dungeon generation (basic procedural, will be ML-enhanced later)
-    private fun generateDungeon(width: Int, height: Int, level: Int): GeneratedDungeon {
-        val tiles = mutableListOf<DungeonTile>()
-        
-        // Initialize all as walls
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                tiles.add(DungeonTile(GridPosition(x, y), TileType.WALL))
-            }
+    fun enterShop() {
+        stopAutoPlay()
+        val shopInventory = List(5) { 
+            dungeonGenerator.generateRandomItem(_state.value.dungeonLevel + 1) // Slightly better items
         }
-        
-        // Create rooms using simple BSP
-        val rooms = generateRooms(width, height, 5 + level)
-        
-        // Carve out rooms
-        rooms.forEach { room ->
-            for (y in room.y until room.y + room.height) {
-                for (x in room.x until room.x + room.width) {
-                    val index = y * width + x
-                    if (index < tiles.size) {
-                        tiles[index] = tiles[index].copy(type = TileType.FLOOR)
-                    }
-                }
-            }
+        _state.update { 
+            it.copy(
+                gameState = DungeonGameState.SHOPPING, 
+                shopItems = shopInventory,
+                messages = it.messages + "💰 Entered General Store"
+            ) 
         }
-        
-        // Connect rooms with corridors
-        for (i in 0 until rooms.size - 1) {
-            createCorridor(tiles, width, rooms[i], rooms[i + 1])
-        }
-        
-        // Place stairs in last room
-        val lastRoom = rooms.last()
-        val stairsPos = GridPosition(
-            lastRoom.x + lastRoom.width / 2,
-            lastRoom.y + lastRoom.height / 2
-        )
-        val stairsIndex = stairsPos.y * width + stairsPos.x
-        if (stairsIndex < tiles.size) {
-            tiles[stairsIndex] = tiles[stairsIndex].copy(type = TileType.STAIRS_DOWN)
-        }
-        
-        // Place healing fountains (30% chance per room, skip first and last)
-        rooms.drop(1).dropLast(1).forEach { room ->
-            if (Random.nextFloat() < 0.3f) {
-                val fountainPos = GridPosition(
-                    room.x + room.width / 2,
-                    room.y + room.height / 2
+    }
+
+    fun buyItem(item: Item) {
+        val currentState = _state.value
+        if (currentState.player.gold >= item.value) {
+            _state.update { s ->
+                s.copy(
+                    player = s.player.copy(
+                        gold = s.player.gold - item.value,
+                        inventory = s.player.inventory + item
+                    ),
+                    shopItems = s.shopItems.filter { it.id != item.id }, // Remove bought item? Or keep indefinite stock? Remove for now.
+                    messages = s.messages + "Bought ${item.name} for ${item.value}g"
                 )
-                val fountainIndex = fountainPos.y * width + fountainPos.x
-                if (fountainIndex < tiles.size) {
-                    tiles[fountainIndex] = tiles[fountainIndex].copy(type = TileType.HEALING_FOUNTAIN)
-                }
             }
+        } else {
+            addMessage("❌ Not enough gold!")
         }
-        
-        // Generate enemies
-        val enemies = generateEnemies(rooms, level)
-        
-        // Generate items
-        val items = generateItems(rooms, level)
-        
-        // Get player spawn position (center of first room)
-        val firstRoom = rooms.first()
-        val playerSpawn = GridPosition(
-            firstRoom.x + firstRoom.width / 2,
-            firstRoom.y + firstRoom.height / 2
-        )
-        
-        // Reveal starting area
-        val updatedTiles = updateVisibility(tiles, playerSpawn)
-        
-        return GeneratedDungeon(updatedTiles, enemies, items, playerSpawn)
     }
     
-    private data class Room(val x: Int, val y: Int, val width: Int, val height: Int)
+    fun sellItem(item: Item) {
+        val sellValue = item.value / 2
+        _state.update { s ->
+            s.copy(
+                player = s.player.copy(
+                    gold = s.player.gold + sellValue,
+                    inventory = s.player.inventory.filter { it.id != item.id }
+                ),
+                messages = s.messages + "Sold ${item.name} for ${sellValue}g"
+            )
+        }
+    }
+
+    fun enterInn() {
+        stopAutoPlay()
+        _state.update { it.copy(gameState = DungeonGameState.RESTING, messages = it.messages + "🏨 Entered The Cozy Inn") }
+    }
     
-    private fun generateRooms(width: Int, height: Int, count: Int): List<Room> {
-        val rooms = mutableListOf<Room>()
+    fun restAtInn(type: String) {
+        val currentState = _state.value
+        val cost = when(type) {
+            "Basic" -> 10
+            "Luxury" -> 50
+            "Feast" -> 100
+            else -> 0
+        }
         
-        repeat(count) {
-            val roomWidth = Random.nextInt(4, 8)
-            val roomHeight = Random.nextInt(4, 8)
-            val roomX = Random.nextInt(1, width - roomWidth - 1)
-            val roomY = Random.nextInt(1, height - roomHeight - 1)
+        if (currentState.player.gold < cost) {
+            addMessage("❌ Not enough gold!")
+            return
+        }
+        
+        when(type) {
+            "Basic" -> {
+                 _state.update { s ->
+                     s.copy(
+                         player = s.player.copy(
+                             gold = s.player.gold - cost,
+                             hp = (s.player.hp + s.player.maxHp/2).coerceAtMost(s.player.maxHp),
+                             mana = (s.player.mana + s.player.maxMana/2).coerceAtMost(s.player.maxMana)
+                         ),
+                         messages = s.messages + "💤 Rested. HP/MP Restored."
+                     )
+                 }
+            }
+            "Luxury" -> {
+                 val buff = Buff("Well Rested", "All stats +10%", 50, 0.1f, 0.1f, 0.1f)
+                 _state.update { s ->
+                     s.copy(
+                         player = s.player.copy(
+                             gold = s.player.gold - cost,
+                             hp = s.player.maxHp,
+                             mana = s.player.maxMana,
+                             activeBuffs = s.player.activeBuffs + buff
+                         ),
+                         messages = s.messages + "🛁 Luxury Bath! Full Heal + Buff!"
+                     )
+                 }
+            }
+            "Feast" -> {
+                 val buff = Buff("Berzerk", "Attack +30%", 30, 0.3f, 0.0f, 0.0f)
+                 _state.update { s ->
+                     s.copy(
+                         player = s.player.copy(
+                             gold = s.player.gold - cost,
+                             hp = s.player.maxHp,
+                             mana = s.player.maxMana,
+                             activeBuffs = s.player.activeBuffs + buff
+                         ),
+                         messages = s.messages + "🍗 Warrior's Feast! Attack UP!"
+                     )
+                 }
+            }
+        }
+    }
+    
+    fun leaveBuilding() {
+        _state.update { it.copy(gameState = DungeonGameState.EXPLORING) }
+    }
+
+    // Dungeon generation moved to DungeonGenerator.kt
+    
+    // Debug Functions
+    fun openDebugMenu() {
+        stopAutoPlay()
+        _state.update { it.copy(gameState = DungeonGameState.DEBUG_MENU) }
+    }
+    
+    fun debugForceShop() {
+        enterShop()
+    }
+    
+    fun debugGiveGold(amount: Int) {
+        _state.update { s -> 
+            s.copy(
+                player = s.player.copy(gold = s.player.gold + amount),
+                messages = s.messages + "🔧 Debug: Added $amount gold"
+            ) 
+        }
+    }
+    
+    fun debugLevelUp() {
+        _state.update { s ->
+            // Max out XP then trigger level up
+            val readyPlayer = s.player.copy(xp = s.player.xpToNextLevel)
+            val newPlayer = levelUp(readyPlayer)
             
-            val newRoom = Room(roomX, roomY, roomWidth, roomHeight)
-            
-            // Check for overlap
-            val overlaps = rooms.any { existing ->
-                newRoom.x < existing.x + existing.width + 1 &&
-                newRoom.x + newRoom.width + 1 > existing.x &&
-                newRoom.y < existing.y + existing.height + 1 &&
-                newRoom.y + newRoom.height + 1 > existing.y
-            }
-            
-            if (!overlaps) {
-                rooms.add(newRoom)
-            }
-        }
-        
-        return rooms
-    }
-    
-    private fun createCorridor(tiles: MutableList<DungeonTile>, width: Int, room1: Room, room2: Room) {
-        val x1 = room1.x + room1.width / 2
-        val y1 = room1.y + room1.height / 2
-        val x2 = room2.x + room2.width / 2
-        val y2 = room2.y + room2.height / 2
-        
-        // Horizontal corridor
-        val startX = kotlin.math.min(x1, x2)
-        val endX = kotlin.math.max(x1, x2)
-        for (x in startX..endX) {
-            val index = y1 * width + x
-            if (index < tiles.size) {
-                tiles[index] = tiles[index].copy(type = TileType.FLOOR)
-            }
-        }
-        
-        // Vertical corridor
-        val startY = kotlin.math.min(y1, y2)
-        val endY = kotlin.math.max(y1, y2)
-        for (y in startY..endY) {
-            val index = y * width + x2
-            if (index < tiles.size) {
-                tiles[index] = tiles[index].copy(type = TileType.FLOOR)
-            }
+            s.copy(
+                player = newPlayer,
+                gameState = DungeonGameState.LEVEL_UP,
+                messages = s.messages + "🔧 Debug: Force Level Up"
+            )
         }
     }
     
-    private fun generateEnemies(rooms: List<Room>, dungeonLevel: Int): List<DungeonEnemy> {
-        val enemies = mutableListOf<DungeonEnemy>()
-        
-        // Expanded enemy roster with (Name, Emoji, BaseHP)
-        val enemyTypes = listOf(
-            Triple("Rat", "🐀", 15),
-            Triple("Spider", "🕷️", 18),
-            Triple("Goblin", "👺", 25),
-            Triple("Wolf", "🐺", 30),
-            Triple("Skeleton", "💀", 35),
-            Triple("Zombie", "🧟‍♂️", 40),
-            Triple("Orc", "🧟", 45),
-            Triple("Troll", "👹", 55),
-            Triple("Vampire", "🧛", 65),
-            Triple("Dragon", "🐉", 80)
-        )
-        
-        // Skip first room (player spawn)
-        rooms.drop(1).forEach { room ->
-            // Higher chance of enemies (70%)
-            if (Random.nextFloat() < 0.7f) {
-                // Choose enemy based on dungeon level (gradually unlock harder enemies)
-                val maxEnemyTier = (dungeonLevel + 1).coerceAtMost(enemyTypes.size)
-                val enemyType = enemyTypes[Random.nextInt(0, maxEnemyTier)]
-                
-                val pos = GridPosition(
-                    room.x + Random.nextInt(1, room.width - 1),
-                    room.y + Random.nextInt(1, room.height - 1)
-                )
-                
-                enemies.add(
-                    DungeonEnemy(
-                        id = nextEnemyId++,
-                        name = enemyType.first,
-                        emoji = enemyType.second,
-                        position = pos,
-                        hp = enemyType.third + (dungeonLevel * 5),
-                        maxHp = enemyType.third + (dungeonLevel * 5),
-                        attack = 5 + dungeonLevel * 2,
-                        defense = 2 + dungeonLevel,
-                        xpReward = enemyType.third * 2
-                    )
-                )
-            }
-        }
-        
-        // Spawn boss on level 10 (final level)
-        if (dungeonLevel >= 10) {
-            val bossRoom = rooms.lastOrNull()
-            if (bossRoom != null) {
-                val bossPos = GridPosition(
-                    bossRoom.x + bossRoom.width / 2,
-                    bossRoom.y + bossRoom.height / 2
-                )
-                
-               enemies.add(
-                    DungeonEnemy(
-                        id = nextEnemyId++,
-                        name = "Dragon Lord",
-                        emoji = "🐲",
-                        position = bossPos,
-                        hp = 250,
-                        maxHp = 250,
-                        attack = 40,
-                        defense = 15,
-                        xpReward = 500,
-                        isAlive = true,
-                        isAggressive = true,
-                        isBoss = true
-                    )
-                )
-                
-                addMessage("⚠️ You feel a powerful presence... A BOSS awaits!")
-            }
-        }
-        
-        return enemies
+    fun debugSpawnEnemy() {
+         // Find a free tile near player
+         val playerPos = _state.value.player.position
+         val freeTile = _state.value.tiles.firstOrNull { 
+             it.type == TileType.FLOOR && 
+             it.position != playerPos && 
+             _state.value.enemies.none { e -> e.position == it.position }
+         }
+         
+         if (freeTile != null) {
+             val enemy = DungeonEnemy(
+                 id = Random.nextInt(),
+                 name = "Debug Dummy",
+                 emoji = "👾",
+                 position = freeTile.position,
+                 hp = 50,
+                 maxHp = 50,
+                 attack = 5,
+                 defense = 0,
+                 xpReward = 100
+             )
+             _state.update { 
+                 it.copy(
+                     enemies = it.enemies + enemy,
+                     messages = it.messages + "🔧 Debug: Spawned Dummy"
+                 ) 
+             }
+         }
     }
-    
-    private fun generateItems(rooms: List<Room>, dungeonLevel: Int): List<Item> {
-        val items = mutableListOf<Item>()
-        
-        rooms.forEach { room ->
-            if (Random.nextFloat() < 0.4f) {
-                val pos = GridPosition(
-                    room.x + Random.nextInt(1, room.width - 1),
-                    room.y + Random.nextInt(1, room.height - 1)
-                )
-                
-                val itemType = Random.nextInt(0, 4)
-                val item = when (itemType) {
-                    0 -> Item(nextItemId++, "Health Potion", ItemType.POTION, "❤️", pos, healing = 30)
-                    1 -> Item(nextItemId++, "Gold Pile", ItemType.GOLD, "💰", pos, value = Random.nextInt(10, 50))
-                    2 -> Item(nextItemId++, "Iron Sword", ItemType.WEAPON, "⚔️", pos, attack = 5 + dungeonLevel * 2)
-                    else -> Item(nextItemId++, "Leather Armor", ItemType.ARMOR, "🛡️", pos, defense = 3 + dungeonLevel)
-                }
-                
-                items.add(item)
-            }
-        }
-        
-        return items
-    }
-    
-    private data class GeneratedDungeon(
-        val tiles: List<DungeonTile>,
-        val enemies: List<DungeonEnemy>,
-        val items: List<Item>,
-        val playerSpawn: GridPosition
-    )
-    
+
     // Auto-play mode functions
     fun toggleAutoPlay() {
-        val newAutoPlayState = !_state.value.isAutoPlaying
+        val newState = !_state.value.isAutoPlaying
+        _state.update { it.copy(isAutoPlaying = newState) }
         
-        _state.update { it.copy(isAutoPlaying = newAutoPlayState) }
-        
-        if (newAutoPlayState) {
+        if (newState) {
             addMessage("🤖 Auto-play enabled!")
             startAutoPlay()
         } else {
@@ -1015,7 +1030,8 @@ class ClassicDungeonViewModel : ViewModel() {
                     if (direction != null) {
                         movePlayer(direction)
                     }
-                    delay(300) // Slower for visibility
+                    val delayTime = (300 / currentState.gameSpeed).toLong().coerceAtLeast(10)
+                    delay(delayTime)
                 }
                 
                 DungeonGameState.IN_COMBAT -> {
@@ -1024,18 +1040,38 @@ class ClassicDungeonViewModel : ViewModel() {
                     when (action) {
                         CombatAction.ATTACK -> attack()
                         CombatAction.DEFEND -> defend()
-                        CombatAction.MAGIC -> useMagic()
-                        CombatAction.FLEE -> flee()
+                        CombatAction.MAGIC -> useAbility()
+                        CombatAction.FLEE -> attack() // Never flee in idle mode, fight to the death!
                     }
-                    delay(500) // Wait for combat animations
+                    val delayTime = (500 / currentState.gameSpeed).toLong().coerceAtLeast(10)
+                    delay(delayTime)
                 }
                 
                 DungeonGameState.LEVEL_UP -> {
-                    // Continue after level up
-                    delay(1000)
+                    // fast continue
+                    val delayTime = (1000 / currentState.gameSpeed).toLong().coerceAtLeast(50)
+                    delay(delayTime)
                     continuePlaying()
                 }
                 
+                DungeonGameState.VICTORY -> {
+                     if (currentState.dungeonLevel >= 50) {
+                         // True Victory
+                         stopAutoPlay()
+                         addMessage("🏆 MISSION ACCOMPLISHED. ENTROPY KING DEFEATED.")
+                     } else {
+                         // Infinite Dungeon descend
+                         val delayTime = (2000 / currentState.gameSpeed).toLong().coerceAtLeast(100)
+                         delay(delayTime)
+                         descendStairs()
+                     }
+                }
+                
+                DungeonGameState.GAME_OVER -> {
+                    // Stop on death for now, or maybe auto-restart later
+                    stopAutoPlay()
+                }
+
                 else -> {
                     delay(100)
                 }
