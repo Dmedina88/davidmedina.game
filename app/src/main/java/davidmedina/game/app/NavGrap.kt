@@ -96,5 +96,23 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
         composable(Routes.OPNEING_TEXT.name) {
             TextScroller()
         }
+        composable(Routes.ANTIGRAVITY.name) {
+            davidmedina.game.app.features.antigravity.AntiGravityMenuScreen(navController)
+        }
+        composable(Routes.GRAVITY_PLAYGROUND.name) {
+            davidmedina.game.app.features.antigravity.GravityPlaygroundScreen()
+        }
+        composable(Routes.COLOR_MOSAIC.name) {
+            davidmedina.game.app.features.antigravity.ColorMosaicScreen()
+        }
+        composable(Routes.HAND_OF_GOD.name) {
+            davidmedina.game.app.features.antigravity.HandOfGodScreen()
+        }
+        composable(Routes.HAND_QUEST.name) {
+            davidmedina.game.app.features.antigravity.HandQuestScreen(navController)
+        }
+        composable(Routes.CLASSIC_DUNGEON.name) {
+            davidmedina.game.app.features.antigravity.ClassicDungeonScreen()
+        }
     }
 }

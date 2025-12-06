@@ -1,0 +1,701 @@
+package davidmedina.game.app.features.antigravity
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import davidmedina.game.app.ui.composables.TDMButton
+import davidmedina.game.app.ui.composables.gameBoxBackground
+
+@Composable
+fun ClassicDungeonScreen(viewModel: ClassicDungeonViewModel = viewModel()) {
+    val state by viewModel.state.collectAsState()
+    
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .gameBoxBackground()
+    ) {
+        when (state.gameState) {
+            DungeonGameState.EXPLORING -> ExploringView(state, viewModel)
+            DungeonGameState.IN_COMBAT -> CombatView(state, viewModel)
+            DungeonGameState.INVENTORY -> InventoryView(state, viewModel)
+            DungeonGameState.GAME_OVER -> GameOverView(state, viewModel)
+            DungeonGameState.LEVEL_UP -> LevelUpView(state, viewModel)
+            DungeonGameState.VICTORY -> VictoryView(state, viewModel)
+        }
+    }
+    
+    // Start game on first launch
+    LaunchedEffect(Unit) {
+        if (state.tiles.isEmpty()) {
+            viewModel.startNewGame()
+        }
+    }
+}
+
+@Composable
+fun ExploringView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Top HUD
+        StatsBar(state.player)
+        
+        // Dungeon view
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            DungeonCanvas(state)
+        }
+        
+        // Message log
+        MessageLog(state.messages)
+        
+        // Controls
+        ControlPanel(viewModel, state)
+    }
+}
+
+@Composable
+fun StatsBar(player: Player) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.8f)),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("⚔️ Lv.${player.level}", color = Color.Yellow, fontWeight = FontWeight.Bold)
+                Text("💰 ${player.gold}g", color = Color.Yellow, fontWeight = FontWeight.Bold)
+                Text("📊 XP: ${player.xp}/${player.xpToNextLevel}", color = Color.Yellow, fontSize = 12.sp)
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Row(modifier = Modifier.fillMaxWidth()) {
+                // HP Bar
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("❤️ HP", color = Color.White, fontSize = 10.sp)
+                    LinearProgressIndicator(
+                        progress = player.hp.toFloat() / player.maxHp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(12.dp),
+                        color = Color.Red,
+                        trackColor = Color.DarkGray
+                    )
+                    Text("${player.hp}/${player.maxHp}", color = Color.White, fontSize = 10.sp)
+                }
+                
+                Spacer(modifier = Modifier.width(8.dp))
+                
+                // Mana Bar
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("💙 MP", color = Color.White, fontSize = 10.sp)
+                    LinearProgressIndicator(
+                        progress = player.mana.toFloat() / player.maxMana,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(12.dp),
+                        color = Color.Blue,
+                        trackColor = Color.DarkGray
+                    )
+                    Text("${player.mana}/${player.maxMana}", color = Color.White, fontSize = 10.sp)
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("⚔️ ATK: ${player.getTotalAttack()}", color = Color.Cyan, fontSize = 12.sp)
+                Text("🛡️ DEF: ${player.getTotalDefense()}", color = Color.Cyan, fontSize = 12.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun DungeonCanvas(state: ClassicDungeonState) {
+    val tileSize = 30.dp
+    
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        val tileSizePx = tileSize.toPx()
+        val viewportSize = state.viewportSize
+        val centerX = viewportSize / 2
+        val centerY = viewportSize / 2
+        
+        // Calculate visible area centered on player
+        val startX = (state.player.position.x - centerX).coerceAtLeast(0)
+        val startY = (state.player.position.y - centerY).coerceAtLeast(0)
+        val endX = (startX + viewportSize).coerceAtMost(state.gridWidth)
+        val endY = (startY + viewportSize).coerceAtMost(state.gridHeight)
+        
+        // Draw tiles
+        for (y in startY until endY) {
+            for (x in startX until endX) {
+                val tile = state.tiles.find { it.position.x == x && it.position.y == y }
+                if (tile != null && tile.isRevealed) {
+                    val screenX = (x - startX) * tileSizePx
+                    val screenY = (y - startY) * tileSizePx
+                    
+                    val color = when {
+                        !tile.isVisible -> when (tile.type) {
+                            TileType.FLOOR -> Color.DarkGray.copy(alpha = 0.5f)
+                            TileType.WALL -> Color.Gray.copy(alpha = 0.5f)
+                            TileType.STAIRS_DOWN -> Color.Yellow.copy(alpha = 0.5f)
+                            TileType.HEALING_FOUNTAIN -> Color.Cyan.copy(alpha = 0.5f)
+                            else -> Color.Gray.copy(alpha = 0.5f)
+                        }
+                        else -> when (tile.type) {
+                            TileType.FLOOR -> Color(0xFF2a2a2a)
+                            TileType.WALL -> Color(0xFF555555)
+                            TileType.STAIRS_DOWN -> Color.Yellow
+                            TileType.DOOR -> Color(0xFF8B4513)
+                            TileType.STAIRS_UP -> Color.Cyan
+                            TileType.HEALING_FOUNTAIN -> Color(0xFF00FFFF) // Bright cyan
+                        }
+                    }
+                    
+                    drawRect(
+                        color = color,
+                        topLeft = Offset(screenX, screenY),
+                        size = Size(tileSizePx, tileSizePx)
+                    )
+                    
+                    // Draw grid lines
+                    drawRect(
+                        color = Color.Black.copy(alpha = 0.3f),
+                        topLeft = Offset(screenX, screenY),
+                        size = Size(tileSizePx, tileSizePx),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1f)
+                    )
+                }
+            }
+        }
+        
+        // Draw items
+        state.items.forEach { item ->
+            val itemPos = item.position
+            if (itemPos != null) {
+                val tile = state.tiles.find { it.position == itemPos && it.isVisible }
+                if (tile != null && itemPos.x in startX until endX && itemPos.y in startY until endY) {
+                    val screenX = (itemPos.x - startX) * tileSizePx + tileSizePx / 2
+                    val screenY = (itemPos.y - startY) * tileSizePx + tileSizePx / 2
+                    
+                    // Color based on rarity
+                    val itemColor = when (item.rarity) {
+                        "Legendary" -> Color(0xFFFFD700) // Gold
+                        "Epic" -> Color(0xFFAA00FF) // Purple
+                        "Rare" -> Color(0xFF0088FF) // Blue
+                        else -> Color(0xFFCCCCCC) // Gray
+                    }
+                    
+                    drawCircle(
+                        color = itemColor,
+                        radius = tileSizePx / 4,
+                        center = Offset(screenX, screenY)
+                    )
+                }
+            }
+        }
+        
+        // Draw enemies
+        state.enemies.filter { it.isAlive }.forEach { enemy ->
+            val tile = state.tiles.find { it.position == enemy.position && it.isVisible }
+            if (tile != null) {
+                val x = enemy.position.x
+                val y = enemy.position.y
+                
+                if (x in startX until endX && y in startY until endY) {
+                    val screenX = (x - startX) * tileSizePx + tileSizePx / 2
+                    val screenY = (y - startY) * tileSizePx + tileSizePx / 2
+                    
+                    val color = when (enemy.name) {
+                        "Rat" -> Color(0xFF8B4513)
+                        "Goblin" -> Color(0xFF00FF00)
+                        "Skeleton" -> Color.White
+                        "Orc" -> Color(0xFFFF6B6B)
+                        "Dragon" -> Color.Magenta
+                        else -> Color.Red
+                    }
+                    
+                    drawCircle(
+                        color = color,
+                        radius = tileSizePx / 3,
+                        center = Offset(screenX, screenY)
+                    )
+                    
+                    // HP bar above enemy
+                    val hpBarWidth = tileSizePx * 0.8f
+                    val hpBarHeight = 4f
+                    val hpPercent = enemy.hp.toFloat() / enemy.maxHp
+                    
+                    drawRect(
+                        color = Color.DarkGray,
+                        topLeft = Offset(screenX - hpBarWidth / 2, screenY - tileSizePx / 2),
+                        size = Size(hpBarWidth, hpBarHeight)
+                    )
+                    drawRect(
+                        color = Color.Red,
+                        topLeft = Offset(screenX - hpBarWidth / 2, screenY - tileSizePx / 2),
+                        size = Size(hpBarWidth * hpPercent, hpBarHeight)
+                    )
+                }
+            }
+        }
+        
+        // Draw player
+        val playerX = (state.player.position.x - startX) * tileSizePx + tileSizePx / 2
+        val playerY = (state.player.position.y - startY) * tileSizePx + tileSizePx / 2
+        
+        drawCircle(
+            color = Color.Cyan,
+            radius = tileSizePx / 2.5f,
+            center = Offset(playerX, playerY)
+        )
+        
+        // Player indicator
+        drawCircle(
+            color = Color.Yellow.copy(alpha = 0.3f),
+            radius = tileSizePx / 1.8f,
+            center = Offset(playerX, playerY),
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+        )
+    }
+}
+
+@Composable
+fun MessageLog(messages: List<String>) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp)
+            .padding(horizontal = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.8f)),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        LazyColumn(
+            modifier = Modifier.padding(8.dp),
+            reverseLayout = true
+        ) {
+            items(messages.reversed()) { message ->
+                Text(
+                    text = message,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ControlPanel(viewModel: ClassicDungeonViewModel, state: ClassicDungeonState) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.8f)),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // D-Pad
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // Up
+                DirectionalButton("▲", enabled = !state.isAutoPlaying) { 
+                    viewModel.movePlayer(GridPosition(0, -1)) 
+                }
+                
+                Row {
+                    // Left
+                    DirectionalButton("◀", enabled = !state.isAutoPlaying) { 
+                        viewModel.movePlayer(GridPosition(-1, 0)) 
+                    }
+                    
+                    Spacer(modifier = Modifier.width(64.dp))
+                    
+                    // Right
+                    DirectionalButton("▶", enabled = !state.isAutoPlaying) { 
+                        viewModel.movePlayer(GridPosition(1, 0)) 
+                    }
+                }
+                
+                // Down
+                DirectionalButton("▼", enabled = !state.isAutoPlaying) { 
+                    viewModel.movePlayer(GridPosition(0, 1)) 
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Action buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = { viewModel.toggleInventory() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                ) {
+                    Text("🎒 Bag")
+                }
+                
+                Button(
+                    onClick = { viewModel.toggleAutoPlay() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (state.isAutoPlaying) Color(0xFFFF6B6B) else Color(0xFF2196F3)
+                    )
+                ) {
+                    Text(if (state.isAutoPlaying) "🤖 Stop AI" else "🤖 Auto-Play")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DirectionalButton(symbol: String, enabled: Boolean = true, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.size(56.dp),
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+    ) {
+        Text(symbol, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun CombatView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
+    val enemy = state.currentEnemy ?: return
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        StatsBar(state.player)
+        
+        // Enemy visualization with Canvas drawing
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.9f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "⚔️ COMBAT!",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Canvas-drawn enemy
+                EnemyCanvas(enemy = enemy,  modifier = Modifier.height(180.dp).fillMaxWidth())
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text("${enemy.emoji} ${enemy.name}", fontSize = 24.sp, color = Color.White)
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                LinearProgressIndicator(
+                    progress = enemy.hp.toFloat() / enemy.maxHp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(16.dp),
+                    color = Color.Green,
+                    trackColor = Color.DarkGray
+                )
+                Text("HP: ${enemy.hp}/${enemy.maxHp}", color = Color.White, fontSize = 14.sp)
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Row {
+                    Text("⚔️ ${enemy.attack}", color = Color.Yellow, modifier = Modifier.padding(horizontal = 8.dp))
+                    Text("🛡️ ${enemy.defense}", color = Color.Yellow, modifier = Modifier.padding(horizontal = 8.dp))
+                }
+            }
+        }
+        
+        MessageLog(state.messages)
+        
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.8f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { viewModel.attack() }, modifier = Modifier.weight(1f)) {
+                        Text("⚔️ Attack")
+                    }
+                    Button(onClick = { viewModel.defend() }, modifier = Modifier.weight(1f)) {
+                        Text("🛡️ Defend")
+                    }
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { viewModel.useMagic() },
+                        modifier = Modifier.weight(1f),
+                        enabled = state.player.mana >= 15
+                    ) {
+                        Text("✨ Magic (15)")
+                    }
+                    Button(
+                        onClick = { viewModel.flee() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C27B0))
+                    ) {
+                        Text("🏃 Flee")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun InventoryView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("🎒 INVENTORY", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Yellow)
+            IconButton(onClick = { viewModel.toggleInventory() }) {
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Equipment
+        Card(colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.7f))) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("⚔️ EQUIPMENT", fontWeight = FontWeight.Bold, color = Color.Cyan)
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    "Weapon: ${state.player.equippedWeapon?.let { "${it.emoji} ${it.name} (+${it.attack})" } ?: "None"}",
+                    color = Color.White
+                )
+                Text(
+                    "Armor: ${state.player.equippedArmor?.let { "${it.emoji} ${it.name} (+${it.defense})" } ?: "None"}",
+                    color = Color.White
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Inventory items
+        Card(colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.7f))) {
+            LazyColumn(modifier = Modifier.padding(16.dp)) {
+                item {
+                    Text("📦 ITEMS", fontWeight = FontWeight.Bold, color = Color.Cyan)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                
+                if (state.player.inventory.isEmpty()) {
+                    item {
+                        Text("Empty inventory", color = Color.Gray, modifier = Modifier.padding(8.dp))
+                    }
+                } else {
+                    items(state.player.inventory) { item ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clickable {
+                                    when (item.type) {
+                                        ItemType.WEAPON, ItemType.ARMOR -> viewModel.equipItem(item)
+                                        else -> {}
+                                    }
+                                },
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF333333))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .padding(12.dp)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("${item.emoji} ${item.name}", color = Color.White)
+                                
+                                when (item.type) {
+                                    ItemType.WEAPON -> Text("⚔️ +${item.attack}", color = Color.Yellow)
+                                    ItemType.ARMOR -> Text("🛡️ +${item.defense}", color = Color.Cyan)
+                                    ItemType.POTION -> Text("❤️ +${item.healing}", color = Color.Red)
+                                    else -> Text("")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LevelUpView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFD700).copy(alpha = 0.95f)),
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "⭐ LEVEL UP! ⭐",
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text(
+                    "You are now level ${state.player.level}!",
+                    fontSize = 20.sp,
+                    color = Color.Black
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("Stats Increased:", fontWeight = FontWeight.Bold, color = Color.Black)
+                Text("HP: +20", color = Color.Black)
+                Text("Mana: +10", color = Color.Black)
+                Text("Attack: +3", color = Color.Black)
+                Text("Defense: +2", color = Color.Black)
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Button(onClick = { viewModel.continuePlaying() }) {
+                    Text("Continue")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GameOverView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color.Red.copy(alpha = 0.95f)),
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "💀 GAME OVER 💀",
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("You reached dungeon level ${state.dungeonLevel}", color = Color.White)
+                Text("Final Level: ${state.player.level}", color = Color.White)
+                Text("Gold Collected: ${state.player.gold}", color = Color.White)
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Button(onClick = { viewModel.startNewGame() }) {
+                    Text("Try Again")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun VictoryView(state: ClassicDungeonState, viewModel: ClassicDungeonViewModel) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color.Green.copy(alpha = 0.95f)),
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "🎉 VICTORY! 🎉",
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Button(onClick = { viewModel.startNewGame() }) {
+                    Text("Play Again")
+                }
+            }
+        }
+    }
+}
