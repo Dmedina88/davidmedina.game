@@ -335,7 +335,7 @@ fun DungeonCanvas(state: ClassicDungeonState) {
                             TileType.WALL -> Color.Gray.copy(alpha = 0.5f)
                             TileType.STAIRS_DOWN -> Color.Yellow.copy(alpha = 0.5f)
                             TileType.HEALING_FOUNTAIN -> Color.Cyan.copy(alpha = 0.5f)
-                            TileType.SHOP -> Color(0xFFFFD700).copy(alpha = 0.5f)
+                            TileType.SHOP -> Color.White.copy(alpha = 0.5f)
                             TileType.INN -> Color(0xFFFF69B4).copy(alpha = 0.5f)
                             else -> Color.Gray.copy(alpha = 0.5f)
                         }
