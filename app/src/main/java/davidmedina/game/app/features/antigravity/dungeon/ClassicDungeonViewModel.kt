@@ -1,4 +1,8 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.dungeon
+
+import davidmedina.game.app.features.antigravity.dungeon.model.*
+import davidmedina.game.app.features.antigravity.dungeon.generation.*
+import davidmedina.game.app.features.antigravity.dungeon.ai.*
 
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
@@ -819,7 +823,7 @@ class ClassicDungeonViewModel : ViewModel() {
     }
     
     fun enterShop() {
-        stopAutoPlay()
+        // Don't stop auto-play - the AI loop handles shopping state
         val shopInventory = List(5) { 
             dungeonGenerator.generateRandomItem(_state.value.dungeonLevel + 1) // Slightly better items
         }
@@ -864,7 +868,7 @@ class ClassicDungeonViewModel : ViewModel() {
     }
 
     fun enterInn() {
-        stopAutoPlay()
+        // Don't stop auto-play - the AI loop handles resting state
         _state.update { it.copy(gameState = DungeonGameState.RESTING, messages = it.messages + "🏨 Entered The Cozy Inn") }
     }
     

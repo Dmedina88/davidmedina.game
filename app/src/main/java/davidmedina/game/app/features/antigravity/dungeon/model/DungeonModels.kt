@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.dungeon.model
 
 import kotlin.math.abs
 

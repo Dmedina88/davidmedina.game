@@ -1,4 +1,7 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.dungeon.ui
+
+import davidmedina.game.app.features.antigravity.dungeon.model.*
+import davidmedina.game.app.features.antigravity.dungeon.ClassicDungeonViewModel
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background

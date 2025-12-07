@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.handtracking
 
 import android.Manifest
 import android.content.pm.PackageManager

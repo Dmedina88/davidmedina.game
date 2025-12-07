@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.gravity
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color

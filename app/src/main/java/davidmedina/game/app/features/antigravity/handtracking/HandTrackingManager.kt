@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.handtracking
 
 import android.content.Context
 import androidx.camera.core.*

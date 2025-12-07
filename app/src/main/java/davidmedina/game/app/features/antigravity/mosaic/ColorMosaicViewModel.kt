@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.mosaic
 
 import android.graphics.Bitmap
 import android.graphics.Canvas

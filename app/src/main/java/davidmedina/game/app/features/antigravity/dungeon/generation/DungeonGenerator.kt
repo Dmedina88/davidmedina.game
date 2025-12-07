@@ -1,4 +1,6 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.dungeon.generation
+
+import davidmedina.game.app.features.antigravity.dungeon.model.*
 
 import kotlin.random.Random
 
@@ -52,7 +54,7 @@ class DungeonGenerator {
             createCorridor(tiles, width, rooms[i], rooms[i + 1])
         }
         
-        // Place stairs in last room
+        // Place stairs in last room (CRITICAL - must always exist for level completion)
         val lastRoom = rooms.last()
         val stairsPos = GridPosition(
             lastRoom.x + lastRoom.width / 2,
@@ -158,9 +160,11 @@ class DungeonGenerator {
             }
         }
         
-        // Place Shop and Inn (Guaranteed 1 per level)
-        val validRoomsForServices = rooms.drop(1) // Skip spawn room
-        if (validRoomsForServices.size >= 2) {
+        // Place Shop and Inn (Only on ~1/3 of floors, exclude first room and stairs room)
+        val validRoomsForServices = rooms.drop(1).dropLast(1) // Skip spawn room AND stairs room
+        val shouldHaveShopAndInn = level % 3 == 0 // Every 3rd floor has shop/inn
+        
+        if (shouldHaveShopAndInn && validRoomsForServices.size >= 2) {
             val shuffledRooms = validRoomsForServices.shuffled()
             val shopRoom = shuffledRooms[0]
             val innRoom = shuffledRooms[1]
@@ -174,15 +178,14 @@ class DungeonGenerator {
             val innPos = GridPosition(innRoom.x + innRoom.width/2, innRoom.y + innRoom.height/2)
             val innIndex = innPos.y * width + innPos.x
             if (innIndex < tiles.size) tiles[innIndex] = tiles[innIndex].copy(type = TileType.INN)
-        } else {
-             // Fallback for tiny dungeons: Just try to place them linearly
-             validRoomsForServices.forEachIndexed { index, room ->
-                 val type = if (index % 2 == 0) TileType.SHOP else TileType.INN
-                 val pos = GridPosition(room.x + room.width/2, room.y + room.height/2)
-                 val idx = pos.y * width + pos.x
-                 if (idx < tiles.size) tiles[idx] = tiles[idx].copy(type = type)
-             }
+        } else if (shouldHaveShopAndInn && validRoomsForServices.size == 1) {
+            // Only one valid room - place just a shop (more useful than inn)
+            val room = validRoomsForServices[0]
+            val pos = GridPosition(room.x + room.width/2, room.y + room.height/2)
+            val idx = pos.y * width + pos.x
+            if (idx < tiles.size) tiles[idx] = tiles[idx].copy(type = TileType.SHOP)
         }
+        // If no valid rooms or not a shop floor, no shop/inn is placed
         
         val firstRoom = rooms.first()
         val playerSpawn = GridPosition(
@@ -192,6 +195,12 @@ class DungeonGenerator {
         
         val updatedTiles = updateVisibility(tiles, playerSpawn)
         
+        // Safety check: Verify stairs still exist (should always be true now)
+        val stairsExist = tiles.any { it.type == TileType.STAIRS_DOWN }
+        if (!stairsExist) {
+            // Emergency: Force place stairs in the last room again
+            tiles[stairsIndex] = tiles[stairsIndex].copy(type = TileType.STAIRS_DOWN)
+        }
         return GeneratedDungeon(updatedTiles, enemies, items, playerSpawn, genNextItemId, genNextEnemyId)
     }
 

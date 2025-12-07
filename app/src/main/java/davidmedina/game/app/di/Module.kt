@@ -15,11 +15,11 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import davidmedina.game.app.features.rpg.states.CharacterViewModel
-import davidmedina.game.app.features.antigravity.GravityPlaygroundViewModel
-import davidmedina.game.app.features.antigravity.ColorMosaicViewModel
-import davidmedina.game.app.features.antigravity.HandGravityViewModel
-import davidmedina.game.app.features.antigravity.HandQuestViewModel
-import davidmedina.game.app.features.antigravity.ClassicDungeonViewModel
+import davidmedina.game.app.features.antigravity.gravity.GravityPlaygroundViewModel
+import davidmedina.game.app.features.antigravity.mosaic.ColorMosaicViewModel
+import davidmedina.game.app.features.antigravity.handtracking.HandGravityViewModel
+import davidmedina.game.app.features.antigravity.handtracking.HandQuestViewModel
+import davidmedina.game.app.features.antigravity.dungeon.ClassicDungeonViewModel
 
 val appModule = module {
 

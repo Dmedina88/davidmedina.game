@@ -1,4 +1,6 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.dungeon.ai
+
+import davidmedina.game.app.features.antigravity.dungeon.model.*
 
 import java.util.PriorityQueue
 import kotlin.math.abs

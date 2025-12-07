@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.antigravity.workflows
+package davidmedina.game.app.features.antigravity.dungeon.planning
 
 /**
  * Workflow for transitioning to an Idle RPG (The "Zero-Player" Update)

@@ -1,4 +1,4 @@
-package davidmedina.game.app.features.antigravity
+package davidmedina.game.app.features.antigravity.mosaic
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
