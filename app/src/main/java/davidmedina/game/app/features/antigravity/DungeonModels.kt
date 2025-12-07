@@ -160,7 +160,11 @@ data class ClassicDungeonState(
     val viewportSize: Int = 11, 
     val isAutoPlaying: Boolean = false,
     val gameSpeed: Float = 1.0f,
-    val isControlsExpanded: Boolean = true
+    val isControlsExpanded: Boolean = true,
+    // Persistent Stats
+    val victoryCount: Int = 0,
+    val maxFloorReached: Int = 0,
+    val totalEnemiesDefeated: Int = 0
 )
 
 enum class AbilityType {
